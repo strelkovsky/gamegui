@@ -50,7 +50,7 @@ private:
 class  System
 {
 public:
-	System(Renderer& render, const std::string& resourceDir, const std::string& scheme, LoggerCallback callback);
+	System(Renderer& render, const std::string& resourceDir, const std::string& scheme, LoggerCallback callback, lua_State* externalLua = 0);
 	~System(void);
 
 	void reset();

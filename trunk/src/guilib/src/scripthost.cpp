@@ -10,26 +10,31 @@ void ScriptObject::thisreset()
 		luabind::globals(m_ref_script.LuaState())["this"] = 0;
 }
 
-ScriptSystem::ScriptSystem()
-: m_state(0)
+ScriptSystem::ScriptSystem(lua_State* externalState)
+: m_state(externalState)
+, m_ext(true)
 {
-	m_state = lua_open();
-	if (m_state)
+	if(!m_state)
 	{
-		luaL_openlibs(m_state);
-
-		using namespace luabind;
-		open(m_state);
-		module(m_state)
+		m_state = lua_open();
+		m_ext = false;
+		if (m_state)
+		{
+			luaL_openlibs(m_state);
+		}
+	}
+	assert(m_state);
+	using namespace luabind;
+	open(m_state);
+	module(m_state)
 		[
 			class_<ScriptObject>("ScriptObject")
 		];
-
-	}
 }
 ScriptSystem::~ScriptSystem()
 {
-	lua_close (m_state);
+	if(m_ext)
+		lua_close(m_state);
 }
 
 lua_State* ScriptSystem::LuaState()
