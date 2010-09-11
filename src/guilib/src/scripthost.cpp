@@ -33,7 +33,7 @@ ScriptSystem::ScriptSystem(lua_State* externalState)
 }
 ScriptSystem::~ScriptSystem()
 {
-	if(m_ext)
+	if(!m_ext)
 		lua_close(m_state);
 }
 

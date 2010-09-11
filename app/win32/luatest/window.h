@@ -8,6 +8,8 @@ namespace gui
 	typedef boost::shared_ptr<Font> FontPtr;
 }
 
+struct lua_State;
+
 class TestWindow : public rgde::core::windows::window
 {
 public:
@@ -56,6 +58,8 @@ protected:
 	bool m_active;
 	double m_elapsed;
 	boost::timer m_timer;
+
+	lua_State* m_state;
 
 	gui::FontPtr m_font;
 };

@@ -3,6 +3,14 @@
 
 #include <guilib.h>
 #include <guiplatform.h>
+extern "C"
+{
+#include <lstate.h>
+#include <lauxlib.h>
+#include <lua.h>
+#include <lualib.h>
+}
+
 
 void LogEvent(HANDLE hFile, gui::LogLevel level, const std::string& message);
 
@@ -15,6 +23,10 @@ TestWindow::TestWindow(int x, int y, int w, int h, const std::wstring& title)
 	, m_elapsed(0)
 	, m_active(true)
 {
+	m_state = lua_open();
+	if (m_state)
+		luaL_openlibs(m_state);
+
 	wchar_t	wpath[MAX_PATH];
 	// init app data path
 	SHGetFolderPathW(NULL, CSIDL_APPDATA | CSIDL_FLAG_CREATE, NULL, SHGFP_TYPE_CURRENT, wpath);
@@ -42,6 +54,8 @@ TestWindow::~TestWindow()
 
 	if(m_hFile != INVALID_HANDLE_VALUE)
 		CloseHandle(m_hFile);
+	
+	lua_close(m_state);
 }
 
 void TestWindow::run()
@@ -71,7 +85,7 @@ void TestWindow::createGUISystem()
 		delete m_system;
 
 	m_system = new gui::System(*m_render, "data/", "default", 
-			boost::bind(&LogEvent, m_hFile, _1, _2));
+			boost::bind(&LogEvent, m_hFile, _1, _2), m_state);
 
 	if(m_system)
 	{
