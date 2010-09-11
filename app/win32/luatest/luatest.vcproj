@@ -43,7 +43,7 @@
 			<Tool
 				Name="VCCLCompilerTool"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\..\src\guilib&quot;;&quot;$(SolutionDir)..\..\..\src\guiplatform&quot;;&quot;$(SolutionDir)..\..\..\external\lua/src&quot;;&quot;$(SolutionDir)..\..\..\external\luabind&quot;;&quot;$(SolutionDir)..\..\..\external\boost\&quot;;&quot;$(SolutionDir)..\..\..\external\win32\rgde&quot;;&quot;$(SolutionDir)..\..\..\external&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\..\src&quot;;&quot;$(SolutionDir)..\..\..\src\guilib&quot;;&quot;$(SolutionDir)..\..\..\src\guiplatform&quot;;&quot;$(SolutionDir)..\..\..\external\lua/src&quot;;&quot;$(SolutionDir)..\..\..\external\luabind&quot;;&quot;$(SolutionDir)..\..\..\external\boost\&quot;;&quot;$(SolutionDir)..\..\..\external\win32\rgde&quot;;&quot;$(SolutionDir)..\..\..\external&quot;"
 				PreprocessorDefinitions="WIN32;_DEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;STRSAFE_NO_DEPRECATE"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
@@ -124,7 +124,7 @@
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
-				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\..\src\guilib&quot;;&quot;$(SolutionDir)..\..\..\src\guiplatform&quot;;&quot;$(SolutionDir)..\..\..\external\lua/src&quot;;&quot;$(SolutionDir)..\..\..\external\luabind&quot;;&quot;$(SolutionDir)..\..\..\external\boost\&quot;;&quot;$(SolutionDir)..\..\..\external\win32\rgde&quot;;&quot;$(SolutionDir)..\..\..\external&quot;"
+				AdditionalIncludeDirectories="&quot;$(SolutionDir)..\..\..\src&quot;;&quot;$(SolutionDir)..\..\..\src\guilib&quot;;&quot;$(SolutionDir)..\..\..\src\guiplatform&quot;;&quot;$(SolutionDir)..\..\..\external\lua/src&quot;;&quot;$(SolutionDir)..\..\..\external\luabind&quot;;&quot;$(SolutionDir)..\..\..\external\boost\&quot;;&quot;$(SolutionDir)..\..\..\external\win32\rgde&quot;;&quot;$(SolutionDir)..\..\..\external&quot;"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_DEPRECATE;STRSAFE_NO_DEPRECATE"
 				StringPooling="true"
 				RuntimeLibrary="2"
@@ -207,6 +207,14 @@
 		</File>
 		<File
 			RelativePath=".\stdafx.h"
+			>
+		</File>
+		<File
+			RelativePath=".\window.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\window.h"
 			>
 		</File>
 	</Files>

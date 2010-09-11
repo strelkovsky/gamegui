@@ -162,7 +162,7 @@ ImagesetPtr WindowManager::createImageset(const std::string& filename)
 		std::string setname = imgsetnode["Name"].value();
 		std::string texfile = imgsetnode["Imagefile"].value();
 		
-		TexturePtr p = m_system.getRenderer().createTexture(path + texfile);
+		TexturePtr p = m_system.getRenderer().createTexture("imageset\\" + texfile);
 		if(p)
 		{
 			Imageset* imageset = new Imageset(setname, p);
