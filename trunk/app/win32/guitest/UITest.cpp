@@ -39,7 +39,7 @@ ui_test_application::ui_test_application(int x, int y, int w, int h, const std::
 
 	boost::filesystem::wpath p(buf);
 	std::wstring path = p.branch_path().string() + L"/../data/";
-	SetCurrentDirectoryW(path.c_str());
+	SetCurrentDirectoryW(L"../");
 
 	show();
 	update(0.0f);	
@@ -83,7 +83,7 @@ void ui_test_application::createGUISystem()
 	if(m_system)
 		delete m_system;
 
-	m_system = new System(*m_render, ".", "default", 
+	m_system = new System(*m_render, "data/", "default", 
 			boost::bind(&ui_test_application::log, this, _1, _2));
 
 	if(m_system)
