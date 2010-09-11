@@ -60,7 +60,9 @@ namespace gui
 	class  ScriptSystem
 	{
 	public:
-		ScriptSystem();
+		/// @brief - ctor
+		/// @param externalState - требует валидный стейт либо 0, если внутренний
+		explicit ScriptSystem(lua_State* externalState);
 		~ScriptSystem();
 
 		lua_State* LuaState();
@@ -81,5 +83,6 @@ namespace gui
 		std::string m_error;
 
 		ScriptStack m_thisStack;
+		bool m_ext;
 	};
 }

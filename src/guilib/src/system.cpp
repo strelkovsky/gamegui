@@ -12,8 +12,8 @@
 namespace gui
 {
 
-System::System(Renderer& render, const std::string& resourceDir, const std::string& scheme, LoggerCallback callback) : 
-	m_logger(callback),
+System::System(Renderer& render, const std::string& resourceDir, const std::string& scheme, LoggerCallback callback, lua_State* externalLua)
+: 	m_logger(callback),
 	m_render(render),
 	m_bShowCursor(true),
 	m_focusWindow(0),
@@ -37,6 +37,7 @@ System::System(Renderer& render, const std::string& resourceDir, const std::stri
 	m_isContextMenu(false),
 	m_logHelper(new LogHelper(callback)),
 	m_renderHelper(new RenderHelper(render))
+	, m_scriptSys(externalLua)
 {
 	logEvent(LogSystem, "GUI system initialization started");
 	m_windowMgr.reset(new WindowManager(*this, resourceDir, scheme));
