@@ -24,6 +24,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "guiplatform", "..\..\..\src
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Applications", "Applications", "{6960F093-EF6A-467D-98CB-C9D46DF97F86}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "luatest", "..\..\..\app\win32\luatest\luatest.vcproj", "{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Win32 = Debug|Win32
@@ -32,6 +34,16 @@ Global
 		Release|Windows Mobile 6 Professional SDK (ARMV4I) = Release|Windows Mobile 6 Professional SDK (ARMV4I)
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Win32.Build.0 = Debug|Win32
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Debug|Windows Mobile 6 Professional SDK (ARMV4I)
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).Build.0 = Debug|Windows Mobile 6 Professional SDK (ARMV4I)
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).Deploy.0 = Debug|Windows Mobile 6 Professional SDK (ARMV4I)
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Win32.ActiveCfg = Release|Win32
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Win32.Build.0 = Release|Win32
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Release|Windows Mobile 6 Professional SDK (ARMV4I)
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Windows Mobile 6 Professional SDK (ARMV4I).Build.0 = Release|Windows Mobile 6 Professional SDK (ARMV4I)
+		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Windows Mobile 6 Professional SDK (ARMV4I).Deploy.0 = Release|Windows Mobile 6 Professional SDK (ARMV4I)
 		{3C6A37B2-6046-4CA9-859A-5C28B4609ACC}.Debug|Win32.ActiveCfg = Debug|Win32
 		{3C6A37B2-6046-4CA9-859A-5C28B4609ACC}.Debug|Win32.Build.0 = Debug|Win32
 		{3C6A37B2-6046-4CA9-859A-5C28B4609ACC}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Debug|Windows Mobile 6 Professional SDK (ARMV4I)
@@ -82,24 +94,21 @@ Global
 		{BC858287-6E14-485B-BC3B-AECF1377FEAD}.Release|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Release|Windows Mobile 6 Professional SDK (ARMV4I)
 		{BC858287-6E14-485B-BC3B-AECF1377FEAD}.Release|Windows Mobile 6 Professional SDK (ARMV4I).Build.0 = Release|Windows Mobile 6 Professional SDK (ARMV4I)
 		{BC858287-6E14-485B-BC3B-AECF1377FEAD}.Release|Windows Mobile 6 Professional SDK (ARMV4I).Deploy.0 = Release|Windows Mobile 6 Professional SDK (ARMV4I)
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Win32.ActiveCfg = Debug|Win32
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Win32.Build.0 = Debug|Win32
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Debug|Windows Mobile 6 Professional SDK (ARMV4I)
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).Build.0 = Debug|Windows Mobile 6 Professional SDK (ARMV4I)
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).Deploy.0 = Debug|Windows Mobile 6 Professional SDK (ARMV4I)
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Win32.ActiveCfg = Release|Win32
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Win32.Build.0 = Release|Win32
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Release|Windows Mobile 6 Professional SDK (ARMV4I)
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Windows Mobile 6 Professional SDK (ARMV4I).Build.0 = Release|Windows Mobile 6 Professional SDK (ARMV4I)
-		{D3D09108-96D0-4629-88B8-122C0256058C}.Release|Windows Mobile 6 Professional SDK (ARMV4I).Deploy.0 = Release|Windows Mobile 6 Professional SDK (ARMV4I)
+		{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307}.Debug|Win32.ActiveCfg = Debug|Win32
+		{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307}.Debug|Win32.Build.0 = Debug|Win32
+		{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307}.Debug|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Debug|Win32
+		{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307}.Release|Win32.ActiveCfg = Release|Win32
+		{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307}.Release|Win32.Build.0 = Release|Win32
+		{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307}.Release|Windows Mobile 6 Professional SDK (ARMV4I).ActiveCfg = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
+		{D3D09108-96D0-4629-88B8-122C0256058C} = {6960F093-EF6A-467D-98CB-C9D46DF97F86}
+		{42C2328B-E3DE-4FB3-ABC4-B5306ACE1307} = {6960F093-EF6A-467D-98CB-C9D46DF97F86}
 		{3C6A37B2-6046-4CA9-859A-5C28B4609ACC} = {6628E1A0-1074-4B12-B8F2-A4686D0F1281}
 		{EBC13284-800E-434E-903A-B532A0B23FCE} = {6628E1A0-1074-4B12-B8F2-A4686D0F1281}
 		{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B} = {6628E1A0-1074-4B12-B8F2-A4686D0F1281}
-		{D3D09108-96D0-4629-88B8-122C0256058C} = {6960F093-EF6A-467D-98CB-C9D46DF97F86}
 	EndGlobalSection
 EndGlobal

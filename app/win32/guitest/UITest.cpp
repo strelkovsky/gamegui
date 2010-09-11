@@ -83,7 +83,7 @@ void ui_test_application::createGUISystem()
 	if(m_system)
 		delete m_system;
 
-	m_system = new System(*m_render, "data\\", "default", 
+	m_system = new System(*m_render, ".", "default", 
 			boost::bind(&ui_test_application::log, this, _1, _2));
 
 	if(m_system)
