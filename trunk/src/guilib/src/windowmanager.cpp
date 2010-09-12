@@ -25,9 +25,8 @@
 namespace gui
 {
 
-WindowManager::WindowManager(System& sys, const std::string& resPath , const std::string& scheme) :
+WindowManager::WindowManager(System& sys, const std::string& scheme) :
 	m_system(sys),
-	m_resourcePath(resPath),
 	m_scheme(scheme)
 {
 	sys.logEvent(LogSystem, "The WindowManager was created");
@@ -88,7 +87,8 @@ void WindowManager::loadScheme(const std::string& scheme)
 {
 	if(scheme.empty())
 		return;
-	std::string filename(m_resourcePath);
+
+	std::string filename = m_system.getRenderer().getResourcePath();
 	filename += "scheme\\";
 	filename += scheme;
 	filename += ".scheme";
@@ -146,7 +146,7 @@ ImagesetPtr WindowManager::loadImageset(const std::string& name)
 ImagesetPtr WindowManager::createImageset(const std::string& filename)
 {
 	ImagesetPtr retval;
-	std::string path(m_resourcePath);
+	std::string path =  m_system.getRenderer().getResourcePath();
 	path += "imageset\\";
 	
 	std::string file(path);
@@ -219,9 +219,9 @@ FontPtr WindowManager::createFont(const std::string& filename)
 {
 	FontPtr retval;
 
-	std::string path(m_resourcePath);
+	std::string path = m_system.getRenderer().getResourcePath();
 	path += "font\\";
-	
+
 	std::string file(path);
 	file += filename;
 
@@ -276,7 +276,8 @@ WindowPtr WindowManager::loadXml(const std::string& filename)
 
 void WindowManager::loadLeafWindow(WindowPtr wnd, const std::string& xml)
 {
-	std::string file(m_resourcePath + xml);
+	std::string file = m_system.getRenderer().getResourcePath();
+	file += xml;
 	XmlDocumentPtr pdoc = loadCachedXml(file);
 	if(pdoc)
 	{
@@ -290,7 +291,8 @@ void WindowManager::loadLeafWindow(WindowPtr wnd, const std::string& xml)
 WindowPtr WindowManager::createFromFile(const std::string& filename, WindowVector& newWindows)
 {
 	WindowPtr root;
-	std::string file(m_resourcePath + filename);
+	std::string file = m_system.getRenderer().getResourcePath();
+	file += filename;
 	XmlDocumentPtr pdoc = loadCachedXml(file);
 	if(pdoc)
 	{
@@ -429,6 +431,8 @@ XmlDocumentPtr WindowManager::loadCachedXml(const std::string& file)
 	{	
 		retval.reset(new xml::document());
 		if(!retval->load_file(file.c_str()))
+//		const char* data = m_system.getRenderer().getData(file).get();
+//		if (!retval->load(data))
 			retval.reset();
 		else
 			m_docCache[file] = retval;
@@ -466,7 +470,8 @@ void WindowManager::loadLuaFile(const std::string& xmlfile)
 		if(it == m_loadedLuaFiles.end())
 		{
 			m_loadedLuaFiles.push_back(name);
-			std::string file(m_resourcePath + name);
+			std::string file = m_system.getRenderer().getResourcePath();
+			file += name;
 			m_system.executeScript(file);
 		}
 	}

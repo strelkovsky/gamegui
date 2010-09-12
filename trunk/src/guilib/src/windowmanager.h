@@ -31,7 +31,7 @@ class WindowFactory;
 class  WindowManager
 {
 public:
-	WindowManager(System& sys, const std::string& resPath, const std::string& scheme);
+	WindowManager(System& sys, const std::string& scheme);
 	~WindowManager(void);
 
 	WindowPtr createWindow(const std::string& type, const std::string& name);
@@ -69,7 +69,6 @@ protected:
 protected:
 	WindowManager& operator=(const WindowManager&) { return *this; }
 	boost::scoped_ptr<WindowFactory> m_factory;
-	std::string m_resourcePath; // path to a GUI root directory
 	std::string m_scheme;
 	System&		m_system;
 	

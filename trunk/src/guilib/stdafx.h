@@ -67,6 +67,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/tokenizer.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/shared_array.hpp>
 
 extern "C"
 {

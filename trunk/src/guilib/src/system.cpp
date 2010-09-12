@@ -40,7 +40,8 @@ System::System(Renderer& render, const std::string& resourceDir, const std::stri
 	, m_scriptSys(externalLua)
 {
 	logEvent(LogSystem, "GUI system initialization started");
-	m_windowMgr.reset(new WindowManager(*this, resourceDir, scheme));
+	m_windowMgr.reset(new WindowManager(*this, scheme));
+	m_render.setResourcePath(resourceDir);
 	m_cursor.setImageset(m_windowMgr->loadImageset("Cursors"));
 	
 	makeLuaBinding();

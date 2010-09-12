@@ -6,6 +6,7 @@
 #include <string>
 #include <algorithm>
 #include <boost/unordered_map.hpp>
+#include <boost/shared_array.hpp>
 
 #include "src/base.h"
 #include "src/size.h"

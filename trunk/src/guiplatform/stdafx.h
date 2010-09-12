@@ -37,6 +37,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/scoped_ptr.hpp>
 #include <boost/unordered_map.hpp>
+#include <boost/shared_array.hpp>
 
 #include <guilib/guilib.h>
 
