@@ -131,6 +131,11 @@ public:
 
 	void cleanup(bool complete);
 
+	// file managment
+	virtual boost::shared_array<char> getData(const std::string& filename) = 0;
+	virtual void setResourcePath(const std::string& filename) = 0;
+	virtual std::string getResourcePath() const = 0;
+
 protected:
 	virtual	void addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const Image& img, const ColorRect& colours) = 0;
 	virtual void addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const Image& img, const ColorRect& colours) = 0;

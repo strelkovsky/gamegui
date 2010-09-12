@@ -6,6 +6,8 @@
 #include "texture.h"
 #include "ftfont.h"
 
+#include <iostream>
+
 // fine tune :)
 #define PixelAligned(x)	( ( (float)(int)(( x ) + (( x ) > 0.0f ? 0.5f : -0.5f)) ) - 0.5f )
 
@@ -791,6 +793,31 @@ namespace gui
 			}
 			m_needToAddCallback = false;
 			m_batches[m_num_batches - 1].callbackInfo = m_callbackInfo;
+		}
+
+		boost::shared_array<char> renderer::getData(const std::string& filename)
+		{
+			rgde::core::vfs::istream_ptr file = m_filesystem.open_read(filename);	
+			assert(file->is_valid());
+
+			size_t data_size = file->get_size();
+			boost::shared_array<char> data(new char[data_size]);
+
+			std::cout << "load : " << filename << " " << (unsigned int)data_size << std::endl;
+
+			file->read((rgde::byte*)data.get(), (unsigned int)data_size);
+
+			return data;
+		}
+
+		void renderer::setResourcePath(const std::string& filename)
+		{
+			resource_path = filename;
+		}
+
+		std::string renderer::getResourcePath() const
+		{
+			return resource_path;
 		}
 	}
 }

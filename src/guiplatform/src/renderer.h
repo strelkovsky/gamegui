@@ -40,6 +40,10 @@ namespace gui
 
 			rgde::render::device& getDevice() const {return m_device;}
 
+			boost::shared_array<char> getData(const std::string& filename);
+			void setResourcePath(const std::string& filename);
+			std::string getResourcePath() const;
+
 		protected:
 			virtual void renderQuadDirect(const QuadInfo& q);
 			virtual	TexturePtr	createTextureInstance(const std::string& filename);
@@ -57,6 +61,7 @@ namespace gui
 			int m_bufferPos;	
 
 			rgde::core::vfs::system& m_filesystem;
+			std::string resource_path;
 
 			typedef rgde::render::effects::effect shader_effect;
 			typedef rgde::render::effects::param_ptr shader_handle;
