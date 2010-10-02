@@ -39,8 +39,6 @@
 #include <boost/unordered_map.hpp>
 #include <boost/shared_array.hpp>
 
-#include <guilib/guilib.h>
-
 #include <ft2build.h>
 #include FT_FREETYPE_H
 

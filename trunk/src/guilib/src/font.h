@@ -2,11 +2,7 @@
 
 #include "image.h"
 #include "colorRect.h"
-
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
+#include "textformatting.h"
 
 namespace gui
 {
@@ -81,18 +77,6 @@ namespace gui
 	class  Font
 	{
 	public:
-		enum TextFormatting
-		{
-			LeftAligned,
-			RightAligned,
-			Centred,
-			Justified,
-			WordWrapLeftAligned,
-			WordWrapRightAligned,
-			WordWrapCentred,
-			WordWrapJustified
-		};
-		
 		virtual ~Font ();
 
 	public:
@@ -224,9 +208,5 @@ namespace gui
 
 	typedef boost::shared_ptr<Font> FontPtr;
 
-	Font::TextFormatting StringToFormatType(const std::string& type);
+	TextFormatting StringToFormatType(const std::string& type);
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif

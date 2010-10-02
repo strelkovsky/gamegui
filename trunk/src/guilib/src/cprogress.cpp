@@ -1,13 +1,11 @@
 #include "StdAfx.h"
-#include "image.h"
-#include "imageset.h"
-#include "renderer.h"
 #include "cprogress.h"
-#include "utils.h"
-
-#include <math.h>
 
 #include "system.h"
+#include "windowmanager.h"
+#include "renderer.h"
+#include "imageset.h"
+#include "utils.h"
 
 namespace gui
 {

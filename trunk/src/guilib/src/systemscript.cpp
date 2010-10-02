@@ -23,6 +23,8 @@
 #include "ccombobox.h"
 #include "cmarkuptext.h"
 
+#include "utils.h"
+
 namespace gui
 {
 
@@ -367,14 +369,14 @@ void System::makeLuaBinding(void)
 			class_ <Font>("Font")
 			.enum_("TextFormatting")
 			[
-				value("LeftAligned", Font::LeftAligned),
-				value("RightAligned", Font::RightAligned),
-				value("Centred", Font::Centred),
-				value("Justified", Font::Justified),
-				value("WordWrapLeftAligned", Font::WordWrapLeftAligned),
-				value("WordWrapRightAligned", Font::WordWrapRightAligned),
-				value("WordWrapCentred", Font::WordWrapCentred),
-				value("WordWrapJustified", Font::WordWrapJustified)
+				value("LeftAligned", LeftAligned),
+				value("RightAligned", RightAligned),
+				value("Centred", Centred),
+				value("Justified", Justified),
+				value("WordWrapLeftAligned", WordWrapLeftAligned),
+				value("WordWrapRightAligned", WordWrapRightAligned),
+				value("WordWrapCentred", WordWrapCentred),
+				value("WordWrapJustified", WordWrapJustified)
 			]
 			,
 			class_ <EventArgs>("EventArgs")

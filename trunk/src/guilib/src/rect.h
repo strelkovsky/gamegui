@@ -1,7 +1,7 @@
 #pragma once
 
 #include "vector.h"
-#include <vector>
+#include "size.h"
 
 namespace gui
 {
@@ -16,16 +16,15 @@ namespace gui
 		Rect(float left, float top, float right, float bottom);
 		Rect(point pos, Size sz);
 
-		point	getPosition() const		{return point(m_left, m_top);}
-		float	getWidth() const		{return m_right - m_left;}
-		float	getHeight() const		{return m_bottom - m_top;}
-		Size	getSize() const			{return Size(getWidth(), getHeight());}
-
+		point	getPosition() const;
+		float	getWidth() const;
+		float	getHeight() const;
+		Size	getSize() const;
 
 		void	setPosition(const point& pt);
-		void	setWidth(float width)		{m_right = m_left + width;}
-		void	setHeight(float height)		{m_bottom = m_top + height;}
-		void	setSize(const Size& size)	{setWidth(size.width); setHeight(size.height);}
+		void	setWidth(float width);
+		void	setHeight(float height);
+		void	setSize(const Size& size);
 
 		Rect	getIntersection(const Rect& rect) const;
 		Rect&	offset(const point& pt);
@@ -36,64 +35,72 @@ namespace gui
 		Rect&	constrainSize(const Size& max_sz, const Size& min_sz);
 
 		Rect&	scale(const Size& size);
-		bool	empty(void) { return (getWidth() <= 0.f || getHeight() <= 0.f); }
+		bool	empty(void);
 
-		/*************************************************************************
-		Operators
-		*************************************************************************/
-		bool	operator==(const Rect& rhs) const
-		{
-			return ((m_left == rhs.m_left) && (m_right == rhs.m_right) && (m_top == rhs.m_top) && (m_bottom == rhs.m_bottom));
-		}
+		bool	operator==(const Rect& rhs) const;
+		bool	operator!=(const Rect& rhs) const;
+		Rect operator*(float scalar) const;
+		const Rect& operator*=(float scalar);
+		const Rect& operator*=(const Size& sz);
 
-		bool	operator!=(const Rect& rhs) const		{return !operator==(rhs);}
-
-		/*Rect&	operator=(const Rect& rhs);*/
-
-		Rect operator*(float scalar) const      { return Rect(m_left * scalar, m_top * scalar, m_right * scalar, m_bottom * scalar); }
-		const Rect& operator*=(float scalar)    { m_left *= scalar; m_top *= scalar; m_right *= scalar; m_bottom *= scalar; return *this; }
-
-		const Rect& operator*=(const Size& sz) { return  scale(sz); }
-
-
-
-		/*************************************************************************
-		Data Fields
-		*************************************************************************/
 		float	m_left, m_top, m_right, m_bottom;
 	};
 
-	//Rect& Rect::operator=(const Rect& rhs)
-	//{
-	//	m_left = rhs.m_left;
-	//	m_top = rhs.m_top;
-	//	m_right = rhs.m_right;
-	//	m_bottom = rhs.m_bottom;
-
-	//	return *this;
-	//}
-
-	enum Align
+	inline point Rect::getPosition() const
 	{
-		None	= 0,
-		Left	= 1 << 0,
-		Top		= 1 << 1,
-		Right	= 1 << 2,
-		Bottom	= 1 << 3,
-		HCenter = 1 << 4,
-		VCenter = 1 << 5
-	};
-	typedef std::vector<Align> Alignment;
-	typedef unsigned int AlignmentBits;
-
-	Rect StringToArea(const std::string& str);
-
-	Rect StringToRect(const std::string& str);
-	std::string RectToString(const Rect& val);
-
-	Align StringToAlign(const std::string& str);
-	std::string AlignToString(Align val);
-
-	unsigned int StringToAlignment(const std::string& str);
-	std::string AlignmentToString(unsigned int val);
+		return point(m_left, m_top);
+	}
+	inline float Rect::getWidth() const
+	{
+		return m_right - m_left;
+	}
+	inline float Rect::getHeight() const
+	{
+		return m_bottom - m_top;
+	}
+	inline Size Rect::getSize() const
+	{
+		return Size(getWidth(), getHeight());
+	}
+	inline void Rect::setWidth(float width)
+	{
+		m_right = m_left + width;
+	}
+	inline void Rect::setHeight(float height)
+	{
+		m_bottom = m_top + height;
+	}
+	inline void Rect::setSize(const Size& size)
+	{
+		setWidth(size.width);
+		setHeight(size.height);
+	}
+	inline bool Rect::empty(void)
+	{
+		return !(getWidth() > FLT_EPSILON && getHeight() > FLT_EPSILON);
+	}
+	inline bool	Rect::operator==(const Rect& rhs) const
+	{
+		return ((m_left == rhs.m_left) && (m_right == rhs.m_right) && (m_top == rhs.m_top) && (m_bottom == rhs.m_bottom));
+	}
+	inline bool	Rect::operator!=(const Rect& rhs) const
+	{
+		return !operator==(rhs);
+	}
+	inline Rect Rect::operator*(float scalar) const
+	{
+		return Rect(m_left * scalar, m_top * scalar, m_right * scalar, m_bottom * scalar);
+	}
+	inline const Rect& Rect::operator*=(float scalar)
+	{
+		m_left *= scalar;
+		m_top *= scalar;
+		m_right *= scalar;
+		m_bottom *= scalar;
+		return *this;
+	}
+	inline const Rect& Rect::operator*=(const Size& sz)
+	{
+		return  scale(sz);
+	}
 }

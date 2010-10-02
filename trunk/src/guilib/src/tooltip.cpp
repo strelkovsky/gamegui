@@ -1,47 +1,54 @@
 #include "StdAfx.h"
 #include "tooltip.h"
 
-#include "system.h"
-
-
 namespace gui
 {
-
-Tooltip::Tooltip(System& sys, const std::string& name) :
-	BaseWindow(sys, name),	
-	m_fadein(0.f),
-	m_fadeout(0.f)
-{
-}
-
-Tooltip::~Tooltip(void)
-{
-}
-
-void Tooltip::rise()
-{
-	if(m_parent)
+	Tooltip::Tooltip(System& sys, const std::string& name) :
+		BaseWindow(sys, name),	
+		m_fadein(0.f),
+		m_fadeout(0.f)
 	{
-		ChildrenList& children = m_parent->getChildren();
-		ChildrenIter it = std::find_if(children.begin(), children.end(), seeker_(this));
-		if(it != children.end())
+	}
+
+	Tooltip::~Tooltip(void)
+	{
+	}
+
+	namespace
+	{
+		struct seeker
 		{
-			children.splice(children.end(), children, it);
+			const BaseWindow* m_ptr;
+			seeker(const BaseWindow* ptr) : m_ptr(ptr){}
+			bool operator()(WindowPtr obj) 
+			{
+				return obj ? (obj.get() == m_ptr) : false;
+			}
+		};
+	}
+
+	void Tooltip::rise()
+	{
+		if(m_parent)
+		{
+			ChildrenList& children = m_parent->getChildren();
+			ChildrenIter it = std::find_if(children.begin(), children.end(), seeker(this));
+			if(it != children.end())
+			{
+				children.splice(children.end(), children, it);
+			}
 		}
 	}
-}
 
+	void Tooltip::reset(void)
+	{
+		setVisible(false);
+		setIgnoreInputEvents(true);
+	}
 
-void Tooltip::reset(void)
-{
-	setVisible(false);
-	setIgnoreInputEvents(true);
-}
-
-void Tooltip::show()
-{
-	rise();
-	setVisible(true);
-}
-
+	void Tooltip::show()
+	{
+		rise();
+		setVisible(true);
+	}
 }

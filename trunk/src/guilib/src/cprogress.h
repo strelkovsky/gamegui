@@ -1,89 +1,82 @@
 #pragma once
 #include "cstatictext.h"
 
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
-
 namespace gui
 {
+	class Image;
+	class Imageset;
+	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-class  Progress : public StaticText
-{
-public:
-	typedef Progress Self;
-	Progress(System& sys, const std::string& name = "");
-	virtual ~Progress();
-
-	static const char* GetType() { return "Progress"; }
-	virtual const char* getType() { return Self::GetType(); }
-
-	virtual void render(const Rect& finalRect, const Rect& finalClip);
-
-	float getProgress() const { return m_progress; }
-	void setProgress(float val)
+	class  Progress : public StaticText
 	{
-		m_progress = val;
-		invalidate();
-	}
+	public:
+		typedef Progress Self;
+		Progress(System& sys, const std::string& name = "");
+		virtual ~Progress();
 
-	virtual void init(xml::node& node);
+		static const char* GetType() { return "Progress"; }
+		virtual const char* getType() { return Self::GetType(); }
 
-protected:
-	float m_progress;
-};
+		virtual void render(const Rect& finalRect, const Rect& finalClip);
 
-class  ProgressBar : public Progress
-{
-public:
-	typedef ProgressBar Self;
-	ProgressBar(System& sys, const std::string& name = "");
-	virtual ~ProgressBar();
+		float getProgress() const { return m_progress; }
+		void setProgress(float val)
+		{
+			m_progress = val;
+			invalidate();
+		}
 
-	static const char* GetType() { return "ProgressBar"; }
-	virtual const char* getType() { return Self::GetType(); }
+		virtual void init(xml::node& node);
 
-	virtual void render(const Rect& finalRect, const Rect& finalClip);
+	protected:
+		float m_progress;
+	};
 
-	virtual void init(xml::node& node);
+	class  ProgressBar : public Progress
+	{
+	public:
+		typedef ProgressBar Self;
+		ProgressBar(System& sys, const std::string& name = "");
+		virtual ~ProgressBar();
 
-protected:
-	ImagesetPtr m_imgset;
-	
-	// progress imagery
-	const Image*	m_leftImg;
-	const Image*	m_rightImg;
-	const Image*	m_backImg;
+		static const char* GetType() { return "ProgressBar"; }
+		virtual const char* getType() { return Self::GetType(); }
 
-	bool m_signed;
+		virtual void render(const Rect& finalRect, const Rect& finalClip);
 
-};
+		virtual void init(xml::node& node);
 
-class  ImageBar : public Progress
-{
-public:
-	typedef ImageBar Self;
-	ImageBar(System& sys, const std::string& name = "");
-	virtual ~ImageBar(void);
+	protected:
+		ImagesetPtr m_imgset;
+		
+		// progress imagery
+		const Image*	m_leftImg;
+		const Image*	m_rightImg;
+		const Image*	m_backImg;
 
-	static const char* GetType() { return "ImageBar"; }
-	virtual const char* getType() { return Self::GetType(); }
+		bool m_signed;
 
-	virtual void render(const Rect& finalRect, const Rect& finalClip);
+	};
 
-	virtual void init(xml::node& node);
+	class  ImageBar : public Progress
+	{
+	public:
+		typedef ImageBar Self;
+		ImageBar(System& sys, const std::string& name = "");
+		virtual ~ImageBar(void);
 
-protected:
-	ImagesetPtr m_imgset;
-	
-	// progress imagery
-	const Image*	m_backImg;
-	const Image*	m_foreImg;
-};
+		static const char* GetType() { return "ImageBar"; }
+		virtual const char* getType() { return Self::GetType(); }
 
+		virtual void render(const Rect& finalRect, const Rect& finalClip);
+
+		virtual void init(xml::node& node);
+
+	protected:
+		ImagesetPtr m_imgset;
+		
+		// progress imagery
+		const Image*	m_backImg;
+		const Image*	m_foreImg;
+	};
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif

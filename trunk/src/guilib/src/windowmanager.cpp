@@ -1,10 +1,11 @@
 #include "StdAfx.h"
+#include "windowmanager.h"
+
 #include "imageset.h"
 #include "font.h"
 #include "Renderer.h"
 #include "factory.h"
 #include "window.h"
-#include "windowmanager.h"
 #include "system.h"
 
 #include "panel.h"

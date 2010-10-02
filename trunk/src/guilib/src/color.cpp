@@ -228,40 +228,4 @@ void Color::invertColourWithAlpha()
 	calculateARGB();
 }
 
-Color StringToColor(const std::string& str)
-{
-	float r = 0.f;
-	float g = 0.f;
-	float b = 0.f;
-	float a = 1.f;
-	sscanf(str.c_str(), "%f %f %f %f", &r, &g, &b, &a);
-
-	return Color(r,g,b,a);
-}
-
-std::string ColorToString(const Color& val)
-{
-	char buff[128] = {0};
-	_snprintf(buff, sizeof (buff), "%f %f %f %f", val.getRed(), val.getGreen(), val.getBlue(), val.getAlpha());
-
-	return std::string(buff);
-}
-
-Color HexStringToColor(const std::string& str)
-{
-	unsigned int val = (unsigned int)-1;
-	sscanf(str.c_str(), "%8x", &val);
-	val |= 0xFF000000; // ensure alpha is 1
-
-	return Color(val);
-}
-
-std::string ColorToHexString(const Color& val)
-{
-	char buff[128] = {0};
-	_snprintf(buff, sizeof (buff), "%08x", val.getARGB());
-
-	return std::string(buff);
-}
-
 }

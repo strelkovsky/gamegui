@@ -2,6 +2,7 @@
 
 #include <rgde/render/effect.h>
 #include <rgde/core/file_system.h>
+#include <guilib/src/renderer.h>
 
 namespace gui
 {

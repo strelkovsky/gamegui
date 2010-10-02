@@ -1,9 +1,5 @@
 #pragma once
 
-#include "size.h"
-
-#include <math.h>
-
 namespace gui
 {
 	/*!

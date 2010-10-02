@@ -1,5 +1,7 @@
 #pragma once
 
+#include <guilib/src/font.h>
+
 namespace gui
 {
 	// Forward declarations for font properties

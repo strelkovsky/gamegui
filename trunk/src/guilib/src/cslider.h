@@ -1,92 +1,82 @@
 #pragma once
 #include "cbutton.h"
 
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
-
 namespace gui
 {
 
-class  Slider : public BaseWindow
-{
-public:
-	typedef Slider Self;
-	Slider(System& sys, const std::string& name = "");
-	virtual ~Slider();
+	class  Slider : public BaseWindow
+	{
+	public:
+		typedef Slider Self;
+		Slider(System& sys, const std::string& name = "");
+		virtual ~Slider();
 
-	static const char* GetType() { return "Slider"; }
-	virtual const char* getType() { return Self::GetType(); }
+		static const char* GetType() { return "Slider"; }
+		virtual const char* getType() { return Self::GetType(); }
 
-	float getScrollPosition() const;
-	void setScrollPosition(float p);
-	
-	float getStepSize() const { return m_step; }
-	void setStepSize(float p) { m_step = p; }
+		float getScrollPosition() const;
+		void setScrollPosition(float p);
+		
+		float getStepSize() const { return m_step; }
+		void setStepSize(float p) { m_step = p; }
 
-	float getDocumentSize() const;
-	void setDocumentSize(float p);
+		float getDocumentSize() const;
+		void setDocumentSize(float p);
 
-	float getUserValue() const { return m_user; }
-	void setUserValue(float p) { m_user = p; }
+		float getUserValue() const { return m_user; }
+		void setUserValue(float p) { m_user = p; }
 
-	virtual bool onLoad();
-	virtual bool onSized(bool update = true);
-	virtual void init(xml::node& node);
+		virtual bool onLoad();
+		virtual bool onSized(bool update = true);
+		virtual void init(xml::node& node);
 
-	void onTrack(const events::TrackEvent& e);
+		void onTrack(const events::TrackEvent& e);
 
-protected:
-	virtual void updateThumb();
+	protected:
+		virtual void updateThumb();
 
-protected:
-	Thumb* m_thumb;
-	float m_pos;
-	float m_doc;
-	float m_step;
-	float m_user;
+	protected:
+		Thumb* m_thumb;
+		float m_pos;
+		float m_doc;
+		float m_step;
+		float m_user;
 
-};
+	};
 
-class  ScrollBar : public Slider
-{
-public:
-	typedef ScrollBar Self;
-	ScrollBar(System& sys, const std::string& name = "");
-	virtual ~ScrollBar();
+	class  ScrollBar : public Slider
+	{
+	public:
+		typedef ScrollBar Self;
+		ScrollBar(System& sys, const std::string& name = "");
+		virtual ~ScrollBar();
 
-	static const char* GetType() { return "ScrollBar"; }
-	virtual const char* getType() { return Self::GetType(); }
+		static const char* GetType() { return "ScrollBar"; }
+		virtual const char* getType() { return Self::GetType(); }
 
-	virtual bool onLoad();
-	virtual bool onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state);
-	virtual bool onMouseWheel(int delta);
-	virtual void init(xml::node& node);
+		virtual bool onLoad();
+		virtual bool onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state);
+		virtual bool onMouseWheel(int delta);
+		virtual void init(xml::node& node);
 
-	virtual void render(const Rect& finalRect, const Rect& finalClip);
+		virtual void render(const Rect& finalRect, const Rect& finalClip);
 
-	void onIncClick(const events::ClickEvent& e);
-	void onDecClick(const events::ClickEvent& e);
+		void onIncClick(const events::ClickEvent& e);
+		void onDecClick(const events::ClickEvent& e);
 
-protected:
-	virtual void updateThumb();
+	protected:
+		virtual void updateThumb();
 
-protected:
-	Button* m_incBtn;
-	Button* m_decBtn;
+	protected:
+		Button* m_incBtn;
+		Button* m_decBtn;
 
-	const Image* m_backImg;
-	const Image* m_leftImg;
-	const Image* m_rightImg;
+		const Image* m_backImg;
+		const Image* m_leftImg;
+		const Image* m_rightImg;
 
-	ImagesetPtr m_imgset;
+		ImagesetPtr m_imgset;
 
-	bool m_horiz;
-};
-
+		bool m_horiz;
+	};
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif

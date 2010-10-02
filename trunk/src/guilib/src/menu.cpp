@@ -1,10 +1,11 @@
 #include "StdAfx.h"
-#include "imageset.h"
-#include "renderer.h"
-#include "font.h"
 #include "menu.h"
 
 #include "system.h"
+#include "windowmanager.h"
+#include "imageset.h"
+#include "renderer.h"
+#include "font.h"
 
 
 namespace gui
@@ -29,12 +30,25 @@ Menu::~Menu(void)
 	m_items.clear();
 }
 
+namespace
+{
+	struct seeker
+	{
+		const BaseWindow* m_ptr;
+		seeker(const BaseWindow* ptr) : m_ptr(ptr){}
+		bool operator()(WindowPtr obj) 
+		{
+			return obj ? (obj.get() == m_ptr) : false;
+		}
+	};
+}
+
 void Menu::rise()
 {
 	if(m_parent)
 	{
 		ChildrenList& children = m_parent->getChildren();
-		ChildrenIter it = std::find_if(children.begin(), children.end(), seeker_(this));
+		ChildrenIter it = std::find_if(children.begin(), children.end(), seeker(this));
 		if(it != children.end())
 		{
 			children.splice(children.end(), children, it);
@@ -100,7 +114,7 @@ void Menu::render(const Rect& finalRect, const Rect& finalClip)
 
 		itemrect.setPosition(point(3 * m_margin + m_itemHeight, h + m_margin));
 		itemrect.offset(left);
-		m_font->drawText(item.text, itemrect, 1.0f, finalClip, Font::LeftAligned, selected ? item.selcol : item.col, 1.f, 1.f);		
+		m_font->drawText(item.text, itemrect, 1.0f, finalClip, LeftAligned, selected ? item.selcol : item.col, 1.f, 1.f);		
 
 		h += 2 * m_margin + m_itemHeight;
 

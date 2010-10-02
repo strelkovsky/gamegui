@@ -2,11 +2,6 @@
 
 #include "image.h"
 
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
-
 namespace gui
 {
 	class Texture;
@@ -51,7 +46,3 @@ namespace gui
 
 	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif

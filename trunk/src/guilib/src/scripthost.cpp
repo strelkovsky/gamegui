@@ -1,13 +1,43 @@
 #include "stdafx.h"
 #include "scripthost.h"
+#include "scriptobject.h"
 
 namespace gui
 {
 
-void ScriptObject::thisreset()
+void ScriptObject::thisreset(lua_State* state)
 {
-	if(m_ref_script.LuaState())
-		luabind::globals(m_ref_script.LuaState())["this"] = 0;
+	if(state)
+		luabind::globals(state)["this"] = 0;
+}
+
+ScriptStack::ScriptStack()
+{
+	m_stack.reserve(16);
+}
+void ScriptStack::clear()
+{
+	m_stack.clear();
+}
+void ScriptStack::push(ScriptObject* obj)
+{
+	assert(obj);
+	obj->thisset();
+	m_stack.push_back(obj);
+}
+void ScriptStack::pop(lua_State* state)
+{
+	if(m_stack.size())
+	{
+		size_t size = m_stack.size();
+		if(size == 1)
+			m_stack[size - 1]->thisreset(state);
+
+		m_stack.pop_back();
+		size = m_stack.size();
+		if(size)
+			m_stack[size - 1]->thisset();
+	}
 }
 
 ScriptSystem::ScriptSystem(lua_State* externalState)
@@ -49,7 +79,7 @@ bool ScriptSystem::ExecuteString(const std::string& script, ScriptObject* obj, c
 	{
 		m_thisStack.push(obj);
 		retval = ExecuteString(script, filename);
-		m_thisStack.pop();
+		m_thisStack.pop(m_state);
 	}
 	else
 	{

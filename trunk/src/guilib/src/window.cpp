@@ -5,13 +5,13 @@
 #include "imageset.h"
 #include "system.h"
 #include "renderer.h"
+#include "eventtypes.h"
 
 namespace gui
 {
 
 BaseWindow::BaseWindow(System& sys, const std::string& name) : 
 	NamedObject(name),
-	ScriptObject(sys.getScriptSystem()),
 	m_system(sys),
 	m_visible(false),
 	m_enabled(true),
@@ -131,12 +131,25 @@ void BaseWindow::rise()
 	}
 }
 
+namespace
+{
+	struct seeker
+	{
+		const BaseWindow* m_ptr;
+		seeker(const BaseWindow* ptr) : m_ptr(ptr){}
+		bool operator()(WindowPtr obj) 
+		{
+			return obj ? (obj.get() == m_ptr) : false;
+		}
+	};
+}
+
 void BaseWindow::moveToFront(BaseWindow* child)
 {
 	if(m_children.size() <= 1)
 		return;
 
-	ChildrenIter it = std::find_if(m_children.begin(), m_children.end(), seeker_(child));
+	ChildrenIter it = std::find_if(m_children.begin(), m_children.end(), seeker(child));
 	if(it != m_children.end())
 	{
 		if(child->getAlwaysOnTop())
@@ -158,7 +171,7 @@ void BaseWindow::bringToBack(BaseWindow* child)
 	if(m_children.size() <= 1)
 		return;
 
-	ChildrenIter it = std::find_if(m_children.begin(), m_children.end(), seeker_(child));
+	ChildrenIter it = std::find_if(m_children.begin(), m_children.end(), seeker(child));
 	if(it != m_children.end())
 	{
 		if(child->getAlwaysOnTop())
@@ -208,19 +221,19 @@ void BaseWindow::callHandler(EventArgs* arg)
 		std::string& handler = it->second;
 		if(!handler.empty())
 		{
-			luabind::globals (m_ref_script.LuaState())["eventArgs"] = arg;
+			luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = arg;
 			ExecuteScript(arg->name, handler);
-			luabind::globals (m_ref_script.LuaState())["eventArgs"] = 0;
+			luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = 0;
 		}
 	}
 }
 
 void BaseWindow::ExecuteScript(const std::string& env, const std::string& script)
 {
-	if(!m_ref_script.ExecuteString(script, this, env))
+	if(!m_system.getScriptSystem().ExecuteString(script, this, env))
 	{
 		m_system.logEvent(LogError, std::string("Unable to execute Lua handler '")+ env + std::string("' in object ") + getName());
-		m_system.logEvent(LogError, m_ref_script.GetLastError());
+		m_system.logEvent(LogError, m_system.getScriptSystem().GetLastError());
 	}
 }
 
@@ -675,9 +688,9 @@ void BaseWindow::draw(const point& offset, const Rect& clip)
 			{
 				EventArgs a;
 				a.name = "On_Draw";
-				luabind::globals (m_ref_script.LuaState())["eventArgs"] = &a;
+				luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = &a;
 				ExecuteScript(a.name, m_drawhandler);
-				luabind::globals (m_ref_script.LuaState())["eventArgs"] = 0;
+				luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = 0;
 			}
 
 			render(destrect, cliprect); // render self first
@@ -693,9 +706,9 @@ void BaseWindow::draw(const point& offset, const Rect& clip)
 			//	{
 			//		EventArgs a;
 			//		a.name = "On_Draw";
-			//		luabind::globals (m_ref_script.LuaState())["eventArgs"] = &a;
+			//		luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = &a;
 			//		ExecuteScript(a.name, m_drawhandler);
-			//		luabind::globals (m_ref_script.LuaState())["eventArgs"] = 0;
+			//		luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = 0;
 			//	}
 
 			//	render(destrect, cliprect); // render self first
@@ -749,7 +762,7 @@ BaseWindow* BaseWindow::nextSibling()
 		ChildrenList& list = m_parent->getChildren();
 		if(list.size() <= 1)
 			return this;
-		ChildrenIter it = std::find_if(list.begin(), list.end(), seeker_(this));
+		ChildrenIter it = std::find_if(list.begin(), list.end(), seeker(this));
 		if(it == list.end())
 		{
 			assert(false && "Link to parent is invalid!");
@@ -769,7 +782,7 @@ BaseWindow* BaseWindow::prevSibling()
 		ChildrenList& list = m_parent->getChildren();
 		if(list.size() <= 1)
 			return this;
-		ChildrenIter it = std::find_if(list.begin(), list.end(), seeker_(this));
+		ChildrenIter it = std::find_if(list.begin(), list.end(), seeker(this));
 		if(it == list.end())
 		{
 			assert(false && "Link to parent is invalid!");
@@ -788,8 +801,8 @@ BaseWindow* BaseWindow::prevSibling()
 
 void BaseWindow::thisset()
 {
-	if(m_ref_script.LuaState())
-		luabind::globals(m_ref_script.LuaState())["this"] = this;
+	if(m_system.getScriptSystem().LuaState())
+		luabind::globals(m_system.getScriptSystem().LuaState())["this"] = this;
 }
 
 void BaseWindow::subscribeNamedEvent(std::string name, BaseWindow* sender, std::string script)
@@ -844,9 +857,9 @@ void BaseWindow::onNamedEvent(events::NamedEvent& e)
 		{
 			EventArgs arg;
 			arg.name = "On_ScriptEvent";
-			luabind::globals (m_ref_script.LuaState())["eventArgs"] = &arg;
+			luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = &arg;
 			ExecuteScript(arg.name, script);
-			luabind::globals (m_ref_script.LuaState())["eventArgs"] = 0;			
+			luabind::globals (m_system.getScriptSystem().LuaState())["eventArgs"] = 0;			
 		}
 	}
 }
@@ -875,9 +888,9 @@ bool BaseWindow::onGameEvent(const std::string& ev)
 		{
 			EventArgs arg;
 			arg.name = ev.c_str();
-			luabind::globals (m_ref_script.LuaState())["gameEventArgs"] = &arg;
+			luabind::globals (m_system.getScriptSystem().LuaState())["gameEventArgs"] = &arg;
 			ExecuteScript(ev, handler);
-			luabind::globals (m_ref_script.LuaState())["gameEventArgs"] = 0;
+			luabind::globals (m_system.getScriptSystem().LuaState())["gameEventArgs"] = 0;
 			return arg.handled;
 		}
 	}

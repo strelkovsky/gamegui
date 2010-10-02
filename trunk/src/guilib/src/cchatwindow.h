@@ -2,16 +2,6 @@
 #include "panel.h"
 #include "font.h"
 
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
-
-namespace xml {
-	class node;
-};
-
-
 namespace gui
 {
 	class  ChatWindow : public Panel
@@ -45,17 +35,14 @@ namespace gui
 		void setClamp(bool clamp) { m_clampToScreen = clamp; }
 		bool getClamp() const { return m_clampToScreen; }
 
-		void setCaptionFormatting(Font::TextFormatting fmt) 
+		void setCaptionFormatting(TextFormatting fmt) 
 		{
 			m_format = fmt;
 			invalidate();
 		}
-		Font::TextFormatting getCaptionFormatting() const { return m_format; }
-
-	
+		TextFormatting getCaptionFormatting() const { return m_format; }
 
 		virtual void init(xml::node& node);
-
 
 		////////////////////////////////////////////////////////////////////////////////////////////////
 		typedef boost::function <void ()> EndCallback;
@@ -107,7 +94,7 @@ namespace gui
 		ImagesetPtr m_imgset;
 		FontPtr m_font;
 		std::string m_text;
-		Font::TextFormatting m_format;
+		TextFormatting m_format;
 		Color m_captionColor;
 
 		float m_fShowingTime;
@@ -134,10 +121,4 @@ namespace gui
 		float m_textOffsetY;
 
 	};
-
-	typedef boost::intrusive_ptr<ChatWindow> ChatWindowPtr;
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif
