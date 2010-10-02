@@ -1,29 +1,20 @@
 #pragma once
 
 #include <list>
-#include <set>
 #include <map>
-#include <string>
-#include <algorithm>
-#include <boost/unordered_map.hpp>
+#include <vector>
+#include <boost/shared_ptr.hpp>
+#include <boost/scoped_ptr.hpp>
 #include <boost/shared_array.hpp>
+#include <boost/intrusive_ptr.hpp>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <boost/unordered_map.hpp>
 
-#include "src/base.h"
-#include "src/size.h"
-#include "src/vector.h"
-#include "src/rect.h"
-#include "src/input.h"
-#include "src/renderer.h"
-#include "src/renderCallback.h"
-#include "src/texture.h"
-#include "src/image.h"
-#include "src/font.h"
-#include "src/imageset.h"
-#include "src/cursor.h"
-#include "src/texmanager.h"
-#include "src/scripthost.h"
-#include "src/system.h"
 #include "src/window.h"
+#include "src/system.h"
+#include "src/renderer.h"
+#include "src/windowmanager.h"
 
 //controls
 #include "src/panel.h"

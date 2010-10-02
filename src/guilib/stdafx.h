@@ -88,7 +88,3 @@ extern "C"
 typedef unsigned int utf32;
 
 #include <rgde/core/xml/xml.h>
-
-#include "src/base.h"
-#include "src/input.h"
-#include "src/scripthost.h"

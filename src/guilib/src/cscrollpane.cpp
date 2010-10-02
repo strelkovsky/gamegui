@@ -1,10 +1,8 @@
 #include "StdAfx.h"
-#include "image.h"
-#include "imageset.h"
-#include "renderer.h"
-#include "cslider.h"
 #include "cscrollpane.h"
-#include "system.h"
+
+#include "cslider.h"
+#include "eventtypes.h"
 
 namespace gui
 {

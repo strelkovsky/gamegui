@@ -1,16 +1,11 @@
 #pragma once
 #include "window.h"
 
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
-
 namespace gui
 {
 	class Image;
 	class Imageset;
-
+	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
 	class  Panel :
 		public BaseWindow
@@ -44,7 +39,3 @@ namespace gui
 		const Image*	m_botrImg;
 	};
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif

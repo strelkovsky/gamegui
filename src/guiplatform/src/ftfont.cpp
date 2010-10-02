@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "ftfont.h"
 
+#include <guilib/src/renderer.h>
+#include <guilib/src/imageset.h>
+
 // Pixels to put between glyphs
 #define INTER_GLYPH_PAD_SPACE 2
 // A multiplication coefficient to convert FT_Pos values into normal floats

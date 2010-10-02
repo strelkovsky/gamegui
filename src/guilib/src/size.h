@@ -17,6 +17,23 @@ namespace gui
 		float width, height;
 	};
 
-	Size operator* ( const Size& lhs,const Size& rhs );
-	Size operator/ ( const Size& lhs,const Size& rhs );
+	inline bool Size::operator==(const Size& other) const
+	{
+		return width == other.width && height == other.height;
+	}
+
+	inline bool Size::operator!=(const Size& other) const
+	{
+		return !operator==(other);
+	}
+
+	inline Size operator*(const Size& lhs,const Size& rhs)
+	{
+		return Size(lhs.width * rhs.width, lhs.height * rhs.height);
+	}
+
+	inline Size operator/(const Size& lhs,const Size& rhs)
+	{
+		return Size(lhs.width / rhs.width, lhs.height / rhs.height);
+	}
 }

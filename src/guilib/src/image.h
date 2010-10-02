@@ -44,6 +44,6 @@ namespace gui
 		std::string	m_name;
 	};
 
-Image::ImageOps StringToImageOps(const std::string& str);
-std::string ImageOpsToString(Image::ImageOps op);
+	Image::ImageOps StringToImageOps(const std::string& str);
+	std::string ImageOpsToString(Image::ImageOps op);
 }

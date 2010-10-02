@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/intrusive_ptr.hpp>
-
 //-----------------------------------------------------------------
 template<class Ch>
 std::list<std::basic_string<Ch> > tokenize(const std::basic_string<Ch>& delim, const std::basic_string<Ch> &src)

@@ -1,88 +1,78 @@
 #pragma once
 #include "panel.h"
-#include "font.h"
-
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
-
-namespace xml 
-{
-	class node;
-};
-
+#include "textformatting.h"
 
 namespace gui
 {
-class  FrameWindow : public Panel
-{
-public:
-	typedef FrameWindow Self;
-	FrameWindow(System& sys, const std::string& name = std::string());
-	virtual ~FrameWindow();
+	class Font;
+	typedef boost::shared_ptr<Font> FontPtr;
+	class Imageset;
+	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-	static const char* GetType() { return "FrameWindow"; }
-	virtual const char* getType() { return Self::GetType(); }
-
-	virtual void rise();
-	
-	virtual void render(const Rect& finalRect, const Rect& finalClip);
-	void setFont(const std::string& font);
-	
-	void setCaption(const std::string& text)
+	class  FrameWindow : public Panel
 	{
-		m_text = text;
-		invalidate();
-	}
-	const std::string& getCaption() const { return m_text; }
+	public:
+		typedef FrameWindow Self;
+		FrameWindow(System& sys, const std::string& name = std::string());
+		virtual ~FrameWindow();
 
-	void setCaptionColor(const Color& col) 
-	{
-		m_captionColor = col; 
-		invalidate();
-	}
-	const Color& getCaptionColor() const { return m_captionColor; }
+		static const char* GetType() { return "FrameWindow"; }
+		virtual const char* getType() { return Self::GetType(); }
 
-	void setMovable(bool movable) { m_movable = movable; }
-	bool getMovable() const { return m_movable; }
+		virtual void rise();
+		
+		virtual void render(const Rect& finalRect, const Rect& finalClip);
+		void setFont(const std::string& font);
+		
+		void setCaption(const std::string& text)
+		{
+			m_text = text;
+			invalidate();
+		}
+		const std::string& getCaption() const { return m_text; }
 
-	void setClamp(bool clamp) { m_clampToScreen = clamp; }
-	bool getClamp() const { return m_clampToScreen; }
+		void setCaptionColor(const Color& col) 
+		{
+			m_captionColor = col; 
+			invalidate();
+		}
+		const Color& getCaptionColor() const { return m_captionColor; }
 
-	void setCaptionFormatting(Font::TextFormatting fmt) 
-	{
-		m_format = fmt;
-		invalidate();
-	}
-	Font::TextFormatting getCaptionFormatting() const { return m_format; }
+		void setMovable(bool movable) { m_movable = movable; }
+		bool getMovable() const { return m_movable; }
 
-	virtual bool onMouseMove();
-	virtual bool onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state);
-	virtual bool onCaptureLost();
+		void setClamp(bool clamp) { m_clampToScreen = clamp; }
+		bool getClamp() const { return m_clampToScreen; }
 
-	virtual void init(xml::node& node);
+		void setCaptionFormatting(TextFormatting fmt) 
+		{
+			m_format = fmt;
+			invalidate();
+		}
+		TextFormatting getCaptionFormatting() const { return m_format; }
 
-protected:
-	ImagesetPtr m_imgset;
-	FontPtr m_font;
-	std::string m_text;
-	Font::TextFormatting m_format;
-	Color m_captionColor;
+		virtual bool onMouseMove();
+		virtual bool onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state);
+		virtual bool onCaptureLost();
 
-	// caption imagery
-	const Image*	m_captionLeftImg;
-	const Image*	m_captionRightImg;
-	const Image*	m_captionBackImg;
+		virtual void init(xml::node& node);
 
-	bool m_tracking;
-	point m_offset;
+	protected:
+		ImagesetPtr m_imgset;
+		FontPtr m_font;
+		std::string m_text;
+		TextFormatting m_format;
+		Color m_captionColor;
 
-	bool m_movable;
-	bool m_clampToScreen;
-};
+		// caption imagery
+		const Image*	m_captionLeftImg;
+		const Image*	m_captionRightImg;
+		const Image*	m_captionBackImg;
+
+		bool m_tracking;
+		point m_offset;
+
+		bool m_movable;
+		bool m_clampToScreen;
+	};
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif

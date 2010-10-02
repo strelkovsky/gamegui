@@ -1,13 +1,12 @@
 #include "StdAfx.h"
-#include "imageset.h"
+#include "system.h"
+
 #include "renderer.h"
 #include "renderhelper.h"
-#include "window.h"
 #include "dragcontainer.h"
 #include "tooltip.h"
 #include "menu.h"
 #include "windowmanager.h"
-#include "system.h"
 
 namespace gui
 {
@@ -411,6 +410,29 @@ bool System::handleMouseDouble(EventArgs::MouseButtons btn)
 
 }
 
+BaseWindow* getTabstopWindow(BaseWindow::ChildrenList& list)
+{
+	BaseWindow* ret = NULL;
+	BaseWindow::ReverseChildrenIter i = list.rbegin();
+	BaseWindow::ReverseChildrenIter end = list.rend();
+	while(i != end)
+	{
+		if(!(*i)->isTabStop())
+		{
+			ret = getTabstopWindow((*i)->getChildren());
+			if(ret)
+				break;
+		}
+		else
+		{
+			ret = (*i).get();
+			break;
+		}
+		++i;
+	}
+	return ret;	
+}
+
 bool System::handleKeyboard(EventArgs::Keys key, EventArgs::ButtonState state)
 {
 	proceedSystemKey(key, state);
@@ -577,12 +599,7 @@ void System::LeaveExclusiveInputMode()
 	m_exclusiveInputWindow = 0;
 }
 
-BaseWindow* System::getTargetWindow(const point& pt) const
-{
-	return getTargetWindow(pt, m_rootWindow->getChildren()).get();
-}
-
-WindowPtr System::getTargetWindow(const point& pt, BaseWindow::ChildrenList& list) const
+WindowPtr GetTargetWindow(const point& pt, BaseWindow::ChildrenList& list)
 {
 	WindowPtr ret;
 	BaseWindow::ReverseChildrenIter i = list.rbegin();
@@ -592,7 +609,7 @@ WindowPtr System::getTargetWindow(const point& pt, BaseWindow::ChildrenList& lis
 		WindowPtr p = (*i);
 		if(p->hitTest(pt))
 		{
-			ret = getTargetWindow(pt, p->getChildren());
+			ret = GetTargetWindow(pt, p->getChildren());
 			if(!ret)
 				ret = p;
 			break;
@@ -602,28 +619,9 @@ WindowPtr System::getTargetWindow(const point& pt, BaseWindow::ChildrenList& lis
 	return ret;
 }
 
-BaseWindow* System::getTabstopWindow(BaseWindow::ChildrenList& list) const
+BaseWindow* System::getTargetWindow(const point& pt) const
 {
-	BaseWindow* ret = NULL;
-	BaseWindow::ReverseChildrenIter i = list.rbegin();
-	BaseWindow::ReverseChildrenIter end = list.rend();
-	while(i != end)
-	{
-		if(!(*i)->isTabStop())
-		{
-			ret = getTabstopWindow((*i)->getChildren());
-			if(ret)
-				break;
-		}
-		else
-		{
-			ret = (*i).get();
-			break;
-		}
-		++i;
-	}
-	return ret;
-	
+	return GetTargetWindow(pt, m_rootWindow->getChildren()).get();
 }
 
 void System::executeScript(const std::string& filename)
@@ -640,7 +638,15 @@ void System::render()
 	if(m_bShowCursor)
 		getCursor().render();
 }
-
+namespace
+{
+	struct tickClear{
+		bool operator()(BaseWindow* obj) 
+		{
+			return obj->isUnsubscribePending();
+		}
+	};
+}
 void System::tick(float delta)
 {
 	m_inTick = true;
@@ -656,7 +662,7 @@ void System::tick(float delta)
 	}
 	if(m_tickClear)
 	{
-		m_tickedWnd.erase(std::remove_if(m_tickedWnd.begin(), end, tickClear_()), end);
+		m_tickedWnd.erase(std::remove_if(m_tickedWnd.begin(), end, tickClear()), end);
 		m_tickClear = false;
 	}
 

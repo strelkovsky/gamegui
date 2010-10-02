@@ -3,8 +3,6 @@
 
 namespace gui
 {
-
-
 //!< 32 bit ARGB representation of a Color.
 typedef unsigned int argb_t;    
 
@@ -228,11 +226,6 @@ private:
 	float m_alpha, m_red, m_green, m_blue;		//!< Color components.
 	mutable argb_t m_argb;						//!< Color as ARGB value.
 };
-
-Color StringToColor(const std::string& str);
-std::string ColorToString(const Color& val);
-Color HexStringToColor(const std::string& str);
-std::string ColorToHexString(const Color& val);
 
 __inline void Color::calculateARGB() const
 {

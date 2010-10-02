@@ -1,7 +1,5 @@
 #pragma once
 
-#include <boost/function.hpp>
-
 namespace gui
 {
 	enum LogLevel
