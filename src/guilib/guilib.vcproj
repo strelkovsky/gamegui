@@ -581,6 +581,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\src\imagesetmanager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\src\imagesetmanager.h"
+					>
+				</File>
+				<File
 					RelativePath=".\src\windowmanager.cpp"
 					>
 				</File>

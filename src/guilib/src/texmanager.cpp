@@ -1,6 +1,6 @@
 #include "stdafx.h"
-
 #include "texmanager.h"
+#include "texture.h"
 #include "renderer.h"
 
 namespace gui
