@@ -51,7 +51,7 @@ namespace gui
 		ImagesIter i = m_images.find(name);
 		if(i == m_images.end())
 		{
-			i = m_images.insert(i, ImagePair(name,Image(*m_texture, name, image_rect, Image::BLEND_MODULATE, this)));
+			i = m_images.insert(i, ImagePair(name,Image(*m_texture, name, image_rect/*, Image::BLEND_MODULATE, this*/)));
 		}
 		return &i->second;
 	}
