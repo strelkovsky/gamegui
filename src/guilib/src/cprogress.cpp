@@ -4,7 +4,6 @@
 #include "system.h"
 #include "windowmanager.h"
 #include "renderer.h"
-#include "imageset.h"
 #include "utils.h"
 
 namespace gui
@@ -90,27 +89,27 @@ void ProgressBar::render(const Rect& finalRect, const Rect& finalClip)
 	if (m_leftImg)
     {
         // calculate final destination area
-        imgSize = m_leftImg->pixel_rect.getSize();
+        imgSize = m_leftImg->GetSize();
 		componentRect.m_right = componentRect.m_left + imgSize.width;
 		componentRect.m_bottom = componentRect.m_top + imgSize.height;
 		left  = imgSize.width;
 		height = imgSize.height;
 
         // draw this element.
-        r.draw(*m_leftImg, componentRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Stretch);
+        r.draw(*m_leftImg, componentRect, 1.f, clip,  m_backColor, Stretch, Stretch);
     }
 	componentRect = targetRect;
 	// right image
     if (m_rightImg)
     {
-        imgSize = m_rightImg->pixel_rect.getSize();
+        imgSize = m_rightImg->GetSize();
         componentRect.m_left = componentRect.m_right - imgSize.width;
         componentRect.m_bottom = componentRect.m_top + imgSize.height;
 
 		right = imgSize.width;
 
         // draw this element.
-        r.draw(*m_rightImg, componentRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Stretch);
+        r.draw(*m_rightImg, componentRect, 1.f, clip,  m_backColor, Stretch, Stretch);
     }
 	componentRect = targetRect;
 	// center image
@@ -121,7 +120,7 @@ void ProgressBar::render(const Rect& finalRect, const Rect& finalClip)
 		componentRect.m_bottom = componentRect.m_top + height;
         
 		// draw this element.
-        r.draw(*m_backImg, componentRect, 1.f, clip,  m_backColor, Image::Tile, Image::Stretch);
+        r.draw(*m_backImg, componentRect, 1.f, clip,  m_backColor, Tile, Stretch);
     }
 
 	Progress::render(finalRect, finalClip);
@@ -168,7 +167,7 @@ void ImageBar::render(const Rect& finalRect, const Rect& finalClip)
 	if (m_backImg)
     {		        
 		// draw this element.
-        r.draw(*m_backImg, finalRect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+        r.draw(*m_backImg, finalRect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
     }
 
 	if (m_backImg)
@@ -179,7 +178,7 @@ void ImageBar::render(const Rect& finalRect, const Rect& finalClip)
 			clip.setWidth(clip.getWidth() * m_progress);
 		}
 		// draw this element.
-        r.draw(*m_foreImg, finalRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Stretch);
+        r.draw(*m_foreImg, finalRect, 1.f, clip,  m_backColor, Stretch, Stretch);
     }
 
 	Progress::render(finalRect, finalClip);

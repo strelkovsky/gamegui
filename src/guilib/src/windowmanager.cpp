@@ -1,7 +1,7 @@
 #include "StdAfx.h"
 #include "windowmanager.h"
 
-#include "imageset.h"
+#include "imagesetmanager.h"
 #include "font.h"
 #include "Renderer.h"
 #include "factory.h"
@@ -107,7 +107,7 @@ void WindowManager::loadScheme(const std::string& scheme)
 				if(!file.empty())
 				{
 					if (m_defaultImageset = createImageset(file))
-						m_imagesetRegistry[m_defaultImageset->getName()] = m_defaultImageset;
+						m_imagesetRegistry[m_defaultImageset->GetName()] = m_defaultImageset;
 				}
 			}
 			setting = schemenode("DefaultFont");
@@ -156,36 +156,10 @@ ImagesetPtr WindowManager::createImageset(const std::string& filename)
 	XmlDocumentPtr pdoc = loadCachedXml(file);
 	if(!pdoc)
 		return retval;
-	
 	xml::node imgsetnode = pdoc->child("Imageset");
 	if(!imgsetnode.empty())
 	{
-		std::string setname = imgsetnode["Name"].value();
-		std::string texfile = imgsetnode["Imagefile"].value();
-		
-		TexturePtr p = m_system.getRenderer().createTexture("imageset\\" + texfile);
-		if(p)
-		{
-			Imageset* imageset = new Imageset(setname, p);
-
-			xml::node imgnode = imgsetnode.first_child();
-			while(!imgnode.empty())
-			{
-				std::string nodename(imgnode.name());
-				if(nodename == "Image")
-				{
-					std::string imgname = imgnode["Name"].value();
-					float y = imgnode["YPos"].as_float();
-					float x = imgnode["XPos"].as_float();
-					float width = imgnode["Width"].as_float();
-					float height = imgnode["Height"].as_float();
-
-					imageset->defineImage(imgname, Rect(x, y, x+width, y+height));
-				}
-				imgnode = imgnode.next_sibling();
-			}
-			retval.reset(imageset);
-		}
+		retval = m_imgseManager.Make(m_system, &imgsetnode);
 	}
 	
 	return retval;

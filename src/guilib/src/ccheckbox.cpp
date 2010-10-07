@@ -3,7 +3,6 @@
 
 #include "system.h"
 #include "windowmanager.h"
-#include "imageset.h"
 #include "renderer.h"
 #include "utils.h"
 
@@ -88,11 +87,11 @@ namespace gui
 		float offset = 0.f;
 		if(state)
 		{
-			Size imgSize = state->pixel_rect.getSize();
+			Size imgSize = state->GetSize();
 			Rect dest(finalRect);
 			dest.setWidth(imgSize.width);
 			offset += imgSize.width;
-			r.draw(*state, dest, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*state, dest, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 		
 		Rect desttext(finalRect);

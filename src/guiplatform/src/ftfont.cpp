@@ -2,7 +2,7 @@
 #include "ftfont.h"
 
 #include <guilib/src/renderer.h>
-#include <guilib/src/imageset.h>
+#include <guilib/src/imagesetmanager.h>
 
 // Pixels to put between glyphs
 #define INTER_GLYPH_PAD_SPACE 2
@@ -111,7 +111,8 @@ void FreeTypeFont::rasterize (utf32 start_codepoint, utf32 end_codepoint)
             break;
 
 		TexturePtr p = m_render.createTexture(texsize, texsize, Texture::PF_RGBA);
-		Imageset *is = new Imageset("glyphimgset", p);
+		Imageset *is = new Imageset("glyphimgset");
+		size_t ordinal = is->AppendTexture(p);
         m_glyphImages.push_back(is);
 
         // Create a memory buffer where we will render our glyphs
@@ -154,8 +155,14 @@ void FreeTypeFont::rasterize (utf32 start_codepoint, utf32 end_codepoint)
                     name += s->first;
 					s->second.setOffsetX(offset.x);
 					s->second.setOffsetY(offset.y);
-                    
-                    cur_glyph.setImage(is->defineImage(name, area));
+
+					SubImage info;
+					info.m_ordinal = ordinal;
+					info.m_src = area;
+					Image::SubImages data;
+					data.push_back(info);
+					is->DefineImage(name, area.getSize(), data);
+                    cur_glyph.setImage(is->GetImage(name));
                 }
                 else
                 {
@@ -194,7 +201,14 @@ void FreeTypeFont::rasterize (utf32 start_codepoint, utf32 end_codepoint)
 						float height = (float)(glyph_h - INTER_GLYPH_PAD_SPACE);
 
 	                    Rect area (float(x), float(y), float(x + width), float(y + height));
-						const Image* img = is->defineImage (name, area);
+
+						SubImage info;
+						info.m_ordinal = ordinal;
+						info.m_src = area;
+						Image::SubImages data;
+						data.push_back(info);
+						is->DefineImage(name, area.getSize(), data);
+						const Image* img = is->GetImage(name);
 						assert(img);
 						cur_glyph.setImage(img);
 						cur_glyph.SetSize(width, height);
@@ -224,7 +238,7 @@ void FreeTypeFont::rasterize (utf32 start_codepoint, utf32 end_codepoint)
         }
 
         // Copy our memory buffer into the texture and free it
-		m_render.reloadTexture(is->getTexture(), mem_buffer, texsize, texsize, Texture::PF_RGBA);
+		m_render.reloadTexture(is->GetTexture(ordinal), mem_buffer, texsize, texsize, Texture::PF_RGBA);
         delete [] mem_buffer;
 
         if (finished)

@@ -9,6 +9,11 @@ namespace xml
 
 namespace gui
 {
+	class System;
+	class Imageset;
+	class Texture;
+	typedef boost::shared_ptr<Texture> TexturePtr;
+
 	struct SubImage
 	{
 		size_t m_ordinal; // ordinal to texture in atlas
@@ -17,39 +22,57 @@ namespace gui
 		point m_offset; // offset in result image
 	};
 
-	class System;
-	class Imageset1;
-	class Texture;
-	typedef boost::shared_ptr<Texture> TexturePtr;
-	class Image1
+	struct RenderImageInfo;
+
+	class Image
 	{
 	public:
 		typedef std::vector<SubImage> SubImages;
+
 		/// @brief - Image with regions, if data.size() != 0
 		/// @param parent - Ordinals in the sub-images will point to textures in this imageset
 		/// @param sz - full image size
 		/// @param data - sub-images
-		Image1(Imageset1* parent, const Size& sz, SubImages& data);
+		Image(Imageset* parent, const std::string& name, const Size& sz, SubImages& data);
 		/// @brief - An empty image
-		Image1();
+		Image();
 
 		Size GetSize() const;
-		Imageset1* GetParent() const;
+		Imageset* GetParent() const;
+		/// @brief - returns count of subimages
+		size_t GetCount() const;
+		/// @brief - render info for an image
+		/// @param info - output
+		/// @param subimage - in range [0, GetCount())
+		void GetRenderInfo(RenderImageInfo& info, size_t subimage) const;
+		
+		const std::string& GetName() const;
 
 	private:
 		Size m_size;
 		SubImages m_data;
-		Imageset1* m_parent;
+		Imageset* m_parent;
+		std::string m_name;
 	};
 
-	inline Size Image1::GetSize() const
+	inline Size Image::GetSize() const
 	{
 		return m_size;
 	}
 
-	inline Imageset1* Image1::GetParent() const
+	inline Imageset* Image::GetParent() const
 	{
 		return m_parent;
+	}
+
+	inline size_t Image::GetCount() const
+	{
+		return m_data.size();
+	}
+
+	inline const std::string& Image::GetName() const
+	{
+		return m_name;
 	}
 
 	/// sample XML:
@@ -59,7 +82,7 @@ namespace gui
 	//		<Texture Filename="test1.tga"/>
 	//	</Textures>
 	//	<Images>
-	//		<Image>
+	//		<Image Name="test img" >
 	//			<Rect Texture="UberTex" SrcLeft="0" SrcTop="0" SrcRight="100" SrcBottom="100" XPos="0" YPos="0" />
 	//			<Rect Texture="test1.tga" SrcLeft="0" SrcTop="0" SrcRight="100" SrcBottom="100" XPos="0" YPos="100"
 	//				CropLeft="5" CropTop="5" OrigWidth="110" OrigHeight="110" />
@@ -67,14 +90,16 @@ namespace gui
 	//	</Images>
 	//</Imageset>
 
-	class Imageset1
+	class Imageset
 	{
 	public:
 		/// @brief - General way to create and load imageset
 		/// @param sys - System reference(load texture, log)
 		/// @param name - debug only name
 		/// @param imgset - pointer to xml node named "imageset", optional
-		Imageset1(System& sys, const std::string& name, xml::node* imgset = 0);
+		Imageset(System& sys, const std::string& name, xml::node* imgset = 0);
+
+		Imageset(const std::string& name);
 
 		/// @brief - New texture pushed back. No texture deletion support!
 		/// @param tex - texture ptr
@@ -86,23 +111,50 @@ namespace gui
 		/// @param sz - full image size
 		/// @param data - subimage data - texture coords, and size, output size() == 0 is success
 		/// @returns - true if success
-		bool DefineImage(const std::string& name, const Size& sz, Image1::SubImages& data);
-		
+		bool DefineImage(const std::string& name, const Size& sz, Image::SubImages& data);
+
 		/// @brief - Used to load from loaded xml
 		/// @param imgset - xml node named "imageset"
 		/// @param name - debug only name
 		/// @returns - true if success
 		bool Load(xml::node* imgset, const std::string& name, System& sys);
 
+		/// @brief - loaded texture count
+		size_t GetTextureCount() const;
+		/// @brief - return the empty texture if ordinal is out of range
+		TexturePtr GetTexture(size_t ordinal) const;
+
+		const Image* GetImage(const std::string& name) const;
+		const Image* operator[](const std::string& name) const { return GetImage(name); }
+		const Image* GetImagePtr(std::string name) const { return GetImage(name); }
+
+		const std::string& GetName() const;
+
 	private:
 		typedef std::vector<TexturePtr> Textures;
 		Textures m_textures;
-		typedef boost::unordered_map<std::string, Image1> Images;
+		typedef boost::unordered_map<std::string, Image> Images;
 		Images m_images;
+		std::string m_name;
 	};
 
-	typedef boost::shared_ptr<Imageset1> Imageset1Ptr;
-	typedef boost::weak_ptr<Imageset1> Imageset1WeakPtr;
+	inline size_t Imageset::GetTextureCount() const
+	{
+		return m_textures.size();
+	}
+
+	inline TexturePtr Imageset::GetTexture(size_t ordinal) const
+	{
+		return ordinal < m_textures.size() ? m_textures[ordinal] : TexturePtr();
+	}
+
+	inline const std::string& Imageset::GetName() const
+	{
+		return m_name;
+	}
+
+	typedef boost::shared_ptr<Imageset> ImagesetPtr;
+	typedef boost::weak_ptr<Imageset> ImagesetWeakPtr;
 
 	/// @brief - producing and loading imagesets
 	class ImagesetManager
@@ -111,15 +163,15 @@ namespace gui
 		/// @brief - Produce an empty imageset using name
 		/// @param name - must be unique, otherwise returned previous
 		/// @returns - ptr
-		Imageset1Ptr MakeEmpty(System& sys, const std::string& name);
+		ImagesetPtr MakeEmpty(System& sys, const std::string& name);
 		/// @brief - Produse an imageset using loaded xml
 		/// @param imgset - xml node named "imageset"
-		Imageset1Ptr Make(System& sys, xml::node* imgset);
+		ImagesetPtr Make(System& sys, xml::node* imgset);
 	private:
-		Imageset1Ptr Produce(System& sys, const std::string& name, xml::node* imgset);
+		ImagesetPtr Produce(System& sys, const std::string& name, xml::node* imgset);
 
 	private:
-		typedef boost::unordered_map<std::string, Imageset1WeakPtr> ImagesetRegistry;
+		typedef boost::unordered_map<std::string, ImagesetWeakPtr> ImagesetRegistry;
 		ImagesetRegistry m_registry;
 	};
 }

@@ -3,7 +3,6 @@
 
 #include "system.h"
 #include "windowmanager.h"
-#include "imageset.h"
 #include "renderer.h"
 
 
@@ -49,7 +48,7 @@ namespace gui
 		if (m_toplImg)
 		{
 			// calculate final destination area
-			imageSize = m_toplImg->pixel_rect.getSize();
+			imageSize = m_toplImg->GetSize();
 			finalRect.m_left = dest.m_left;
 			finalRect.m_top  = dest.m_top;
 			finalRect.setSize(imageSize);
@@ -62,14 +61,14 @@ namespace gui
 
 
 			// draw this element.
-			r.draw(*m_toplImg, finalRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_toplImg, finalRect, 1.f, clip,  m_backColor, Stretch, Stretch);
 		}
 
 		// top-right image
 		if (m_toprImg)
 		{
 			// calculate final destination area
-			imageSize = m_toprImg->pixel_rect.getSize();
+			imageSize = m_toprImg->GetSize();
 			finalRect.m_left = dest.m_right - imageSize.width;
 			finalRect.m_top  = dest.m_top;
 			finalRect.setSize(imageSize);
@@ -80,14 +79,14 @@ namespace gui
 			rightHeight -= rightOffset;
 
 			// draw this element.
-			r.draw(*m_toprImg, finalRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_toprImg, finalRect, 1.f, clip,  m_backColor, Stretch, Stretch);
 		}
 
 		// bottom-left image
 		if (m_botlImg)
 		{
 			// calculate final destination area
-			imageSize = m_botlImg->pixel_rect.getSize();
+			imageSize = m_botlImg->GetSize();
 			finalRect.m_left = dest.m_left;
 			finalRect.m_top  = dest.m_bottom - imageSize.height;
 			finalRect.setSize(imageSize);
@@ -98,14 +97,14 @@ namespace gui
 			leftHeight   -= imageSize.height;
 
 			// draw this element.
-			r.draw(*m_botlImg, finalRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_botlImg, finalRect, 1.f, clip,  m_backColor, Stretch, Stretch);
 		}
 
 		// bottom-right image
 		if (m_botrImg)
 		{
 			// calculate final destination area
-			imageSize = m_botrImg->pixel_rect.getSize();
+			imageSize = m_botrImg->GetSize();
 			finalRect.m_left = dest.m_right - imageSize.width;
 			finalRect.m_top  = dest.m_bottom - imageSize.height;
 			finalRect.setSize(imageSize);
@@ -115,14 +114,14 @@ namespace gui
 			rightHeight -= imageSize.height;
 
 			// draw this element.
-			r.draw(*m_botrImg, finalRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Stretch);        
+			r.draw(*m_botrImg, finalRect, 1.f, clip,  m_backColor, Stretch, Stretch);        
 		}
 
 		// top image
 		if (m_topImg)
 		{
 			// calculate final destination area
-			imageSize = m_topImg->pixel_rect.getSize();
+			imageSize = m_topImg->GetSize();
 			finalRect.m_left   = dest.m_left + topOffset;
 			finalRect.m_right  = finalRect.m_left + topWidth;
 			finalRect.m_top    = dest.m_top;
@@ -133,14 +132,14 @@ namespace gui
 			backgroundRect.m_top += imageSize.height;
 
 			// draw this element.
-			r.draw(*m_topImg, finalRect, 1.f, clip,  m_backColor, Image::Tile, Image::Stretch);
+			r.draw(*m_topImg, finalRect, 1.f, clip,  m_backColor, Tile, Stretch);
 		}
 
 		// bottom image
 		if (m_botImg)
 		{
 			// calculate final destination area
-			imageSize = m_botImg->pixel_rect.getSize();
+			imageSize = m_botImg->GetSize();
 			finalRect.m_left   = dest.m_left + bottomOffset;
 			finalRect.m_right  = finalRect.m_left + bottomWidth;
 			finalRect.m_bottom = dest.m_bottom;
@@ -151,14 +150,14 @@ namespace gui
 			backgroundRect.m_bottom -= imageSize.height;
 
 			// draw this element.
-			r.draw(*m_botImg, finalRect, 1.f, clip,  m_backColor, Image::Tile, Image::Stretch);
+			r.draw(*m_botImg, finalRect, 1.f, clip,  m_backColor, Tile, Stretch);
 		}
 
 		// left image
 		if (m_lImg)
 		{
 			// calculate final destination area
-			imageSize = m_lImg->pixel_rect.getSize();
+			imageSize = m_lImg->GetSize();
 			finalRect.m_left   = dest.m_left;
 			finalRect.m_right  = finalRect.m_left + imageSize.width;
 			finalRect.m_top    = dest.m_top + leftOffset;
@@ -169,14 +168,14 @@ namespace gui
 			backgroundRect.m_left += imageSize.width;
 
 			// draw this element.
-			r.draw(*m_lImg, finalRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Tile);
+			r.draw(*m_lImg, finalRect, 1.f, clip,  m_backColor, Stretch, Tile);
 		}
 
 		// right image
 		if (m_rImg)
 		{
 			// calculate final destination area
-			imageSize = m_rImg->pixel_rect.getSize();
+			imageSize = m_rImg->GetSize();
 			finalRect.m_top    = dest.m_top + rightOffset;
 			finalRect.m_bottom = finalRect.m_top + rightHeight;
 			finalRect.m_right  = dest.m_right;
@@ -187,13 +186,13 @@ namespace gui
 			backgroundRect.m_right -= imageSize.width;
 
 			// draw this element.
-			r.draw(*m_rImg, finalRect, 1.f, clip,  m_backColor, Image::Stretch, Image::Tile);
+			r.draw(*m_rImg, finalRect, 1.f, clip,  m_backColor, Stretch, Tile);
 		}
 
 		if (m_backImg)
 		{
 			// render background image.
-			r.draw(*m_backImg, backgroundRect, 1.f, clip,  m_backColor, Image::Tile, Image::Tile);
+			r.draw(*m_backImg, backgroundRect, 1.f, clip,  m_backColor, Tile, Tile);
 		}
 	}
 

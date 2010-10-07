@@ -358,19 +358,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\image.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\image.h"
-				>
-			</File>
-			<File
-				RelativePath=".\src\imageset.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\src\imageset.h"
+				RelativePath=".\src\imageops.h"
 				>
 			</File>
 			<File
@@ -387,6 +375,10 @@
 			</File>
 			<File
 				RelativePath=".\src\renderer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\src\renderimageinfo.h"
 				>
 			</File>
 			<File

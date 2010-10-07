@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <rgde/render/device.h>
+#include <guilib/src/renderimageinfo.h>
 
 #include "renderer.h"
 #include "texture.h"
@@ -246,7 +247,7 @@ namespace gui
 			m_shader->end();
 		}
 
-		void renderer::addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const Image& img, const ColorRect& colors)
+		void renderer::addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colors)
 		{
 			if (m_num_quads >= m_quads.size())
 			{
@@ -270,7 +271,7 @@ namespace gui
 			quad.positions[3].y	= p3.y;
 
 			quad.z				= z;
-			quad.texture		= &img.texture;
+			quad.texture		= img.texture;
 			quad.texPosition	= tex_rect;
 			quad.topLeftCol		= colors.m_top_left.getARGB();
 			quad.topRightCol	= colors.m_top_right.getARGB();
@@ -328,7 +329,7 @@ namespace gui
 			++batches[m_num_batches - 1].numQuads;
 		}
 
-		void renderer::addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const Image& img, const ColorRect& colors)		
+		void renderer::addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colors)		
 		{
 			if (m_num_quads >= m_quads.size())
 			{

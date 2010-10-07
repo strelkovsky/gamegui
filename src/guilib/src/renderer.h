@@ -4,17 +4,13 @@
 #include "colorRect.h"
 #include "texture.h"
 #include "texmanager.h"
-#include "image.h"
 #include "log.h"
 #include "renderCallback.h"
-
-#if defined(_MSC_VER)
-#	pragma warning(push)
-#	pragma warning(disable : 4251)
-#endif
+#include "imageops.h"
 
 namespace gui
 {
+	struct RenderImageInfo;
 
 class Font;
 typedef boost::shared_ptr<Font> FontPtr;
@@ -25,6 +21,8 @@ enum OrientationFlags
 	FlipVertical		= 2,	//!< Vertical flip the image
 	RotateRightAngle	= 4		//!< Rotate the image anticlockwise 90 degree
 };
+
+class Image;
 
 class  Renderer
 {
@@ -79,7 +77,7 @@ public:
 	void	drawLine(const Image& img, const vec2* p, size_t size, float z, const Rect& clip_rect, const Color& color, float width);
 	
 	void	draw(const Image& img, const Rect& dest_rect, float z, const Rect& clip_rect, const ColorRect& colors);
-	void	draw(const Image& img, const Rect& dest_rect, float z, const Rect& clip_rect, const ColorRect& colors, Image::ImageOps horz, Image::ImageOps vert);
+	void	draw(const Image& img, const Rect& dest_rect, float z, const Rect& clip_rect, const ColorRect& colors, ImageOps horz, ImageOps vert);
 	void	immediateDraw(const Image& img, const Rect& dest_rect, float z, const Rect& clip_rect, const ColorRect& colors);
 
 	virtual	void	doRender() = 0;
@@ -98,6 +96,7 @@ public:
 	virtual	TexturePtr	createTexture(unsigned int width, unsigned int height, Texture::PixelFormat format) = 0;
 	virtual TexturePtr	reloadTexture(TexturePtr p, const void* data, unsigned int width, unsigned int height, Texture::PixelFormat format) = 0;
 
+	// font managment TODO: remove it!
 	virtual FontPtr		createFont(const std::string& name, const std::string& fontname, unsigned int size) = 0;
 
 	virtual void startCaptureForCache(BaseWindow* window) ;
@@ -131,17 +130,17 @@ public:
 
 	void cleanup(bool complete);
 
-	// file managment
+	// file managment TODO: remove it!
 	virtual boost::shared_array<char> getData(const std::string& filename) = 0;
 	virtual void setResourcePath(const std::string& filename) = 0;
 	virtual std::string getResourcePath() const = 0;
 
 protected:
-	virtual	void addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const Image& img, const ColorRect& colours) = 0;
-	virtual void addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const Image& img, const ColorRect& colours) = 0;
+	virtual	void addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colours) = 0;
+	virtual void addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colours) = 0;
 	virtual void renderQuadDirect(const QuadInfo& q) = 0;
 
-	void fillQuad(QuadInfo& quad, const Rect& rc, const Rect& uv, float z, const Image& img, const ColorRect& colors);
+	void fillQuad(QuadInfo& quad, const Rect& rc, const Rect& uv, float z, const RenderImageInfo& img, const ColorRect& colors);
 	void sortQuads();	
 	
 	friend TextureManager;
@@ -190,7 +189,3 @@ protected:
 };
 
 }
-
-#if defined(_MSC_VER)
-#	pragma warning(pop)
-#endif

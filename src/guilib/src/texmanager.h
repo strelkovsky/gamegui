@@ -9,7 +9,7 @@ namespace gui
 	typedef boost::weak_ptr<Texture> TextureWeakPtr;
 	typedef boost::shared_ptr<Texture> TexturePtr;
 
-	class  TextureManager
+	class  TextureManager : boost::noncopyable
 	{
 		typedef boost::unordered_map<std::string, TextureWeakPtr> Textures;
 		typedef Textures::iterator TexturesIter;
