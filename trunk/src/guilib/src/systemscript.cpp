@@ -1,5 +1,4 @@
 #include "StdAfx.h"
-#include "imageset.h"
 #include "renderer.h"
 #include "renderhelper.h"
 #include "window.h"
@@ -121,15 +120,15 @@ void System::makeLuaBinding(void)
 			class_ <Image>("Image")
 			.enum_("ImageOps")
 			[
-				value("Stretch", Image::Stretch),
-				value("Tile", Image::Tile)
+				value("Stretch", Stretch),
+				value("Tile", Tile)
 			]
-			.def_readonly("PixelRect", &Image::pixel_rect)
-			.def("getName", &Image::getName)
+			.def("GetName", &Image::GetName)
+			.def("GetSize", &Image::GetSize)
 			,
 			class_ <Imageset>("Imageset")
-			.def("getImage", &Imageset::getImagePtr)
-			.def("getName", &Imageset::getName)
+			.def("getImage", &Imageset::GetImagePtr)
+			.def("getName", &Imageset::GetName)
 			,
 			class_ <BaseWindow, bases<ScriptObject> >("BaseWindow")
 			.property("parent", (BaseWindow* (BaseWindow::*)() const)&BaseWindow::getParentConst)

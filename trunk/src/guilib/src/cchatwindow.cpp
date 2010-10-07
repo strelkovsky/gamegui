@@ -3,7 +3,6 @@
 
 #include "system.h"
 #include "windowmanager.h"
-#include "imageset.h"
 #include "renderer.h"
 #include "utils.h"
 

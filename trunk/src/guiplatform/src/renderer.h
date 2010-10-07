@@ -18,8 +18,8 @@ namespace gui
 			virtual void addCallback( AfterRenderCallbackFunc callback,
 				BaseWindow* window, const Rect& dest, const Rect& clip);
 			virtual	void doRender();
-			virtual void addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const Image& img, const ColorRect& colours);
-			virtual void addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const Image& img, const ColorRect& colours);
+			virtual void addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colours);
+			virtual void addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colours);
 		
 			virtual void drawFromCache(BaseWindow* window);
 			virtual	TexturePtr createTexture(const std::string& filename);

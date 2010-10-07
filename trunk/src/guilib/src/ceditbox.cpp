@@ -3,7 +3,6 @@
 
 #include "system.h"
 #include "windowmanager.h"
-#include "imageset.h"
 #include "renderer.h"
 #include "font.h"
 #include "utils.h"
@@ -330,24 +329,24 @@ namespace gui
 		if (m_leftImg)
 		{
 			// calculate final destination area
-			imgSize = m_leftImg->pixel_rect.getSize();
+			imgSize = m_leftImg->GetSize();
 			componentRect = finalRect;
 			componentRect.m_right = componentRect.m_left + imgSize.width;
 			left  = imgSize.width;
 
 			// draw this element.
-			r.draw(*m_leftImg, componentRect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_leftImg, componentRect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 		// right image
 		if (m_rightImg)
 		{
-			imgSize = m_rightImg->pixel_rect.getSize();
+			imgSize = m_rightImg->GetSize();
 			componentRect = finalRect;
 			componentRect.m_left = finalRect.m_right - imgSize.width;
 			right = imgSize.width;
 
 			// draw this element.
-			r.draw(*m_rightImg, componentRect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_rightImg, componentRect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 		// center image
 		if (m_backImg)
@@ -357,7 +356,7 @@ namespace gui
 			componentRect.m_right -= right;
 	        
 			// draw this element.
-			r.draw(*m_backImg, componentRect, 1.f, finalClip,  m_backColor, Image::Tile, Image::Stretch);
+			r.draw(*m_backImg, componentRect, 1.f, finalClip,  m_backColor, Tile, Stretch);
 		}
 
 		//TODO: draw separately selected and unselected text
@@ -397,14 +396,14 @@ namespace gui
 				
 				if(m_selectImg)
 				{
-					imgSize = m_selectImg->pixel_rect.getSize();
+					imgSize = m_selectImg->GetSize();
 					
 					Rect selrect(dest);
 					selrect.m_left += starts;
 					selrect.m_right = dest.m_left + stops;
 					selrect.setHeight(imgSize.height);
 					
-					r.draw(*m_selectImg, selrect, 1.f, finalClip,  m_backColor, Image::Tile, Image::Stretch);
+					r.draw(*m_selectImg, selrect, 1.f, finalClip,  m_backColor, Tile, Stretch);
 				}
 			}
 
@@ -425,12 +424,12 @@ namespace gui
 					std::wstring tmp = outtext.substr(0, m_caretPos);
 					x = m_font->getFormattedTextExtent(tmp, Rect(), m_format);
 				}
-				imgSize = m_caretImg->pixel_rect.getSize();
+				imgSize = m_caretImg->GetSize();
 				Rect caretrect(dest);
 				caretrect.m_left += x;
 				caretrect.setSize(imgSize);
 				caretrect.offset(point(0.f, 2.f));
-				r.draw(*m_caretImg, caretrect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+				r.draw(*m_caretImg, caretrect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 			}
 		}
 	}
@@ -602,24 +601,24 @@ namespace gui
 		if (m_leftImg)
 		{
 			// calculate final destination area
-			imgSize = m_leftImg->pixel_rect.getSize();
+			imgSize = m_leftImg->GetSize();
 			componentRect = finalRect;
 			componentRect.m_right = componentRect.m_left + imgSize.width;
 			left  = imgSize.width;
 
 			// draw this element.
-			r.draw(*m_leftImg, componentRect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_leftImg, componentRect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 		// right image
 		if (m_rightImg)
 		{
-			imgSize = m_rightImg->pixel_rect.getSize();
+			imgSize = m_rightImg->GetSize();
 			componentRect = finalRect;
 			componentRect.m_left = finalRect.m_right - imgSize.width;
 			right = imgSize.width;
 
 			// draw this element.
-			r.draw(*m_rightImg, componentRect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_rightImg, componentRect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 		// center image
 		if (m_backImg)
@@ -629,7 +628,7 @@ namespace gui
 			componentRect.m_right -= right;
 	        
 			// draw this element.
-			r.draw(*m_backImg, componentRect, 1.f, finalClip,  m_backColor, Image::Tile, Image::Stretch);
+			r.draw(*m_backImg, componentRect, 1.f, finalClip,  m_backColor, Tile, Stretch);
 		}
 
 		if(m_font)

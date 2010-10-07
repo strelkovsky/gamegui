@@ -1,7 +1,7 @@
 #include "StdAfx.h"
-#include "imageset.h"
 #include "renderer.h"
 #include "cursor.h"
+#include "imagesetmanager.h"
 
 namespace gui
 {
@@ -51,7 +51,7 @@ std::string Cursor::getType() const
 {
 	if(m_currentCursor)
 	{
-		return m_currentCursor->getName();
+		return m_currentCursor->GetName();
 	}
 	return "";
 }
@@ -60,7 +60,7 @@ void Cursor::render()
 {
 	if(m_currentCursor)
 	{
-		Rect dest(getPosition(), m_currentCursor->pixel_rect.getSize());
+		Rect dest(getPosition(), m_currentCursor->GetSize());
 		m_render.immediateDraw(*m_currentCursor, dest, 0.f, Rect(point(0.f,0.f), m_render.getViewportSize()), Color(1.f, 1.f, 1.f));
 	}
 }

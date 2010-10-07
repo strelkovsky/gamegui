@@ -1,8 +1,8 @@
 #pragma once
 
-#include "image.h"
 #include "colorRect.h"
 #include "textformatting.h"
+#include "imagesetmanager.h"
 
 namespace gui
 {
@@ -28,9 +28,9 @@ namespace gui
 			return Size(m_width*x_scale ,m_height*y_scale); 
 		}
 
-		float getWidth (float x_scale) const { return m_image->pixel_rect.getWidth () * x_scale; }
-		float getHeight (float y_scale) const { return m_image->pixel_rect.getHeight () * y_scale; }
-		float getRenderedAdvance (float x_scale) const { return (m_image->pixel_rect.getWidth () + getOffsetX ()) * x_scale; }
+		float getWidth (float x_scale) const { return m_image->GetSize().width * x_scale; }
+		float getHeight (float y_scale) const { return m_image->GetSize().height * y_scale; }
+		float getRenderedAdvance (float x_scale) const { return (m_image->GetSize().width + getOffsetX ()) * x_scale; }
 		float getAdvance (float x_scale = 1.0) const { return m_advance * x_scale; }
 
 		float getOffsetX() const { return m_xoffset; }

@@ -2,7 +2,6 @@
 #include "window.h"
 
 #include "utils.h"
-#include "imageset.h"
 #include "system.h"
 #include "renderer.h"
 #include "eventtypes.h"

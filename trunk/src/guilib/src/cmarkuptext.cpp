@@ -2,8 +2,8 @@
 #include "cmarkuptext.h"
 
 #include "system.h"
-#include "imageset.h"
 #include "renderer.h"
+#include "imagesetmanager.h"
 #include "tooltip.h"
 #include "utils.h"
 #include "eventtypes.h"
@@ -270,7 +270,7 @@ namespace gui
 				
 				if(img)
 				{
-					Size imgsize = img->pixel_rect.getSize();
+					Size imgsize = img->GetSize();
 
 					if(imgsize.width > maxwidth - xpos)
 					{
@@ -411,7 +411,7 @@ namespace gui
 			rc.offset(finalRect.getPosition());
 			if (img->img)
 			{
-				r.draw(*img->img, rc, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+				r.draw(*img->img, rc, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 			}
 			++cimg;
 		}

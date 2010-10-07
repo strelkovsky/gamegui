@@ -1,28 +1,49 @@
 #include "stdafx.h"
 #include "imagesetmanager.h"
+#include "renderimageinfo.h"
 
 #include "system.h"
 #include "renderer.h"
 
 namespace gui
 {
-	Image1::Image1(Imageset1* parent, const Size& sz, SubImages& data)
+	Image::Image(Imageset* parent, const std::string& name, const Size& sz, SubImages& data)
 		: m_parent(parent)
 		, m_size(sz)
+		, m_name(name)
 	{
 		m_data.swap(data);
 	}
 
-	Image1::Image1()
+	Image::Image()
 	{
 	}
 
-	Imageset1::Imageset1(System& sys, const std::string& name, xml::node* imgset)
+	void Image::GetRenderInfo(RenderImageInfo& info, size_t subimage) const
+	{
+		if(m_parent && subimage < m_data.size())
+		{
+			const SubImage& sb = m_data[subimage];
+			info.texture = m_parent->GetTexture(sb.m_ordinal).get();
+			info.pixel_rect = sb.m_src;
+			info.offset = sb.m_offset;
+			if(!sb.m_crop.empty())
+				info.offset += sb.m_crop.getPosition();
+		}
+	}
+
+	Imageset::Imageset(System& sys, const std::string& name, xml::node* imgset)
+		: m_name(name)
 	{
 		Load(imgset, name, sys);
 	}
 
-	size_t Imageset1::AppendTexture(TexturePtr tex)
+	Imageset::Imageset(const std::string& name)
+		: m_name(name)
+	{
+	}
+
+	size_t Imageset::AppendTexture(TexturePtr tex)
 	{
 		Textures::iterator it = std::find(m_textures.begin(), m_textures.end(), tex);
 		if(it != m_textures.end())
@@ -31,23 +52,23 @@ namespace gui
 		return m_textures.size() - 1;
 	}
 
-	bool Imageset1::DefineImage(const std::string& name, const Size& sz, Image1::SubImages& data)
+	bool Imageset::DefineImage(const std::string& name, const Size& sz, Image::SubImages& data)
 	{
 		Images::iterator it = m_images.find(name);
 		if(it != m_images.end())
 			return false;
 		// TODO: optimize multiple copy
-		Image1 img(this, sz, data);
+		Image img(this, name, sz, data);
 		m_images.insert(std::make_pair(name, img));
 		return true;
 	}
 
-	bool Imageset1::Load(xml::node* imgset, const std::string& name, System& sys)
+	bool Imageset::Load(xml::node* imgset, const std::string& name, System& sys)
 	{
 		if(imgset)
 		{
 			xml::node texsnode = imgset->child("Textures");
-			if(!texsnode) // TODO: log error
+			if(!texsnode)
 			{
 				sys.logEvent(LogWarning, std::string("The imageset ")
 					+ name + " doesn't have any texture information. Imageset is unaffected");
@@ -105,9 +126,9 @@ namespace gui
 					float width = imgnode["Width"].as_float();
 					float height = imgnode["Height"].as_float();
 
-					Image1::SubImages subImages;
+					Image::SubImages subImages;
 
-					xml::node rectnode = imgsnode.first_child();
+					xml::node rectnode = imgnode.first_child();
 					while(!rectnode.empty())
 					{
 						if(std::string(rectnode.name()) == "Rect")
@@ -152,7 +173,7 @@ namespace gui
 					if(subImages.size())
 					{
 						// TODO: optimize multiple copy
-						m_images.insert(std::make_pair(imgname, Image1(this, Size(width, height), subImages)));
+						m_images.insert(std::make_pair(imgname, Image(this, imgname, Size(width, height), subImages)));
 					}
 					else
 					{
@@ -169,43 +190,75 @@ namespace gui
 		return false;
 	}
 
+	const Image* Imageset::GetImage(const std::string& name) const
+	{
+		Images::const_iterator it = m_images.find(name);
+		if(it != m_images.end())
+			return &it->second;
+		return 0;
+	}
 
-	Imageset1Ptr ImagesetManager::MakeEmpty(System& sys, const std::string& name)
+	ImagesetPtr ImagesetManager::MakeEmpty(System& sys, const std::string& name)
 	{
 		return Produce(sys, name, 0);
 	}
 
-	Imageset1Ptr ImagesetManager::Make(System& sys, xml::node* imgset)
+	ImagesetPtr ImagesetManager::Make(System& sys, xml::node* imgset)
 	{
 		if(imgset)
 		{
 			std::string name = (*imgset)["Name"].value();
 			return Produce(sys, name, imgset);
 		}
-		return Imageset1Ptr();
+		return ImagesetPtr();
 	}
 
-	Imageset1Ptr ImagesetManager::Produce(System& sys, const std::string& name, xml::node* imgset)
+	ImagesetPtr ImagesetManager::Produce(System& sys, const std::string& name, xml::node* imgset)
 	{
-		Imageset1Ptr retval;
+		ImagesetPtr retval;
 		if(name.size())
 		{
 			ImagesetRegistry::iterator it = m_registry.find(name);
 			if(it == m_registry.end())
 			{
-				retval.reset(new Imageset1(sys, name, imgset));
-				Imageset1WeakPtr weak = retval;
+				retval.reset(new Imageset(sys, name, imgset));
+				ImagesetWeakPtr weak = retval;
 				m_registry.insert(std::make_pair(name, weak));
 				return retval;
 			}
 
-			Imageset1WeakPtr& weak = it->second;
+			ImagesetWeakPtr& weak = it->second;
 			if(retval = weak.lock())
 				return retval;
-			retval.reset(new Imageset1(sys, name, imgset));
+			retval.reset(new Imageset(sys, name, imgset));
 			weak = retval;
 		}
 		return retval;
+	}
+
+	ImageOps StringToImageOps(const std::string& str)
+	{
+		if(str == "Tile" || str == "tile")
+			return Tile;
+		if(str == "Stretch" || str == "stretch")
+			return Stretch;
+
+		return Stretch;
+	}
+
+	std::string ImageOpsToString(ImageOps op)
+	{
+		switch(op)
+		{
+		case Tile:
+			return "Tile";
+			break;
+		case Stretch:
+		default:
+			return "Stretch";
+			break;
+		}
+		return "Stretch";
 	}
 
 }

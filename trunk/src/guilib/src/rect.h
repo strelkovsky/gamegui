@@ -35,7 +35,7 @@ namespace gui
 		Rect&	constrainSize(const Size& max_sz, const Size& min_sz);
 
 		Rect&	scale(const Size& size);
-		bool	empty(void);
+		bool	empty(void) const;
 
 		bool	operator==(const Rect& rhs) const;
 		bool	operator!=(const Rect& rhs) const;
@@ -75,7 +75,7 @@ namespace gui
 		setWidth(size.width);
 		setHeight(size.height);
 	}
-	inline bool Rect::empty(void)
+	inline bool Rect::empty(void) const
 	{
 		return !(getWidth() > FLT_EPSILON && getHeight() > FLT_EPSILON);
 	}

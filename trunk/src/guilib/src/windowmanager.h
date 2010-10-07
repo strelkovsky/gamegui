@@ -1,5 +1,7 @@
 #pragma once
 
+#include "imagesetmanager.h"
+
 namespace xml
 {
 	class node;
@@ -13,8 +15,6 @@ namespace gui
 
 	class Font;
 	typedef boost::shared_ptr<Font> FontPtr;
-	class Imageset;
-	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
 	class System;
 	class BaseWindow;
@@ -85,6 +85,8 @@ namespace gui
 
 		typedef std::vector<std::string> LuaFilesVector;
 		LuaFilesVector m_loadedLuaFiles;
+
+		ImagesetManager m_imgseManager;
 	};
 
 }

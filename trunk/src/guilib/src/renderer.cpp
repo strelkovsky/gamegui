@@ -1,17 +1,17 @@
 
 #include "stdafx.h"
-#include "image.h"
 #include "renderer.h"
+
+#include "imagesetmanager.h"
+#include "renderimageinfo.h"
+
+namespace gui
+{
 
 #ifdef _MSC_VER
 #pragma warning(push)
 #pragma warning(disable: 4355)
 #endif
-
-namespace gui
-{
-
-
 
 Renderer::Renderer(void) :
 	GuiZInitialValue(1.0f),
@@ -33,6 +33,10 @@ Renderer::Renderer(void) :
 	resetZValue();
 }
 
+#ifdef _MSC_VER
+#pragma warning(pop)
+#endif
+
 Renderer::~Renderer(void)
 {
 }
@@ -45,33 +49,43 @@ void Renderer::immediateDraw(const Image& img, const Rect& dest_rect, float z, c
 	// check if rect was totally clipped
 	if (final_rect.getWidth() != 0)
 	{
-		const Rect& source_rect = img.pixel_rect;
+		size_t images = img.GetCount();
+		for(size_t i = 0; i < images; ++i)
+		{
+			RenderImageInfo info;
+			img.GetRenderInfo(info, i);
+			if(!info.texture)
+				continue;
+			const Rect& source_rect = info.pixel_rect;
 
-        const float x_scale = 1.f;
-        const float y_scale = 1.f;
+			const float x_scale = 1.f;
+			const float y_scale = 1.f;
 
-		float tex_per_pix_x = source_rect.getWidth() / dest_rect.getWidth();
-		float tex_per_pix_y = source_rect.getHeight() / dest_rect.getHeight();
+			float tex_per_pix_x = source_rect.getWidth() / dest_rect.getWidth();
+			float tex_per_pix_y = source_rect.getHeight() / dest_rect.getHeight();
 
-		// calculate final, clipped, texture co-ordinates
-		Rect  tex_rect((source_rect.m_left + ((final_rect.m_left - dest_rect.m_left) * tex_per_pix_x)) * x_scale,
-			(source_rect.m_top + ((final_rect.m_top - dest_rect.m_top) * tex_per_pix_y)) * y_scale,
-			(source_rect.m_right + ((final_rect.m_right - dest_rect.m_right) * tex_per_pix_x)) * x_scale,
-			(source_rect.m_bottom + ((final_rect.m_bottom - dest_rect.m_bottom) * tex_per_pix_y)) * y_scale);
+			// calculate final, clipped, texture co-ordinates
+			Rect  tex_rect((source_rect.m_left + ((final_rect.m_left - dest_rect.m_left) * tex_per_pix_x)) * x_scale,
+				(source_rect.m_top + ((final_rect.m_top - dest_rect.m_top) * tex_per_pix_y)) * y_scale,
+				(source_rect.m_right + ((final_rect.m_right - dest_rect.m_right) * tex_per_pix_x)) * x_scale,
+				(source_rect.m_bottom + ((final_rect.m_bottom - dest_rect.m_bottom) * tex_per_pix_y)) * y_scale);
 
-		tex_rect *= img.texture.getSize();
+			tex_rect *= info.texture->getSize();
 
-		// queue a quad to be rendered
-		QuadInfo quad;
-		fillQuad(quad, final_rect, tex_rect, z, img, colors);
-		renderQuadDirect(quad);
+			// queue a quad to be rendered
+			QuadInfo quad;
+			Rect rc(final_rect);
+			rc.m_left += info.offset.x;
+			rc.m_top += info.offset.y;
+			fillQuad(quad, rc, tex_rect, z, info, colors);
+			renderQuadDirect(quad);
+		}
 	}
 }
 
-void Renderer::draw(const Image& img, const Rect& dest_rect, float z, const Rect& clip_rect,const ColorRect& colors, Image::ImageOps horz, Image::ImageOps vert)
+void Renderer::draw(const Image& img, const Rect& dest_rect, float z, const Rect& clip_rect,const ColorRect& colors, ImageOps horz, ImageOps vert)
 {
-	const Rect& source_rect = img.pixel_rect;
-	Size imgSz = source_rect.getSize();
+	Size imgSz = img.GetSize();
     
 	unsigned int horzTiles = 1;
 	unsigned int vertTiles = 1;
@@ -81,12 +95,12 @@ void Renderer::draw(const Image& img, const Rect& dest_rect, float z, const Rect
 
 	switch (horz)
     {		
-	case Image::Tile:
+	case Tile:
 		if(dest_rect.getWidth() <= 0.f)
 			return;
 		horzTiles = (unsigned int)((dest_rect.getWidth() + (imgSz.width - 1)) / imgSz.width);
 		break;
-	case Image::Stretch:
+	case Stretch:
 	default:
 		imgSz.width = dest_rect.getWidth();
 		break;
@@ -94,12 +108,12 @@ void Renderer::draw(const Image& img, const Rect& dest_rect, float z, const Rect
 
 	switch (vert)
     {
-	case Image::Tile:
+	case Tile:
 		if(dest_rect.getHeight() <= 0.f)
 			return;
 		vertTiles = (unsigned int)((dest_rect.getHeight() + (imgSz.height - 1)) / imgSz.height);
 		break;
-	case Image::Stretch:
+	case Stretch:
 	default:
 		imgSz.height = dest_rect.getHeight();
 		break;
@@ -136,26 +150,40 @@ void Renderer::drawLine(const Image& img, const vec2* p, size_t size, float z, c
 
 	vec2 p0, p1, p2, p3;
 
-	Rect source_rect = img.pixel_rect;
-	source_rect *= img.texture.getSize();
-
-	for(size_t i = 0; i < size - 1; ++i)
+	size_t images = img.GetCount();
+	for(size_t i = 0; i < images; ++i)
 	{
-		const vec2& v1 = p[i];
-		const vec2& v2 = p[i+1];
+		RenderImageInfo info;
+		img.GetRenderInfo(info, i);
+		if(!info.texture)
+			continue;
 
-		vec2 dir = make_normal(v2-v1);
+		Rect source_rect = info.pixel_rect;
+		source_rect *= info.texture->getSize();
 
-		vec2 nv(-dir.y, dir.x);
-		nv *= width*0.5f;
+		for(size_t i = 0; i < size - 1; ++i)
+		{
+			const vec2& v1 = p[i];
+			const vec2& v2 = p[i+1];
 
-		p0 = v1 + nv;
-		p1 = v2 + nv;
+			vec2 dir = make_normal(v2-v1);
 
-		p2 = v1 - nv;
-		p3 = v2 - nv;
+			vec2 nv(-dir.y, dir.x);
+			nv *= width*0.5f;
 
-		addQuad(p0, p1, p2, p3, source_rect, z, img, color_rect);
+			p0 = v1 + nv;
+			p1 = v2 + nv;
+
+			p2 = v1 - nv;
+			p3 = v2 - nv;
+
+			p0.x += info.offset.x;
+			p2.x += info.offset.x;
+			p0.y += info.offset.y;
+			p1.y += info.offset.y;
+
+			addQuad(p0, p1, p2, p3, source_rect, z, info, color_rect);
+		}
 	}
 }
 
@@ -167,26 +195,39 @@ void Renderer::draw(const Image& img, const Rect& dest_rect, float z, const Rect
 	// check if rect was totally clipped
 	if (final_rect.getWidth() != 0)
 	{
-		const Rect& source_rect = img.pixel_rect;
+		size_t images = img.GetCount();
+		for(size_t i = 0; i < images; ++i)
+		{
+			RenderImageInfo info;
+			img.GetRenderInfo(info, i);
+			if(!info.texture)
+				continue;
 
-		float tex_per_pix_x = source_rect.getWidth() / dest_rect.getWidth();
-		float tex_per_pix_y = source_rect.getHeight() / dest_rect.getHeight();
+			const Rect& source_rect = info.pixel_rect;
 
-		// calculate final, clipped, texture co-ordinates
-		Rect  tex_rect(
-			(source_rect.m_left + ((final_rect.m_left - dest_rect.m_left) * tex_per_pix_x)),
-			(source_rect.m_top + ((final_rect.m_top - dest_rect.m_top) * tex_per_pix_y)),
-			(source_rect.m_right + ((final_rect.m_right - dest_rect.m_right) * tex_per_pix_x)),
-			(source_rect.m_bottom + ((final_rect.m_bottom - dest_rect.m_bottom) * tex_per_pix_y))
-			);
-		
-		tex_rect *= img.texture.getSize();
+			float tex_per_pix_x = source_rect.getWidth() / dest_rect.getWidth();
+			float tex_per_pix_y = source_rect.getHeight() / dest_rect.getHeight();
 
-		// queue a quad to be rendered
-		addQuad(final_rect, tex_rect, z, img, colors);
+			// calculate final, clipped, texture co-ordinates
+			Rect  tex_rect(
+				(source_rect.m_left + ((final_rect.m_left - dest_rect.m_left) * tex_per_pix_x)),
+				(source_rect.m_top + ((final_rect.m_top - dest_rect.m_top) * tex_per_pix_y)),
+				(source_rect.m_right + ((final_rect.m_right - dest_rect.m_right) * tex_per_pix_x)),
+				(source_rect.m_bottom + ((final_rect.m_bottom - dest_rect.m_bottom) * tex_per_pix_y))
+				);
+			
+			tex_rect *= info.texture->getSize();
+
+			Rect rc(final_rect);
+			rc.m_left += info.offset.x;
+			rc.m_top += info.offset.y;
+
+			// queue a quad to be rendered
+			addQuad(rc, tex_rect, z, info, colors);
+		}
 	}
-
 }
+
 void Renderer::clearCache(BaseWindow* window)
 {
 	if (window)
@@ -318,15 +359,16 @@ Rect Renderer::realToVirtualCoord( const Rect& realRect ) const
 	return result;
 }
 
-void Renderer::fillQuad(QuadInfo& quad, const Rect& rc, const Rect& uv, float z, const Image& img, const ColorRect& colors)
+void Renderer::fillQuad(QuadInfo& quad, const Rect& rc, const Rect& uv, float z, const RenderImageInfo& img, const ColorRect& colors)
 {
 	quad.positions[0].x	= quad.positions[2].x = rc.m_left;
 	quad.positions[0].y	= quad.positions[1].y = rc.m_top;
 	quad.positions[1].x	= quad.positions[3].x = rc.m_right;
 	quad.positions[2].y	= quad.positions[3].y = rc.m_bottom;
 
+	assert(img.texture);
 	quad.z				= z;
-	quad.texture		= &img.texture;
+	quad.texture		= img.texture;
 	quad.texPosition	= uv;
 	quad.topLeftCol		= colors.m_top_left.getARGB();
 	quad.topRightCol	= colors.m_top_right.getARGB();
@@ -334,6 +376,3 @@ void Renderer::fillQuad(QuadInfo& quad, const Rect& rc, const Rect& uv, float z,
 	quad.bottomRightCol	= colors.m_bottom_right.getARGB();
 }
 }
-#ifdef _MSC_VER
-#pragma warning(pop)
-#endif

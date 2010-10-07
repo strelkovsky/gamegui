@@ -3,7 +3,6 @@
 
 #include "system.h"
 #include "windowmanager.h"
-#include "imageset.h"
 #include "renderer.h"
 #include "font.h"
 #include "utils.h"
@@ -119,7 +118,7 @@ namespace gui
 		if (m_captionLeftImg)
 		{
 			// calculate final destination area
-			imgSize = m_captionLeftImg->pixel_rect.getSize();
+			imgSize = m_captionLeftImg->GetSize();
 			componentRect.m_left = finalRect.m_left;
 			componentRect.m_top  = finalRect.m_top;
 			componentRect.setSize(imgSize);
@@ -128,12 +127,12 @@ namespace gui
 			height = imgSize.height;
 
 			// draw this element.
-			r.draw(*m_captionLeftImg, componentRect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_captionLeftImg, componentRect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 		// right image
 		if (m_captionRightImg)
 		{
-			imgSize = m_captionRightImg->pixel_rect.getSize();
+			imgSize = m_captionRightImg->GetSize();
 			componentRect.m_left = finalRect.m_right - imgSize.width;
 			componentRect.m_top  = finalRect.m_top;
 			componentRect.setSize(imgSize);
@@ -142,7 +141,7 @@ namespace gui
 			right = imgSize.width;
 
 			// draw this element.
-			r.draw(*m_captionRightImg, componentRect, 1.f, finalClip,  m_backColor, Image::Stretch, Image::Stretch);
+			r.draw(*m_captionRightImg, componentRect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 		// center image
 		if (m_captionBackImg)
@@ -153,7 +152,7 @@ namespace gui
 			componentRect.m_bottom = componentRect.m_top + height;
 	        
 			// draw this element.
-			r.draw(*m_captionBackImg, componentRect, 1.f, finalClip,  m_backColor, Image::Tile, Image::Stretch);
+			r.draw(*m_captionBackImg, componentRect, 1.f, finalClip,  m_backColor, Tile, Stretch);
 		}
 
 		//rendering frame

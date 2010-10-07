@@ -3,7 +3,6 @@
 
 #include "system.h"
 #include "windowmanager.h"
-#include "imageset.h"
 #include "renderer.h"
 
 namespace gui
@@ -11,8 +10,8 @@ namespace gui
 	StaticImage::StaticImage(System& sys, const std::string& name) :
 		BaseWindow(sys, name),
 		m_img(0),
-		m_vformat(Image::Stretch),
-		m_hformat(Image::Stretch)
+		m_vformat(Stretch),
+		m_hformat(Stretch)
 	{
 	}
 
@@ -29,7 +28,7 @@ namespace gui
 	const std::string StaticImage::getImageset() const
 	{
 		if(m_imgset)
-			return m_imgset->getName();
+			return m_imgset->GetName();
 
 		return std::string();
 	}
@@ -50,7 +49,7 @@ namespace gui
 	const std::string StaticImage::getImage() const
 	{
 		if(m_img)
-			return m_img->getName();
+			return m_img->GetName();
 
 		return std::string();
 	}

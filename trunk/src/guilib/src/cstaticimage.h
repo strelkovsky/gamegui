@@ -1,6 +1,7 @@
 #pragma once
 #include "window.h"
-#include "image.h"
+#include "imagesetmanager.h"
+#include "imageops.h"
 
 namespace gui
 {
@@ -44,7 +45,7 @@ namespace gui
 	protected:
 		ImagesetPtr m_imgset;
 		const Image* m_img;
-		Image::ImageOps	m_vformat;
-		Image::ImageOps	m_hformat;
+		ImageOps	m_vformat;
+		ImageOps	m_hformat;
 	};
 }
