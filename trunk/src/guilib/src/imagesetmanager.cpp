@@ -27,8 +27,7 @@ namespace gui
 			info.texture = m_parent->GetTexture(sb.m_ordinal).get();
 			info.pixel_rect = sb.m_src;
 			info.offset = sb.m_offset;
-			if(!sb.m_crop.empty())
-				info.offset += sb.m_crop.getPosition();
+			info.crop = sb.m_crop.getPosition();
 		}
 	}
 
@@ -93,7 +92,7 @@ namespace gui
 				if(nodename == "Texture")
 				{
 					std::string texname = texnode["Name"].value();
-					std::string filename = texnode["Imagefile"].value();
+					std::string filename = texnode["Filename"].value();
 					if(!texname.size())
 						texname = filename;
 					TextureOrdinals::iterator it = textureOrdinals.find(texname);
@@ -195,6 +194,17 @@ namespace gui
 		Images::const_iterator it = m_images.find(name);
 		if(it != m_images.end())
 			return &it->second;
+		return 0;
+	}
+
+	const Image* Imageset::GetImageByIdx(size_t idx) const
+	{
+		if(idx < GetImageCount())
+		{
+			Images::const_iterator it = m_images.begin();
+			std::advance(it, idx);
+			return &it->second;
+		}
 		return 0;
 	}
 

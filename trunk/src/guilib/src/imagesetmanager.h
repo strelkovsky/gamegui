@@ -16,6 +16,7 @@ namespace gui
 
 	struct SubImage
 	{
+		SubImage() : m_ordinal(-1), m_offset(0, 0) {}
 		size_t m_ordinal; // ordinal to texture in atlas
 		Rect m_src; // area in atlas
 		Rect m_crop; // for a cropped images, offset, and original size
@@ -82,7 +83,7 @@ namespace gui
 	//		<Texture Filename="test1.tga"/>
 	//	</Textures>
 	//	<Images>
-	//		<Image Name="test img" >
+	//		<Image Name="test img" Width="100" Height="200" >
 	//			<Rect Texture="UberTex" SrcLeft="0" SrcTop="0" SrcRight="100" SrcBottom="100" XPos="0" YPos="0" />
 	//			<Rect Texture="test1.tga" SrcLeft="0" SrcTop="0" SrcRight="100" SrcBottom="100" XPos="0" YPos="100"
 	//				CropLeft="5" CropTop="5" OrigWidth="110" OrigHeight="110" />
@@ -127,8 +128,14 @@ namespace gui
 		const Image* GetImage(const std::string& name) const;
 		const Image* operator[](const std::string& name) const { return GetImage(name); }
 		const Image* GetImagePtr(std::string name) const { return GetImage(name); }
+		/// @brief - Get image by index
+		/// @param idx - [0, GetImageCount())
+		/// @returns - ptr, 0 if out of range
+		const Image* GetImageByIdx(size_t idx) const;
 
 		const std::string& GetName() const;
+
+		size_t GetImageCount() const;
 
 	private:
 		typedef std::vector<TexturePtr> Textures;
@@ -141,6 +148,11 @@ namespace gui
 	inline size_t Imageset::GetTextureCount() const
 	{
 		return m_textures.size();
+	}
+
+	inline size_t Imageset::GetImageCount() const
+	{
+		return m_images.size();
 	}
 
 	inline TexturePtr Imageset::GetTexture(size_t ordinal) const

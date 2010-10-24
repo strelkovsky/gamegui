@@ -129,6 +129,8 @@ void System::makeLuaBinding(void)
 			class_ <Imageset>("Imageset")
 			.def("getImage", &Imageset::GetImagePtr)
 			.def("getName", &Imageset::GetName)
+			.def("getImageCount", &Imageset::GetImageCount)
+			.def("getImageByIdx", &Imageset::GetImageByIdx)
 			,
 			class_ <BaseWindow, bases<ScriptObject> >("BaseWindow")
 			.property("parent", (BaseWindow* (BaseWindow::*)() const)&BaseWindow::getParentConst)

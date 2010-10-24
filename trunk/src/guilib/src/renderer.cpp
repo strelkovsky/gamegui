@@ -189,42 +189,49 @@ void Renderer::drawLine(const Image& img, const vec2* p, size_t size, float z, c
 
 void Renderer::draw(const Image& img, const Rect& dest_rect, float z, const Rect& clip_rect,const ColorRect& colors)
 {
-	// get the rect area that we will actually draw to (i.e. perform clipping)
-	Rect final_rect(dest_rect.getIntersection(clip_rect));
-
-	// check if rect was totally clipped
-	if (final_rect.getWidth() != 0)
+	const Size& sz = img.GetSize();
+	size_t images = img.GetCount();
+	for(size_t i = 0; i < images; ++i)
 	{
-		size_t images = img.GetCount();
-		for(size_t i = 0; i < images; ++i)
-		{
-			RenderImageInfo info;
-			img.GetRenderInfo(info, i);
-			if(!info.texture)
-				continue;
+		RenderImageInfo info;
+		img.GetRenderInfo(info, i);
+		if(!info.texture)
+			continue;
 
-			const Rect& source_rect = info.pixel_rect;
+		float orig_scale_x = dest_rect.getWidth() / sz.width;
+		float orig_scale_y = dest_rect.getHeight() / sz.height;
 
-			float tex_per_pix_x = source_rect.getWidth() / dest_rect.getWidth();
-			float tex_per_pix_y = source_rect.getHeight() / dest_rect.getHeight();
+		Rect sub(info.offset + info.crop, info.pixel_rect.getSize());
 
-			// calculate final, clipped, texture co-ordinates
-			Rect  tex_rect(
-				(source_rect.m_left + ((final_rect.m_left - dest_rect.m_left) * tex_per_pix_x)),
-				(source_rect.m_top + ((final_rect.m_top - dest_rect.m_top) * tex_per_pix_y)),
-				(source_rect.m_right + ((final_rect.m_right - dest_rect.m_right) * tex_per_pix_x)),
-				(source_rect.m_bottom + ((final_rect.m_bottom - dest_rect.m_bottom) * tex_per_pix_y))
-				);
-			
-			tex_rect *= info.texture->getSize();
+		Rect dest(
+			sub.m_left * orig_scale_x,
+			sub.m_top * orig_scale_y,
+			sub.m_right * orig_scale_x,
+			sub.m_bottom * orig_scale_y);
+		dest.offset(dest_rect.getPosition());
 
-			Rect rc(final_rect);
-			rc.m_left += info.offset.x;
-			rc.m_top += info.offset.y;
+		// get the rect area that we will actually draw to (i.e. perform clipping)
+		Rect final_rect(dest.getIntersection(clip_rect));
+		if (final_rect.empty())
+			continue;
 
-			// queue a quad to be rendered
-			addQuad(rc, tex_rect, z, info, colors);
-		}
+		const Rect& source_rect = info.pixel_rect;
+
+		float tex_per_pix_x = source_rect.getWidth() / dest.getWidth();
+		float tex_per_pix_y = source_rect.getHeight() / dest.getHeight();
+
+		// calculate final, clipped, texture co-ordinates
+		Rect  tex_rect(
+			(source_rect.m_left + ((final_rect.m_left - dest.m_left) * tex_per_pix_x)),
+			(source_rect.m_top + ((final_rect.m_top - dest.m_top) * tex_per_pix_y)),
+			(source_rect.m_right + ((final_rect.m_right - dest.m_right) * tex_per_pix_x)),
+			(source_rect.m_bottom + ((final_rect.m_bottom - dest.m_bottom) * tex_per_pix_y))
+			);
+		
+		tex_rect *= info.texture->getSize();
+
+		// queue a quad to be rendered
+		addQuad(final_rect, tex_rect, z, info, colors);
 	}
 }
 
