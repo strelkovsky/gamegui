@@ -12,5 +12,6 @@ namespace gui
 		Texture* texture;
 		Rect pixel_rect;
 		point offset;
+		point crop;
 	};
 }

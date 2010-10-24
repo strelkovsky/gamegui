@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <Imageset Name="skin" >
   <Textures>
-    <Texture Name="0" Imagefile="skin.png" />
+    <Texture Name="0" Filename="skin.png" />
   </Textures>
   <Images>
     <Image Name="Background" Width="30.0" Height="20.0" >
