@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "scripthost.h"
 #include "scriptobject.h"
+#include "system.h"
 
 namespace gui
 {
@@ -40,9 +41,10 @@ void ScriptStack::pop(lua_State* state)
 	}
 }
 
-ScriptSystem::ScriptSystem(lua_State* externalState)
+ScriptSystem::ScriptSystem(filesystem_ptr fs, lua_State* externalState)
 : m_state(externalState)
 , m_ext(true)
+, m_filesystem(fs)
 {
 	if(!m_state)
 	{
@@ -144,29 +146,7 @@ bool ScriptSystem::ExecuteFile(const std::string& filename)
 
 std::string ScriptSystem::LoadFile(const std::string& filename)
 {
-	std::string str;
-	FILE* file = fopen(filename.c_str(), "rb");
-	if(file)
-	{
-		fseek(file, 0, SEEK_END);
-		long length = ftell(file);
-		fseek(file, 0, SEEK_SET);
-		if (length > 0)
-		{
-			char* s = new(std::nothrow) char[length + 1];
-			if(s)
-			{
-				s[length] = 0;
-				size_t read = fread(s, (size_t)length, 1, file);
-				if (read == 1)
-				{
-					str = s;
-				}
-				delete [] s;
-			}			
-		}
-		fclose(file);
-	}
+	std::string str = m_filesystem->load_text(filename);
 	return str;
 }
 

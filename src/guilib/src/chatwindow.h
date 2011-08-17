@@ -1,14 +1,15 @@
 #pragma once
+
 #include "panel.h"
 #include "font.h"
 
 namespace gui
 {
-	class  ChatWindow : public Panel
+	class ChatWindow : public Panel
 	{
 	public:
 		typedef ChatWindow Self;
-		ChatWindow(System& sys, const std::string& name = "");
+		ChatWindow(System& sys, const std::string& name = std::string());
 		virtual ~ChatWindow();
 
 		static const char* GetType() { return "ChatWindow"; }
@@ -55,10 +56,10 @@ namespace gui
 		void Hide() 
 		{
 			setVisible(false);
-			BaseWindow::stopTick();
+			base_window::stopTick();
 		}
 		void SetPosition(const point& point);
-		void SetVisible(bool visible) {BaseWindow::setVisible(visible);}
+		void SetVisible(bool visible) {base_window::setVisible(visible);}
 
 
 		void SetMaxWidth(float value) 

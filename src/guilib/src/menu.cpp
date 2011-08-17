@@ -33,9 +33,9 @@ namespace
 {
 	struct seeker
 	{
-		const BaseWindow* m_ptr;
-		seeker(const BaseWindow* ptr) : m_ptr(ptr){}
-		bool operator()(WindowPtr obj) 
+		const base_window* m_ptr;
+		seeker(const base_window* ptr) : m_ptr(ptr){}
+		bool operator()(window_ptr obj) 
 		{
 			return obj ? (obj.get() == m_ptr) : false;
 		}
@@ -46,8 +46,8 @@ void Menu::rise()
 {
 	if(m_parent)
 	{
-		ChildrenList& children = m_parent->getChildren();
-		ChildrenIter it = std::find_if(children.begin(), children.end(), seeker(this));
+		children_list& children = m_parent->getChildren();
+		child_iter it = std::find_if(children.begin(), children.end(), seeker(this));
 		if(it != children.end())
 		{
 			children.splice(children.end(), children, it);

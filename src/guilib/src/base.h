@@ -44,11 +44,11 @@ inline void intrusive_ptr_release(RefCounted* p)
 		delete p;
 }
 //-----------------------------------------------------------------
-class  NamedObject
+class named_object
 {
 public:
-	NamedObject(const std::string& name);
-	virtual ~NamedObject(){}
+	explicit named_object(const std::string& name);
+	virtual ~named_object(){}
 
 	const std::string& getName() const;
 	void setName(const std::string& name);
@@ -62,20 +62,20 @@ class TreeNode
 {
 public:
 	typedef T Node;
-	typedef boost::intrusive_ptr<Node> PNode;
-	typedef std::list<PNode> ChildrenList;
-	typedef typename ChildrenList::iterator ChildrenIter;
-	typedef typename ChildrenList::reverse_iterator ReverseChildrenIter;
-	typedef typename ChildrenList::const_iterator ChildrenIterConst;
+	typedef boost::intrusive_ptr<Node> node_ptr;
+	typedef std::list<node_ptr> children_list;
+	typedef typename children_list::iterator child_iter;
+	typedef typename children_list::reverse_iterator child_riter;
+	typedef typename children_list::const_iterator child_citer;
 
 	virtual bool isCanHaveChildren() const = 0;
 
-	void addChild(const PNode& node)
+	void add(const node_ptr& node)
 	{
-		addChild(node, m_children.end());
+		add(node, m_children.end());
 	}
 
-	void addChild(const PNode& node, ChildrenIter iwhere)
+	void add(const node_ptr& node, child_iter iwhere)
 	{
 		if(!isCanHaveChildren()) return;
 
@@ -83,29 +83,29 @@ public:
 		{
 			node->resetParent();
 
-			PNode n = node;			
+			node_ptr n = node;			
 			m_children.insert(iwhere, n);
 			onChildAdd(n);
 			n->setParent((T*)this);
 		}
 	}
 
-	void removeChild(const PNode& node)
+	void remove(const node_ptr& node)
 	{
 		if(!isCanHaveChildren()) return;
 
 		if (node && node != this && node->getParent() == this)
 		{
-			PNode n = node;
+			node_ptr n = node;
 			m_children.remove(n);
 			onChildRemove(n);
 			node->setParent(0);
 		}
 	}
 
-	ChildrenIter getOrder(const PNode& node) 
+	child_iter getOrder(const node_ptr& node) 
 	{
-		ChildrenIter f = std::find(m_children.begin(), m_children.end(), node);
+		child_iter f = std::find(m_children.begin(), m_children.end(), node);
 		if(f == m_children.begin())
 			++f;
 		else
@@ -117,13 +117,13 @@ public:
 	T*		 getParent()		{return m_parent;}
 	T*		 getParentConst() const		{return m_parent;}
 
-	ChildrenList& getChildren() {return m_children;}
-	const ChildrenList& getChildren() const {return m_children;}
+	children_list& getChildren() {return m_children;}
+	const children_list& getChildren() const {return m_children;}
 
 	TreeNode() : m_parent(0){}
 	virtual ~TreeNode()
 	{
-		for (ChildrenList::iterator it = m_children.begin(); it != m_children.end(); ++it) 
+		for (children_list::iterator it = m_children.begin(); it != m_children.end(); ++it) 
 		{
 			(*it)->setParent(0);
 		}
@@ -133,62 +133,62 @@ public:
 		const std::string& m_strName;
 		_searcher& operator=(const _searcher&) {}
 		_searcher(const std::string& name) : m_strName(name){}
-		bool operator()(PNode obj) 
+		bool operator()(node_ptr obj) 
 		{
 			return obj ? (obj->getName() == m_strName) : false;
 		}
 	};
 
-	PNode findNode(const std::string& node_name)
+	node_ptr find(const std::string& node_name)
 	{
-		return findNode(tokenize<char>(".", node_name));
+		return find(tokenize<char>(".", node_name));
 	}
 
-	PNode findNode(const std::list<std::string>& nodes_names)
+	node_ptr find(const std::list<std::string>& nodes_names)
 	{
-		PNode node = findChild(*nodes_names.begin());
+		node_ptr node = child(*nodes_names.begin());
 
-		if (!node) return node; // returns PNode();
+		if (!node) return node; // returns node_ptr();
 		
 		if (nodes_names.size() == 1)
 			return node;
-		else 
-		{
-			std::list<std::string> name;
-			name.resize(nodes_names.size()-1);
-			std::copy((++nodes_names.begin()), nodes_names.end(), name.begin());
-			return node->findNode(name);
-		}
+
+		std::list<std::string> name;
+		name.resize(nodes_names.size()-1);
+		std::copy((++nodes_names.begin()), nodes_names.end(), name.begin());
+		return node->find(name);
 	}
 
-	PNode findChild(const std::string& name)
+	node_ptr child(const std::string& name)
 	{
-		ChildrenList::iterator it = std::find_if(m_children.begin(), m_children.end(), _searcher(name));
+		children_list::iterator it = std::find_if(
+			m_children.begin(), 
+			m_children.end(), 
+			_searcher(name)
+			);
 
-		if (it == m_children.end())
-			return PNode();
-		else 
-			return *it;
+		return it == m_children.end() ? node_ptr() : *it;
 	}
 
 protected:
 	void setParent(T* node)
 	{
+		T* old_parent = m_parent;
 		m_parent = node; 
-		onParentChange();
+		onParentChange(old_parent);
 	}
 
 	void resetParent()
 	{
 		if(m_parent)
-			m_parent->removeChild(static_cast<T*>(this));
+			m_parent->remove(static_cast<T*>(this));
 	}
 
-	virtual void onParentChange()			{}
-	virtual void onChildAdd(PNode& node)	{node;}
-	virtual void onChildRemove(PNode& node) {node;}
+	virtual void onParentChange(T* old_parent)	{old_parent;}
+	virtual void onChildAdd(node_ptr& node)	{node;}
+	virtual void onChildRemove(node_ptr& node) {node;}
 
 protected:
-	ChildrenList m_children;
+	children_list m_children;
 	T* m_parent;
 };

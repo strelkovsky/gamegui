@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include "renderer.h"
 
@@ -13,7 +12,7 @@ namespace gui
 #pragma warning(disable: 4355)
 #endif
 
-Renderer::Renderer(void) :
+Renderer::Renderer(filesystem_ptr fs) :
 	GuiZInitialValue(1.0f),
 	GuiZElementStep(0.001f),
 	GuiZLayerStep(0.0001f),
@@ -26,8 +25,11 @@ Renderer::Renderer(void) :
 	m_autoScale(true),
 	m_num_quads(0),
 	m_num_batches(0),
-	m_currentCapturing(0)
+	m_currentCapturing(0),
+	m_filesystem(fs)
 {
+	assert (fs && "Filesystem must be provided!");
+
 	m_quads.resize(10000);
 	m_batches.resize(1000);
 	resetZValue();
@@ -235,7 +237,7 @@ void Renderer::draw(const Image& img, const Rect& dest_rect, float z, const Rect
 	}
 }
 
-void Renderer::clearCache(BaseWindow* window)
+void Renderer::clearCache(base_window* window)
 {
 	if (window)
 	{
@@ -248,13 +250,13 @@ void Renderer::clearCache(BaseWindow* window)
 		m_mapQuadList.clear();
 }
 
-bool Renderer::isExistInCache(BaseWindow* window) const
+bool Renderer::isExistInCache(base_window* window) const
 {
 	QuadCacheMap::const_iterator i = m_mapQuadList.find(window);
 	return i != m_mapQuadList.end() && i->second.num > 0;
 }
 
-void Renderer::startCaptureForCache(BaseWindow* window)
+void Renderer::startCaptureForCache(base_window* window)
 {
 	QuadCacheMap::iterator i = m_mapQuadList.find(window);
 	if (i == m_mapQuadList.end())
@@ -271,7 +273,7 @@ void Renderer::startCaptureForCache(BaseWindow* window)
 	}
 		
 }
-void Renderer::endCaptureForCache(BaseWindow* window)
+void Renderer::endCaptureForCache(base_window* window)
 {
 	m_currentCapturing = NULL;
 }

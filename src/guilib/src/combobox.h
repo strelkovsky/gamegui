@@ -1,13 +1,14 @@
 #pragma once
-#include "ceditbox.h"
+
+#include "editbox.h"
 
 namespace gui
 {
-	class  Combobox : public Editbox
+	class Combobox : public Editbox
 	{
 	public:
 		typedef Combobox Self;
-		Combobox(System& sys, const std::string& name = "");
+		Combobox(System& sys, const std::string& name = std::string());
 		virtual ~Combobox();
 
 		static const char* GetType() { return "Combobox"; }
@@ -15,15 +16,15 @@ namespace gui
 
 		virtual bool onLoad();
 		virtual bool onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state);
-		virtual bool onFocusLost(BaseWindow* newFocus);
+		virtual bool onFocusLost(base_window* newFocus);
 		void onBtnClick(const events::ClickEvent& e);
 		void onListClick(const events::ClickEvent& e);
 
 		void AddItem(const std::string& name);
 
 	protected:
-		WindowPtr m_btn;
-		WindowPtr m_list;
+		window_ptr m_btn;
+		window_ptr m_list;
 
 	private:
 		void hideList()

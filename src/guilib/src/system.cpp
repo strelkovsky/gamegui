@@ -11,8 +11,11 @@
 namespace gui
 {
 
-System::System(Renderer& render, const std::string& resourceDir, const std::string& scheme, LoggerCallback callback, lua_State* externalLua)
-: 	m_logger(callback),
+log s_null_log;
+
+System::System(Renderer& render, const std::string& scheme,
+			   lua_State* externalLua, log& l)
+: 	m_logger(l),
 	m_render(render),
 	m_bShowCursor(true),
 	m_focusWindow(0),
@@ -34,17 +37,16 @@ System::System(Renderer& render, const std::string& resourceDir, const std::stri
 	m_ttlifetime(0.f),
 	m_tttime(0.f),
 	m_isContextMenu(false),
-	m_logHelper(new LogHelper(callback)),
-	m_renderHelper(new RenderHelper(render))
-	, m_scriptSys(externalLua)
+	m_renderHelper(new RenderHelper(render)),
+	m_scriptSys(render.get_filesystem(), externalLua),
+	m_filesystem(render.get_filesystem())
 {
-	logEvent(LogSystem, "GUI system initialization started");
+	logEvent(log::system, "GUI system initialization started");
 	m_windowMgr.reset(new WindowManager(*this, scheme));
-	m_render.setResourcePath(resourceDir);
 	m_cursor.setImageset(m_windowMgr->loadImageset("Cursors"));
 	
 	makeLuaBinding();
-	logEvent(LogSystem, "GUI system initialization ended");
+	logEvent(log::system, "GUI system initialization ended");
 
 	reset(true);
 }
@@ -63,7 +65,7 @@ void System::reset(bool complete)
 	m_render.cleanup(complete);
 	m_windowMgr->reset(complete);
 	
-	logEvent(LogSystem, "Resetting window tree...");
+	logEvent(log::system, "Resetting window tree...");
 	m_tickedWnd.clear();
 	m_subscribeTickWnd.clear();
 	m_dragContainer = 0;
@@ -78,8 +80,7 @@ void System::reset(bool complete)
 	m_dragfired = false;
 	m_dragfreeze = false;
 
-	// правильно ли создавать базовое окошко в обход манагера? 
-	BaseWindow* rootWindow = new (std::nothrow) BaseWindow(*this, "systemroot");
+	base_window* rootWindow = new (std::nothrow) base_window(*this, "systemroot");
 	m_rootWindow = rootWindow;
 	if(!rootWindow)
 		throw std::exception("Couldn't create root window!");
@@ -108,15 +109,15 @@ void System::reset(bool complete)
 
 	rootWindow->setArea(Rect(point(0.f, 0.f), m_render.getSize())); // full window area
 	rootWindow->setVisible(true);
-	rootWindow->addChild(m_dragContainer);
-	rootWindow->addChild(m_tooltipWindow);
-	rootWindow->addChild(m_menuWindow);
+	rootWindow->add(m_dragContainer);
+	rootWindow->add(m_tooltipWindow);
+	rootWindow->add(m_menuWindow);
 	rootWindow->setAcceptDrop(true);
 	
-	logEvent(LogSystem, "Gui subsystem is ready");
+	logEvent(log::system, "Gui subsystem is ready");
 }
 
-WindowPtr System::getRootPtr()
+window_ptr System::getRootPtr()
 {
 	return m_rootWindow;
 }
@@ -136,33 +137,33 @@ Menu* System::getMenu() const
 	return static_cast<Menu*>(m_menuWindow.get()); 
 }
 
-BaseWindow*	System::createWindow(BaseWindow* parent, const std::string& name, const std::string& type)
+base_window*	System::createWindow(base_window* parent, const std::string& name, const std::string& type)
 {
-	WindowPtr p;
+	window_ptr p;
 	if(parent)
 	{
 		p = m_windowMgr->createWindow(type, name);
 		if(p)
-			parent->addChild(p);
+			parent->add(p);
 	}
 	return p.get();
 }
 
-BaseWindow*	System::loadXml(BaseWindow& parent, const std::string& filename)
+base_window*	System::loadXml(base_window& parent, const std::string& filename)
 {
-	WindowPtr p = loadXml_(filename);
+	window_ptr p = loadXml_(filename);
 	if(p)
 	{
 		assert(!p->getParent() && "This window must be parentless!");
-		parent.addChild(p);
+		parent.add(p);
 		return p.get();
 	}
 	return 0;
 	
 }
-BaseWindow*	System::loadXml(const std::string& filename)
+base_window*	System::loadXml(const std::string& filename)
 {
-	WindowPtr p = loadXml_(filename);
+	window_ptr p = loadXml_(filename);
 	if(p)
 	{
 		assert(p.get() == &getRootWindow()  && "This window must have the root window as a parent!");
@@ -171,14 +172,14 @@ BaseWindow*	System::loadXml(const std::string& filename)
 	return 0;	
 }
 
-WindowPtr System::loadXml_(const std::string& filename)
+window_ptr System::loadXml_(const std::string& filename)
 {
-	logEvent(LogSystem, std::string("Loading ") + filename);
-	WindowPtr p = m_windowMgr->loadXml(filename);
+	logEvent(log::system, std::string("Loading ") + filename);
+	window_ptr p = m_windowMgr->loadXml(filename);
 	if(p)
-		logEvent(LogSystem, filename + " successfuly loaded.");
+		logEvent(log::system, filename + " successfuly loaded.");
 	else
-		logEvent(LogWarning, filename + " failed to load.");
+		logEvent(log::warning, filename + " failed to load.");
 	
 	return p;
 }
@@ -186,6 +187,54 @@ WindowPtr System::loadXml_(const std::string& filename)
 void System::init()
 {
 	 getRootWindow().onGameEvent("On_Init");
+}
+
+bool System::handle_event(event e)
+{
+	static EventArgs::MouseButtons mouse_button_maping[] = {
+		EventArgs::Left, EventArgs::Middle, EventArgs::Right
+	};
+
+	int event_type = e.type & event_type_filter;
+	int mouse_event = e.mouse.type & mouse_event_filter;
+
+	switch(event_type)
+	{
+	case event_mouse:
+		{
+			switch(mouse_event)
+			{
+			case mouse_move:
+				return handleMouseMove(e.mouse.x, e.mouse.y);
+				break;
+			case mouse_wheel:				
+				return handleMouseWheel(e.mouse.delta);
+				break;
+			case mouse_button:
+				return handleMouseButton(mouse_button_maping[e.mouse.button], 
+					e.mouse.type & event_key_down ? EventArgs::Down : EventArgs::Up);
+				break;
+			case mouse_dbclick:
+				return handleMouseDouble(mouse_button_maping[e.mouse.button]);
+				break;
+			}
+		}
+		break;
+	case event_keyboard:
+			return handleKeyboard(e.keyboard.key, 
+				e.keyboard.type & event_key_down ? EventArgs::Down : EventArgs::Up);
+		break;
+	case event_char:
+		return handleChar(e.text.code);
+		break;
+	case event_focus:
+		handleFocusLost();
+		break;
+	case event_viewport_resize:
+		handleViewportChange();
+		break;
+	}
+	return false;
 }
 
 bool System::handleMouseMove(int x, int y)
@@ -219,7 +268,7 @@ bool System::handleMouseMove(int x, int y)
 			}
 		}
 		
-		BaseWindow* mouseWnd = getTargetWindow(m_cursor.getPosition());
+		base_window* mouseWnd = getTargetWindow(m_cursor.getPosition());
 		if(m_dragfired)
 		{
 			getDragContainer()->update(mouseWnd, m_cursor.getPosition());
@@ -254,7 +303,7 @@ bool System::handleMouseMove(int x, int y)
 			}
 		}
 
-		BaseWindow* target = m_containsMouse;
+		base_window* target = m_containsMouse;
 		if(m_captureWindow)
 		{
 			target = m_captureWindow;
@@ -267,7 +316,7 @@ bool System::handleMouseMove(int x, int y)
 		{
 			if(target->onMouseMove())
 				return true;
-			target = const_cast<BaseWindow*>(target->getParent());
+			target = const_cast<base_window*>(target->getParent());
 		}
 	}
 
@@ -284,7 +333,7 @@ bool System::handleMouseWheel(int diff)
 
 	if(m_rootWindow)
 	{
-		BaseWindow* target = m_containsMouse;
+		base_window* target = m_containsMouse;
 		if(m_captureWindow)
 		{
 			target = m_captureWindow;
@@ -297,7 +346,7 @@ bool System::handleMouseWheel(int diff)
 		{
 			if(target->onMouseWheel(diff))
 				return true;
-			target = const_cast<BaseWindow*>(target->getParent());
+			target = const_cast<base_window*>(target->getParent());
 		}
 	}
 
@@ -314,7 +363,7 @@ bool System::handleMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonSta
 
 	if(m_rootWindow)
 	{
-		BaseWindow* target = m_containsMouse;
+		base_window* target = m_containsMouse;
 		if(m_captureWindow)
 		{
 			target = m_captureWindow;
@@ -369,7 +418,7 @@ bool System::handleMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonSta
 			{
 				if(target->onMouseButton(btn, state))
 					return true;
-				target = const_cast<BaseWindow*>(target->getParent());
+				target = const_cast<base_window*>(target->getParent());
 			}
 		}
 	}
@@ -387,7 +436,7 @@ bool System::handleMouseDouble(EventArgs::MouseButtons btn)
 
 	if(m_rootWindow)
 	{
-		BaseWindow* target = m_containsMouse;
+		base_window* target = m_containsMouse;
 		if(m_captureWindow)
 		{
 			target = m_captureWindow;
@@ -402,7 +451,7 @@ bool System::handleMouseDouble(EventArgs::MouseButtons btn)
 		{
 			if(target->onMouseDouble(btn))
 				return true;
-			target = const_cast<BaseWindow*>(target->getParent());
+			target = const_cast<base_window*>(target->getParent());
 		}
 	}
 	
@@ -410,11 +459,11 @@ bool System::handleMouseDouble(EventArgs::MouseButtons btn)
 
 }
 
-BaseWindow* getTabstopWindow(BaseWindow::ChildrenList& list)
+base_window* getTabstopWindow(base_window::children_list& list)
 {
-	BaseWindow* ret = NULL;
-	BaseWindow::ReverseChildrenIter i = list.rbegin();
-	BaseWindow::ReverseChildrenIter end = list.rend();
+	base_window* ret = NULL;
+	base_window::child_riter i = list.rbegin();
+	base_window::child_riter end = list.rend();
 	while(i != end)
 	{
 		if(!(*i)->isTabStop())
@@ -491,7 +540,7 @@ bool System::proceedSystemKey(EventArgs::Keys key, EventArgs::ButtonState state)
 			{
 				if(m_sytemkeys & SHIFT)
 				{
-					BaseWindow* sibling = m_focusWindow->prevSibling();
+					base_window* sibling = m_focusWindow->prevSibling();
 					while(!sibling->isTabStop())
 					{
 						if(sibling == m_focusWindow)
@@ -502,7 +551,7 @@ bool System::proceedSystemKey(EventArgs::Keys key, EventArgs::ButtonState state)
 				}
 				else
 				{
-					BaseWindow* sibling = m_focusWindow->nextSibling();
+					base_window* sibling = m_focusWindow->nextSibling();
 					while(!sibling->isTabStop())
 					{
 						if(sibling == m_focusWindow)
@@ -543,13 +592,12 @@ bool System::isSysKeyPressed(unsigned int key)
 	return (m_sytemkeys & key) > 0;
 }
 
-void System::logEvent(LogLevel level, const std::string& message)
+void System::logEvent(log::level level, const std::string& message)
 {
-	if(!m_logger.empty())
-		m_logger(level, message);
+	m_logger.write(level, message);
 }
 
-BaseWindow* System::find(const std::string& name)
+base_window* System::find(const std::string& name)
 {
 	if(m_rootWindow)
 		return m_rootWindow->findChildWindow(name);
@@ -557,7 +605,7 @@ BaseWindow* System::find(const std::string& name)
 	return 0;
 }
 
-bool System::queryInputFocus(BaseWindow* wnd)
+bool System::queryInputFocus(base_window* wnd)
 {
 	if(m_focusWindow)
 	{
@@ -577,7 +625,7 @@ bool System::queryInputFocus(BaseWindow* wnd)
 	return true;
 }
 
-void System::queryCaptureInput(BaseWindow* wnd)
+void System::queryCaptureInput(base_window* wnd)
 {
 	if(m_captureWindow)
 	{
@@ -589,7 +637,7 @@ void System::queryCaptureInput(BaseWindow* wnd)
 		m_captureWindow->onCaptureGained();
 }
 
-void System::EnterExclusiveInputMode(BaseWindow* wnd)
+void System::EnterExclusiveInputMode(base_window* wnd)
 {
 	if(wnd)
 		m_exclusiveInputWindow = wnd;
@@ -599,14 +647,14 @@ void System::LeaveExclusiveInputMode()
 	m_exclusiveInputWindow = 0;
 }
 
-WindowPtr GetTargetWindow(const point& pt, BaseWindow::ChildrenList& list)
+window_ptr GetTargetWindow(const point& pt, base_window::children_list& list)
 {
-	WindowPtr ret;
-	BaseWindow::ReverseChildrenIter i = list.rbegin();
-	BaseWindow::ReverseChildrenIter end = list.rend();
+	window_ptr ret;
+	base_window::child_riter i = list.rbegin();
+	base_window::child_riter end = list.rend();
 	while(i != end)
 	{
-		WindowPtr p = (*i);
+		window_ptr p = (*i);
 		if(p->hitTest(pt))
 		{
 			ret = GetTargetWindow(pt, p->getChildren());
@@ -619,7 +667,7 @@ WindowPtr GetTargetWindow(const point& pt, BaseWindow::ChildrenList& list)
 	return ret;
 }
 
-BaseWindow* System::getTargetWindow(const point& pt) const
+base_window* System::getTargetWindow(const point& pt) const
 {
 	return GetTargetWindow(pt, m_rootWindow->getChildren()).get();
 }
@@ -628,7 +676,7 @@ void System::executeScript(const std::string& filename)
 {
 	if(!m_scriptSys.ExecuteFile(filename))
 	{
-		logEvent(LogError, std::string("Unable to execute Lua file: ") + m_scriptSys.GetLastError());
+		logEvent(log::error, std::string("Unable to execute Lua file: ") + m_scriptSys.GetLastError());
 	}
 }
 
@@ -641,7 +689,7 @@ void System::render()
 namespace
 {
 	struct tickClear{
-		bool operator()(BaseWindow* obj) 
+		bool operator()(base_window* obj) 
 		{
 			return obj->isUnsubscribePending();
 		}
@@ -650,12 +698,12 @@ namespace
 void System::tick(float delta)
 {
 	m_inTick = true;
-	std::vector<BaseWindow*>::iterator i = m_tickedWnd.begin();
-	std::vector<BaseWindow*>::iterator end = m_tickedWnd.end();
-	std::vector<BaseWindow*>::size_type subscribeTickWndSize = m_subscribeTickWnd.size();
+	std::vector<base_window*>::iterator i = m_tickedWnd.begin();
+	std::vector<base_window*>::iterator end = m_tickedWnd.end();
+	std::vector<base_window*>::size_type subscribeTickWndSize = m_subscribeTickWnd.size();
 	while(i != end)
 	{
-		BaseWindow* wnd = (*i);
+		base_window* wnd = (*i);
 		if(wnd)
 			wnd->onTick(delta);
 		++i;
@@ -668,7 +716,7 @@ void System::tick(float delta)
 
 	if(subscribeTickWndSize)
 	{
-		std::vector<BaseWindow*>::size_type tickedWndSize = m_tickedWnd.size();
+		std::vector<base_window*>::size_type tickedWndSize = m_tickedWnd.size();
 		m_tickedWnd.resize(tickedWndSize + subscribeTickWndSize);
 		std::copy(m_subscribeTickWnd.begin(), m_subscribeTickWnd.end(), m_tickedWnd.begin() + tickedWndSize);
 		m_subscribeTickWnd.clear();
@@ -713,7 +761,7 @@ void System::draw()
 	m_render.endBatching();
 
 }
-void System::showTooltip(BaseWindow* wnd)
+void System::showTooltip(base_window* wnd)
 {
 	if(wnd && wnd->hasTooltip())
 	{
@@ -721,7 +769,7 @@ void System::showTooltip(BaseWindow* wnd)
 	}
 	static_cast<Tooltip*>(m_tooltipWindow.get())->show();
 }
-void System::hideTooltip(BaseWindow* wnd)
+void System::hideTooltip(base_window* wnd)
 {
 	if(wnd && wnd->hasTooltip())
 	{
@@ -730,7 +778,7 @@ void System::hideTooltip(BaseWindow* wnd)
 	static_cast<Tooltip*>(m_tooltipWindow.get())->reset();
 }
 
-bool System::startDrag(BaseWindow* wnd, point offset)
+bool System::startDrag(base_window* wnd, point offset)
 {
 	if(!wnd) return false;
 
@@ -741,7 +789,7 @@ bool System::startDrag(BaseWindow* wnd, point offset)
 		point pt = m_cursor.getPosition() - offset;
 		dc->setPosition(pt);
 		m_dragfired = true;
-		BaseWindow* mouseWnd = getTargetWindow(m_cursor.getPosition());
+		base_window* mouseWnd = getTargetWindow(m_cursor.getPosition());
 		dc->update(mouseWnd, pt);
 		return true;
 	}
@@ -769,17 +817,17 @@ bool System::stopDrag(void)
 	return !m_dragfired;
 }
 
-void System::subscribeTick(BaseWindow* wnd)
+void System::subscribeTick(base_window* wnd)
 {
 	if(!wnd) return;
 
-	std::vector<BaseWindow*>::iterator i = std::find(m_tickedWnd.begin(), m_tickedWnd.end(), wnd);
+	std::vector<base_window*>::iterator i = std::find(m_tickedWnd.begin(), m_tickedWnd.end(), wnd);
 	if(i != m_tickedWnd.end())
 		return;
 	
 	if(m_inTick)
 	{
-		std::vector<BaseWindow*>::iterator i = std::find(m_subscribeTickWnd.begin(), m_subscribeTickWnd.end(), wnd);
+		std::vector<base_window*>::iterator i = std::find(m_subscribeTickWnd.begin(), m_subscribeTickWnd.end(), wnd);
 		if(i != m_subscribeTickWnd.end())
 			return;
 		m_subscribeTickWnd.push_back(wnd);
@@ -790,12 +838,12 @@ void System::subscribeTick(BaseWindow* wnd)
 	}
 }
 
-void System::unsubscribeTick(BaseWindow* wnd)
+void System::unsubscribeTick(base_window* wnd)
 {
 	if(m_inTick) return;
 	if(!wnd) return;
 
-	std::vector<BaseWindow*>::iterator i = std::find(m_tickedWnd.begin(), m_tickedWnd.end(), wnd);
+	std::vector<base_window*>::iterator i = std::find(m_tickedWnd.begin(), m_tickedWnd.end(), wnd);
 	if(i != m_tickedWnd.end())
 		m_tickedWnd.erase(i);
 }
@@ -832,7 +880,7 @@ bool System::isMouseInGui(float x, float y) const
 	const point pt(x, y);
 	if(m_rootWindow)
 	{
-		BaseWindow* mouseWnd = getTargetWindow(pt);
+		base_window* mouseWnd = getTargetWindow(pt);
 		if(mouseWnd != m_rootWindow)
 		{
 			return true;

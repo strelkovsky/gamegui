@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "cstatictext.h"
+
+#include "label.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -9,19 +10,19 @@
 namespace gui
 {
 
-	StaticText::StaticText(System& sys, const std::string& name) :
-		BaseWindow(sys, name),
+	Label::Label(System& sys, const std::string& name) :
+		base_window(sys, name),
 		m_centred(true),
 		m_format(LeftAligned),
 		m_spacing(1.f)
 	{
 	}
 
-	StaticText::~StaticText(void)
+	Label::~Label(void)
 	{
 	}
 
-	void StaticText::setText(const std::string& text)
+	void Label::setText(const std::string& text)
 	{
 		m_text = text;
 		if (!m_centred)
@@ -33,14 +34,14 @@ namespace gui
 		invalidate();
 	}
 
-	void StaticText::setSpacing(float spacing)
+	void Label::setSpacing(float spacing)
 	{
 		m_spacing = spacing;
 		if(m_font)
 			m_font->setSpacing(m_spacing);invalidate();
 	}
 
-	void StaticText::appendText(const std::string& text)
+	void Label::appendText(const std::string& text)
 	{
 		m_text += text;
 		if (!m_centred)
@@ -52,7 +53,7 @@ namespace gui
 		invalidate();
 	}
 
-	void StaticText::render(const Rect& finalRect, const Rect& finalClip)
+	void Label::render(const Rect& finalRect, const Rect& finalClip)
 	{
 		if(m_font)
 		{
@@ -68,7 +69,7 @@ namespace gui
 		}
 	}
 
-	void StaticText::setFont(const std::string& font)
+	void Label::setFont(const std::string& font)
 	{
 		if(font.empty())
 			return;
@@ -80,9 +81,9 @@ namespace gui
 		invalidate();
 	}
 
-	void StaticText::init(xml::node& node)
+	void Label::init(xml::node& node)
 	{
-		BaseWindow::init(node);
+		base_window::init(node);
 
 		xml::node setting = node("Font");
 		if(!setting.empty())

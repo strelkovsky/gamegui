@@ -1,17 +1,17 @@
 #include "stdafx.h"
 #include "base.h"
 
-NamedObject::NamedObject(const std::string& name) 
+named_object::named_object(const std::string& name) 
 	: m_strName(name)
 {
 }
 
-const std::string& NamedObject::getName() const 
+const std::string& named_object::getName() const 
 {
 	return m_strName;
 }
 
-void NamedObject::setName(const std::string& name)
+void named_object::setName(const std::string& name)
 {
 	m_strName = name;
 }

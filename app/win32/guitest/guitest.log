@@ -1,0 +1,58 @@
+[2011.08.17 23:28:18][sys] GUI system initialization started
+[2011.08.17 23:28:18][sys] The WindowManager was created
+[2011.08.17 23:28:18][sys] Registering window factory creators
+[2011.08.17 23:28:18][sys] Factory: adding root
+[2011.08.17 23:28:18][sys] Factory: adding base_window
+[2011.08.17 23:28:18][sys] Factory: adding Label
+[2011.08.17 23:28:18][sys] Factory: adding ImageBox
+[2011.08.17 23:28:18][sys] Factory: adding Button
+[2011.08.17 23:28:18][sys] Factory: adding ImageButton
+[2011.08.17 23:28:18][sys] Factory: adding Thumb
+[2011.08.17 23:28:18][sys] Factory: adding ScrollThumb
+[2011.08.17 23:28:18][sys] Factory: adding Slider
+[2011.08.17 23:28:18][sys] Factory: adding ScrollBar
+[2011.08.17 23:28:18][sys] Factory: adding Checkbox
+[2011.08.17 23:28:18][sys] Factory: adding Editbox
+[2011.08.17 23:28:18][sys] Factory: adding KeyBinder
+[2011.08.17 23:28:18][sys] Factory: adding FrameWindow
+[2011.08.17 23:28:18][sys] Factory: adding Panel
+[2011.08.17 23:28:18][sys] Factory: adding Progress
+[2011.08.17 23:28:18][sys] Factory: adding ProgressBar
+[2011.08.17 23:28:18][sys] Factory: adding ImageBar
+[2011.08.17 23:28:18][sys] Factory: adding ScrollPane
+[2011.08.17 23:28:18][sys] Factory: adding BaseList
+[2011.08.17 23:28:18][sys] Factory: adding ListBox
+[2011.08.17 23:28:18][sys] Factory: adding CategorizedList
+[2011.08.17 23:28:18][sys] Factory: adding Combobox
+[2011.08.17 23:28:18][sys] Factory: adding MarkupBase
+[2011.08.17 23:28:18][sys] Factory: adding MarkupText
+[2011.08.17 23:28:18][sys] Factory: adding ChatWindow
+[2011.08.17 23:28:18][sys] The imageset Cursors succefuly loaded.
+[2011.08.17 23:28:18][sys] Making LUA bindings...
+[2011.08.17 23:28:18][sys] GUI system initialization ended
+[2011.08.17 23:28:18][sys] Loading system defaults
+[2011.08.17 23:28:18][wrn] The imageset RevoltLook doesn't have any texture information. Imageset is unaffected
+[2011.08.17 23:28:18][sys] Resetting window tree...
+[2011.08.17 23:28:18][sys] The imageset skin succefuly loaded.
+[2011.08.17 23:28:18][sys] Gui subsystem is ready
+[2011.08.17 23:28:18][sys] Loading guitest\test.xml
+[2011.08.17 23:28:18][wrn] On load test
+[2011.08.17 23:28:18][wrn] On load test
+[2011.08.17 23:28:18][wrn] On load test
+[2011.08.17 23:28:18][wrn] On load test
+[2011.08.17 23:28:18][wrn] On load test
+[2011.08.17 23:28:18][wrn] On load test
+[2011.08.17 23:28:18][wrn] On load test
+[2011.08.17 23:28:18][sys] guitest\test.xml successfuly loaded.
+[2011.08.17 23:28:20][sys] Loading system defaults
+[2011.08.17 23:28:20][sys] Resetting window tree...
+[2011.08.17 23:28:20][sys] Gui subsystem is ready
+[2011.08.17 23:28:20][sys] Loading guitest\test.xml
+[2011.08.17 23:28:20][wrn] On load test
+[2011.08.17 23:28:20][wrn] On load test
+[2011.08.17 23:28:20][wrn] On load test
+[2011.08.17 23:28:20][wrn] On load test
+[2011.08.17 23:28:20][wrn] On load test
+[2011.08.17 23:28:20][wrn] On load test
+[2011.08.17 23:28:20][wrn] On load test
+[2011.08.17 23:28:20][sys] guitest\test.xml successfuly loaded.

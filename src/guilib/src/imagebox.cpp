@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "cstaticimage.h"
+
+#include "imagebox.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -7,25 +8,25 @@
 
 namespace gui
 {
-	StaticImage::StaticImage(System& sys, const std::string& name) :
-		BaseWindow(sys, name),
+	ImageBox::ImageBox(System& sys, const std::string& name) :
+		base_window(sys, name),
 		m_img(0),
 		m_vformat(Stretch),
 		m_hformat(Stretch)
 	{
 	}
 
-	StaticImage::~StaticImage(void)
+	ImageBox::~ImageBox(void)
 	{
 	}
 
-	void StaticImage::setImageset(const std::string& set)
+	void ImageBox::setImageset(const std::string& set)
 	{
 		m_imgset = m_system.getWindowManager().loadImageset(set);
 		invalidate();
 	}
 
-	const std::string StaticImage::getImageset() const
+	const std::string ImageBox::getImageset() const
 	{
 		if(m_imgset)
 			return m_imgset->GetName();
@@ -33,7 +34,7 @@ namespace gui
 		return std::string();
 	}
 
-	void StaticImage::setImage(const std::string& image)
+	void ImageBox::setImage(const std::string& image)
 	{
 		if(m_imgset && !image.empty())
 		{
@@ -46,7 +47,7 @@ namespace gui
 		invalidate();
 	}
 
-	const std::string StaticImage::getImage() const
+	const std::string ImageBox::getImage() const
 	{
 		if(m_img)
 			return m_img->GetName();
@@ -54,7 +55,7 @@ namespace gui
 		return std::string();
 	}
 
-	void StaticImage::render(const Rect& finalRect, const Rect& finalClip)
+	void ImageBox::render(const Rect& finalRect, const Rect& finalClip)
 	{
 		Renderer& r = m_system.getRenderer();
 
@@ -64,9 +65,9 @@ namespace gui
 		}
 	}
 
-	void StaticImage::init(xml::node& node)
+	void ImageBox::init(xml::node& node)
 	{
-		BaseWindow::init(node);
+		base_window::init(node);
 
 		xml::node setting = node("Imageset");
 		if(!setting.empty())

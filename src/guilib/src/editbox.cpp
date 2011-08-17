@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "ceditbox.h"
+
+#include "editbox.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -10,7 +11,7 @@
 namespace gui
 {
 	Editbox::Editbox(System& sys, const std::string& name) :
-		StaticText(sys, name),
+		Label(sys, name),
 		m_backImg(0),
 		m_leftImg(0),
 		m_rightImg(0),
@@ -135,13 +136,13 @@ namespace gui
 					handleBackspace();
 				break;
 			default:
-				return StaticText::onKeyboardButton(key, state);
+				return Label::onKeyboardButton(key, state);
 			};
 
 			clampCaret();
 			clearSelection();
 		}
-		return StaticText::onKeyboardButton(key, state);
+		return Label::onKeyboardButton(key, state);
 	}
 
 	bool Editbox::ValidateNumeric(const std::wstring& text) const
@@ -178,12 +179,12 @@ namespace gui
 			setCaretPos(m_caretPos+1);
 		}
 		invalidate();
-		return StaticText::onChar(text);
+		return Label::onChar(text);
 	}
 
 	bool Editbox::onSized(bool update)
 	{
-		StaticText::onSized();
+		Label::onSized();
 		setCaretPos(m_caretPos);
 		invalidate();
 		return true;
@@ -247,7 +248,7 @@ namespace gui
 				m_wtext.erase(m_caretPos, 1);
 		}
 		invalidate();
-		StaticText::onChar(L"");
+		Label::onChar(L"");
 	}
 	void Editbox::handleBackspace()
 	{
@@ -266,7 +267,7 @@ namespace gui
 			}
 		}
 		invalidate();
-		StaticText::onChar(L"");
+		Label::onChar(L"");
 	}
 
 	void Editbox::setCaretPos(size_t offset)
@@ -436,7 +437,7 @@ namespace gui
 
 	void Editbox::init(xml::node& node)
 	{
-		StaticText::init(node);
+		Label::init(node);
 		
 		m_format = LeftAligned; // override static text settings (required)
 
@@ -484,7 +485,7 @@ namespace gui
 	}
 
 	KeyBinder::KeyBinder(System& sys, const std::string& name) :
-		StaticText(sys, name),
+		Label(sys, name),
 		m_backImg(0),
 		m_leftImg(0),
 		m_rightImg(0),
@@ -653,7 +654,7 @@ namespace gui
 
 	void KeyBinder::init(xml::node& node)
 	{
-		StaticText::init(node);
+		Label::init(node);
 		
 		m_format = LeftAligned; // override static text settings (required)
 		m_tabstop = false;

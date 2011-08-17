@@ -9,19 +9,19 @@
 #include "system.h"
 
 #include "panel.h"
-#include "cstatictext.h"
-#include "cstaticimage.h"
-#include "ceditbox.h"
-#include "cbutton.h"
-#include "ccheckbox.h"
-#include "cframewindow.h"
-#include "cprogress.h"
-#include "cslider.h"
-#include "cscrollpane.h"
-#include "clist.h"
-#include "ccombobox.h"
-#include "cmarkuptext.h"
-#include "cchatwindow.h"
+#include "label.h"
+#include "imagebox.h"
+#include "editbox.h"
+#include "button.h"
+#include "checkbox.h"
+#include "framewindow.h"
+#include "progress.h"
+#include "slider.h"
+#include "scrollpane.h"
+#include "list.h"
+#include "combobox.h"
+#include "markuptext.h"
+#include "chatwindow.h"
 
 namespace gui
 {
@@ -30,15 +30,15 @@ WindowManager::WindowManager(System& sys, const std::string& scheme) :
 	m_system(sys),
 	m_scheme(scheme)
 {
-	sys.logEvent(LogSystem, "The WindowManager was created");
+	sys.logEvent(log::system, "The WindowManager was created");
 	m_factory.reset(new WindowFactory(sys));
 
-	sys.logEvent(LogSystem, "Registering window factory creators");
+	sys.logEvent(log::system, "Registering window factory creators");
 
 	m_factory->RegisterCreator("root", CreatorPtr(new RootCreator(sys, "root")));
-	m_factory->RegisterCreator<BaseWindow>();	
-	m_factory->RegisterCreator<StaticText>();
-	m_factory->RegisterCreator<StaticImage>();
+	m_factory->RegisterCreator<base_window>();	
+	m_factory->RegisterCreator<Label>();
+	m_factory->RegisterCreator<ImageBox>();
 	m_factory->RegisterCreator<Button>();
 	m_factory->RegisterCreator<ImageButton>();
 	m_factory->RegisterCreator<Thumb>();
@@ -80,7 +80,7 @@ void WindowManager::reset(bool complete)
 	m_docCache.clear();
 	m_loadedLuaFiles.clear();
 
-	m_system.logEvent(LogSystem, "Loading system defaults");
+	m_system.logEvent(log::system, "Loading system defaults");
 	loadScheme(m_scheme);
 }
 
@@ -89,38 +89,27 @@ void WindowManager::loadScheme(const std::string& scheme)
 	if(scheme.empty())
 		return;
 
-	std::string filename = m_system.getRenderer().getResourcePath();
-	filename += "scheme\\";
-	filename += scheme;
-	filename += ".scheme";
+	std::string filename = "scheme\\" + scheme + ".scheme";
 
 	XmlDocumentPtr pdoc = loadCachedXml(filename);
-	if(pdoc)
+	if(!pdoc) return;
+
+	xml::node schemenode = pdoc->child("Scheme");
+	if(schemenode.empty()) return;
+
+
+	std::string file = schemenode("DefaultImageset")["file"].value();
+	if(!file.empty())
 	{
-		xml::node schemenode = pdoc->child("Scheme");
-		if(!schemenode.empty())
-		{
-			xml::node setting = schemenode("DefaultImageset");
-			if(!setting.empty())
-			{
-				std::string file(setting["file"].value());
-				if(!file.empty())
-				{
-					if (m_defaultImageset = createImageset(file))
-						m_imagesetRegistry[m_defaultImageset->GetName()] = m_defaultImageset;
-				}
-			}
-			setting = schemenode("DefaultFont");
-			if(!setting.empty())
-			{
-				std::string file(setting["file"].value());
-				if(!file.empty())
-				{
-					m_defaultFont = createFont(file);
-					m_fontRegistry[m_defaultFont->getName()] = m_defaultFont;
-				}
-			}
-		}
+		if (m_defaultImageset = createImageset(file))
+			m_imagesetRegistry[m_defaultImageset->GetName()] = m_defaultImageset;
+	}
+
+	file = schemenode("DefaultFont")["file"].value();
+	if(!file.empty())
+	{
+		m_defaultFont = createFont(file);
+		m_fontRegistry[m_defaultFont->getName()] = m_defaultFont;
 	}
 }
 
@@ -136,22 +125,21 @@ ImagesetPtr WindowManager::loadImageset(const std::string& name)
 	ImagesetPtr imgset = createImageset(name + ".imageset");
 	if(imgset)
 	{
-		m_system.logEvent(LogSystem, std::string("The imageset ") + name + " succefuly loaded.");
+		m_system.logEvent(log::system, std::string("The imageset ") + name + " succefuly loaded.");
 		m_imagesetRegistry[name] = imgset;
 		return imgset;
 	}
-	m_system.logEvent(LogWarning, std::string("The imageset ") + name + " cannot be loaded.");
+	m_system.logEvent(log::warning, std::string("The imageset ") + name + " cannot be loaded.");
 	return ImagesetPtr();
 }
 
 ImagesetPtr WindowManager::createImageset(const std::string& filename)
 {
 	ImagesetPtr retval;
-	std::string path =  m_system.getRenderer().getResourcePath();
-	path += "imageset\\";
+	//std::string path =  m_system.getRenderer().getResourcePath() + "imageset\\";
+	//std::string path = "imageset\\";
 	
-	std::string file(path);
-	file += filename;
+	std::string file = "imageset\\" + filename;
 
 	XmlDocumentPtr pdoc = loadCachedXml(file);
 	if(!pdoc)
@@ -182,23 +170,21 @@ FontPtr WindowManager::loadFont(const std::string& name)
 	FontPtr font = createFont(name + ".font");
 	if(font)
 	{
-		m_system.logEvent(LogSystem, std::string("The font ") + name + " succefuly loaded.");
+		m_system.logEvent(log::system, std::string("The font ") + name + " succefuly loaded.");
 		m_fontRegistry[name] = font;
 		return font;
 	}
-	m_system.logEvent(LogError, std::string("The font ") + name + " cannot be loaded.");
+	m_system.logEvent(log::error, std::string("The font ") + name + " cannot be loaded.");
 	return FontPtr();
 }
 
 FontPtr WindowManager::createFont(const std::string& filename)
 {
 	FontPtr retval;
+	//std::string path = m_system.getRenderer().getResourcePath();
+	//path += "font\\";
 
-	std::string path = m_system.getRenderer().getResourcePath();
-	path += "font\\";
-
-	std::string file(path);
-	file += filename;
+	std::string file = "font\\" + filename;
 
 	XmlDocumentPtr pdoc = loadCachedXml(file);
 	if(!pdoc)
@@ -214,13 +200,13 @@ FontPtr WindowManager::createFont(const std::string& filename)
 		
 		try
 		{
-			retval = m_system.getRenderer().createFont(fontname, path + fontfile, fontsize);
+			retval = m_system.getRenderer().createFont(fontname, "font\\" + fontfile, fontsize);
 		}
 		catch(std::exception& e)
 		{
 			retval.reset();
 
-			m_system.logEvent(LogError, e.what());
+			m_system.logEvent(log::error, e.what());
 		}
 	}
 	
@@ -232,27 +218,29 @@ Font* WindowManager::getFont(std::string name)
 	return loadFont(name).get();
 }
 
-WindowPtr WindowManager::createWindow(const std::string& type, const std::string& name)
+window_ptr WindowManager::createWindow(const std::string& type, const std::string& name)
 {
 	return m_factory->Create(type, name);
 }
 
-WindowPtr WindowManager::loadXml(const std::string& filename)
+window_ptr WindowManager::loadXml(const std::string& filename)
 {
 	WindowVector newWindows;
-	WindowPtr w = createFromFile(filename, newWindows);
+	window_ptr w = createFromFile(filename, newWindows);
 	
 	if(!newWindows.empty())
 	{
-		std::for_each(newWindows.rbegin(), newWindows.rend(), boost::bind(&BaseWindow::onLoad, _1));
+		std::for_each(newWindows.rbegin(), newWindows.rend(), boost::bind(&base_window::onLoad, _1));
 	}
 	return w;
 }
 
-void WindowManager::loadLeafWindow(WindowPtr wnd, const std::string& xml)
+void WindowManager::loadLeafWindow(window_ptr wnd, const std::string& xml)
 {
-	std::string file = m_system.getRenderer().getResourcePath();
-	file += xml;
+	//std::string file = m_system.getRenderer().getResourcePath();
+	//file += xml;
+	std::string file = xml;
+	
 	XmlDocumentPtr pdoc = loadCachedXml(file);
 	if(pdoc)
 	{
@@ -263,11 +251,12 @@ void WindowManager::loadLeafWindow(WindowPtr wnd, const std::string& xml)
 	}
 }
 
-WindowPtr WindowManager::createFromFile(const std::string& filename, WindowVector& newWindows)
+window_ptr WindowManager::createFromFile(const std::string& filename, WindowVector& newWindows)
 {
-	WindowPtr root;
-	std::string file = m_system.getRenderer().getResourcePath();
-	file += filename;
+	window_ptr root;
+	//std::string file = m_system.getRenderer().getResourcePath();
+	//file += filename;
+	std::string file = filename;
 	XmlDocumentPtr pdoc = loadCachedXml(file);
 	if(pdoc)
 	{
@@ -275,27 +264,27 @@ WindowPtr WindowManager::createFromFile(const std::string& filename, WindowVecto
 		xml::node window = pdoc->first_child(); //find root
 		if(!window.empty() && isWindowNode(window))
 		{
-			root = createWindow(WindowPtr(), window, newWindows);
+			root = createWindow(window_ptr(), window, newWindows);
 		}
 	}
 	else
 	{
-		m_system.logEvent(LogWarning, std::string("The file ") + filename + " wasn't found or corrupted");
+		m_system.logEvent(log::warning, std::string("The file ") + filename + " wasn't found or corrupted");
 	}
 
 	return root;
 }
 
-WindowPtr WindowManager::createWindow(WindowPtr parent, xml::node& n, WindowVector& newWindows)
+window_ptr WindowManager::createWindow(window_ptr parent, xml::node& n, WindowVector& newWindows)
 {
-	WindowPtr wnd;
+	window_ptr wnd;
 	std::string type(n.name());
 	std::string name(n["name"].value());
 	std::string link(n["file"].value());
 
 	if(parent)
 	{
-		wnd = parent->findChild(name);
+		wnd = parent->child(name);
 		if(!wnd)
 		{
 			if(!link.empty())
@@ -313,24 +302,24 @@ WindowPtr WindowManager::createWindow(WindowPtr parent, xml::node& n, WindowVect
 				std::string t(wnd->getType());
 				if(type != t)
 				{
-					m_system.logEvent(LogError, std::string("The specified child type is mismatch existing one. Skipping child ") + name);
-					return WindowPtr();
+					m_system.logEvent(log::error, std::string("The specified child type is mismatch existing one. Skipping child ") + name);
+					return window_ptr();
 				}
 			}
-			parent->addChild(wnd);
+			parent->add(wnd);
 		}
 		else
 		{
 			if(!link.empty())
 			{
-				m_system.logEvent(LogError, std::string("An overriding the child type information is unacceptable. Skipping child ") + name);
-				return WindowPtr();
+				m_system.logEvent(log::error, std::string("An overriding the child type information is unacceptable. Skipping child ") + name);
+				return window_ptr();
 			}
 			std::string t(wnd->getType());
 			if(type != t)
 			{
-				m_system.logEvent(LogError, std::string("The specified child type is mismatch existing one. Skipping child ") + name);
-				return WindowPtr();
+				m_system.logEvent(log::error, std::string("The specified child type is mismatch existing one. Skipping child ") + name);
+				return window_ptr();
 			}
 		}
 	}
@@ -380,13 +369,13 @@ WindowPtr WindowManager::createWindow(WindowPtr parent, xml::node& n, WindowVect
 
 	return wnd;
 }
-void WindowManager::loadWindowProperties(WindowPtr wnd, xml::node& n)
+void WindowManager::loadWindowProperties(window_ptr wnd, xml::node& n)
 {
 	xml::node properties = n("Properties");
 	if(!properties.empty())
 		wnd->init(properties);
 }
-void WindowManager::loadWindowEvents(WindowPtr wnd, xml::node& n)
+void WindowManager::loadWindowEvents(window_ptr wnd, xml::node& n)
 {
 	xml::node events = n("Events");
 	if(!events.empty())
@@ -405,9 +394,10 @@ XmlDocumentPtr WindowManager::loadCachedXml(const std::string& file)
 	else
 	{	
 		retval.reset(new xml::document());
-		if(!retval->load_file(file.c_str()))
-//		const char* data = m_system.getRenderer().getData(file).get();
-//		if (!retval->load(data))
+
+		std::string data = m_system.get_filesystem()->load_text(file);
+
+		if(!retval->load(data.c_str()))
 			retval.reset();
 		else
 			m_docCache[file] = retval;
@@ -445,22 +435,23 @@ void WindowManager::loadLuaFile(const std::string& xmlfile)
 		if(it == m_loadedLuaFiles.end())
 		{
 			m_loadedLuaFiles.push_back(name);
-			std::string file = m_system.getRenderer().getResourcePath();
-			file += name;
+			//std::string file = m_system.getRenderer().getResourcePath();
+			//file += name;
+			std::string file = name;
 			m_system.executeScript(file);
 		}
 	}
 }
 
-void WindowManager::onLoaded(WindowPtr wnd)
+void WindowManager::onLoaded(window_ptr wnd)
 {
 	if(wnd)
 	{
 		wnd->onLoad();
 		
-		BaseWindow::ChildrenList& children = wnd->getChildren();
-		BaseWindow::ChildrenIter i = children.begin();
-		BaseWindow::ChildrenIter end = children.end();
+		base_window::children_list& children = wnd->getChildren();
+		base_window::child_iter i = children.begin();
+		base_window::child_iter end = children.end();
 		while(i != end)
 		{
 			onLoaded((*i));

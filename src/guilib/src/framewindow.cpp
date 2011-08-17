@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "cframewindow.h"
+
+#include "framewindow.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -30,7 +31,7 @@ namespace gui
 		if(m_parent)
 			m_parent->moveToFront(this);
 
-		BaseWindow::rise();
+		base_window::rise();
 	}
 
 	void FrameWindow::setFont(const std::string& font)
@@ -95,7 +96,7 @@ namespace gui
 
 			m_tracking = false;
 		}
-		return BaseWindow::onMouseButton(btn, state);
+		return base_window::onMouseButton(btn, state);
 	}
 
 	bool FrameWindow::onCaptureLost(void)

@@ -6,7 +6,7 @@
 namespace gui
 {
 	DragContainer::DragContainer(System& sys, const std::string& name) :
-		BaseWindow(sys, name),
+		base_window(sys, name),
 		m_dropTarget(0),
 		m_dragSubject(0)
 	{
@@ -21,9 +21,9 @@ namespace gui
 	{
 		struct seeker
 		{
-			const BaseWindow* m_ptr;
-			seeker(const BaseWindow* ptr) : m_ptr(ptr){}
-			bool operator()(WindowPtr obj) 
+			const base_window* m_ptr;
+			seeker(const base_window* ptr) : m_ptr(ptr){}
+			bool operator()(window_ptr obj) 
 			{
 				return obj ? (obj.get() == m_ptr) : false;
 			}
@@ -34,8 +34,8 @@ namespace gui
 	{
 		if(m_parent)
 		{
-			ChildrenList& children = m_parent->getChildren();
-			ChildrenIter it = std::find_if(children.begin(), children.end(), seeker(this));
+			children_list& children = m_parent->getChildren();
+			child_iter it = std::find_if(children.begin(), children.end(), seeker(this));
 			if(it != children.end())
 			{
 				children.splice(children.end(), children, it);
@@ -44,7 +44,7 @@ namespace gui
 	}
 
 
-	void DragContainer::update(BaseWindow* target, const point& pt)
+	void DragContainer::update(base_window* target, const point& pt)
 	{
 		m_dropTarget = target;
 		setPosition(pt - m_childOffset);
@@ -58,7 +58,7 @@ namespace gui
 		m_dragSubject = 0;
 	}
 
-	bool DragContainer::startDrag(BaseWindow* subj, const point& off)
+	bool DragContainer::startDrag(base_window* subj, const point& off)
 	{
 		setVisible(true);
 		m_dragSubject = subj;

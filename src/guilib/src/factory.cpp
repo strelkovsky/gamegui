@@ -19,16 +19,16 @@ WindowFactory::~WindowFactory(void)
 
 void WindowFactory::RegisterCreator(const std::string& type, CreatorPtr creator)
 {
-	m_system.logEvent(LogSystem, std::string("Factory: adding ") + type);
+	m_system.logEvent(log::system, std::string("Factory: adding ") + type);
 	m_creators[type] = creator;
 }
 
-WindowPtr WindowFactory::Create(const std::string& type, const std::string& name)
+window_ptr WindowFactory::Create(const std::string& type, const std::string& name)
 {
 	try
 	{
 		if(type.empty())
-			return WindowPtr();
+			return window_ptr();
 
 		typedef CreatorsMap::iterator CreatorsIt;
 
@@ -36,16 +36,16 @@ WindowPtr WindowFactory::Create(const std::string& type, const std::string& name
 
 		if (it == m_creators.end())
 		{
-			m_system.logEvent(LogWarning, std::string("Factory: couldn't create window ") + type);
-			return WindowPtr();
+			m_system.logEvent(log::warning, std::string("Factory: couldn't create window ") + type);
+			return window_ptr();
 		}
 
 		return (it->second)->Create(name);
 	}
 	catch (...)
 	{
-		m_system.logEvent(LogWarning, std::string("Factory: exception occerud while creating window ") + type);
-		return WindowPtr();
+		m_system.logEvent(log::warning, std::string("Factory: exception occerud while creating window ") + type);
+		return window_ptr();
 	}
 }
 
@@ -59,7 +59,7 @@ WindowFactory::TypesList WindowFactory::GetTypesList()
 	return types_list;
 }
 
-WindowPtr RootCreator::Create(const std::string& name)
+window_ptr RootCreator::Create(const std::string& name)
 {
 	return m_system.getRootPtr();
 }

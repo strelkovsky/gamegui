@@ -1,3 +1,4 @@
+
 function Test()
 	--log:msg("Event "..args.name)
 	--local test = eventArgs.mbutton
@@ -11,7 +12,6 @@ function Test()
 		to_framewindow(this.parent).movable = not to_framewindow(this.parent).movable
 		log:msg("Password mode is "..tostring(edit.password))
 		to_statictext(static).text = "After click"
-		--to_statictext(static):setText ("After click")
 	end
 end
 

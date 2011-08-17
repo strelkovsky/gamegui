@@ -7,12 +7,11 @@ namespace gui
 	class Imageset;
 	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-	class  Panel :
-		public BaseWindow
+	class Panel : public base_window
 	{
 	public:
 		typedef Panel Self;
-		Panel(System& sys, const std::string& name = "");
+		Panel(System& sys, const std::string& name = std::string());
 		virtual ~Panel(void);
 
 		static const char* GetType() { return "Panel"; }
@@ -22,7 +21,7 @@ namespace gui
 		virtual void init(xml::node& node);
 
 	protected:
-		void	renderFrame(const Rect& dest, const Rect& clip);
+		void renderFrame(const Rect& dest, const Rect& clip);
 
 	protected:
 		ImagesetPtr m_imgset;

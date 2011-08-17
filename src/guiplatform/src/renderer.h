@@ -1,7 +1,6 @@
 #pragma once
 
 #include <rgde/render/effect.h>
-#include <rgde/core/file_system.h>
 #include <guilib/src/renderer.h>
 
 namespace gui
@@ -11,17 +10,16 @@ namespace gui
 		class renderer : public Renderer
 		{
 		public:
-			renderer(rgde::render::device& device, unsigned int max_quads, 
-				rgde::core::vfs::system& vfs);
+			renderer(rgde::render::device& device, filesystem_ptr fs, unsigned int max_quads);
 			virtual ~renderer();
 
 			virtual void addCallback( AfterRenderCallbackFunc callback,
-				BaseWindow* window, const Rect& dest, const Rect& clip);
+				base_window* window, const Rect& dest, const Rect& clip);
 			virtual	void doRender();
 			virtual void addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colours);
 			virtual void addQuad(const vec2& p0, const vec2& p1, const vec2& p2, const vec2& p3, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colours);
 		
-			virtual void drawFromCache(BaseWindow* window);
+			virtual void drawFromCache(base_window* window);
 			virtual	TexturePtr createTexture(const std::string& filename);
 			virtual	TexturePtr createTexture(const void* buffPtr, unsigned int buffWidth, unsigned int buffHeight, Texture::PixelFormat pixFormat);
 
@@ -39,12 +37,6 @@ namespace gui
 
 			virtual Size	getViewportSize() const;
 
-			rgde::render::device& getDevice() const {return m_device;}
-
-			boost::shared_array<char> getData(const std::string& filename);
-			void setResourcePath(const std::string& filename);
-			std::string getResourcePath() const;
-
 		protected:
 			virtual void renderQuadDirect(const QuadInfo& q);
 			virtual	TexturePtr	createTextureInstance(const std::string& filename);
@@ -60,9 +52,6 @@ namespace gui
 			rgde::render::index_buffer_ptr	m_ibuffer;
 			rgde::render::vertex_declaration_ptr m_vertexDeclaration;
 			int m_bufferPos;	
-
-			rgde::core::vfs::system& m_filesystem;
-			std::string resource_path;
 
 			typedef rgde::render::effects::effect shader_effect;
 			typedef rgde::render::effects::param_ptr shader_handle;

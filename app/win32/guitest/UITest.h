@@ -38,7 +38,6 @@ namespace rgde
 		virtual void	OnLostDevice();
 
 	protected:
-		void log(gui::LogLevel level, const std::string& message);
 		void reinit();
 
 		void resize_scene(unsigned int width, unsigned int height);
@@ -59,13 +58,12 @@ namespace rgde
 		gui::System* m_system;
 
 		unsigned int m_framecount;
-		HANDLE m_hFile;
 
 		bool m_active;
 		double m_elapsed;
 		boost::timer m_timer;
 
-		gui::FontPtr m_font;
+		//gui::FontPtr m_font;
 	};
 
 }

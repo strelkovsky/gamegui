@@ -1,5 +1,5 @@
 #pragma once
-#include "cstatictext.h"
+#include "label.h"
 
 namespace gui
 {
@@ -7,11 +7,11 @@ namespace gui
 	class Imageset;
 	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-	class  Editbox : public StaticText
+	class  Editbox : public Label
 	{
 	public:
 		typedef Editbox Self;
-		Editbox(System& sys, const std::string& name = "");
+		Editbox(System& sys, const std::string& name = std::string());
 		virtual ~Editbox();
 
 		static const char* GetType() { return "Editbox"; }
@@ -78,11 +78,11 @@ namespace gui
 		bool	m_numeric;
 	};
 
-	class  KeyBinder : public StaticText
+	class  KeyBinder : public Label
 	{
 	public:
 		typedef KeyBinder Self;
-		KeyBinder(System& sys, const std::string& name = "");
+		KeyBinder(System& sys, const std::string& name = std::string());
 		virtual ~KeyBinder();
 
 		static const char* GetType() { return "KeyBinder"; }

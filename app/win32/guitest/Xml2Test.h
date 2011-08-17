@@ -13,5 +13,5 @@ public:
 	virtual void resetGUISystem();
 
 protected:
-	gui::WindowPtr m_wnd;
+	gui::window_ptr m_wnd;
 };

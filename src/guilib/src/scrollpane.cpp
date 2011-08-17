@@ -1,14 +1,15 @@
 #include "StdAfx.h"
-#include "cscrollpane.h"
 
-#include "cslider.h"
+#include "scrollpane.h"
+
+#include "slider.h"
 #include "eventtypes.h"
 
 namespace gui
 {
 
 ScrollPane::ScrollPane(System& sys, const std::string& name) 
-	: BaseWindow(sys, name)
+	: base_window(sys, name)
 	, m_scroll(0)
 	, m_target(0)
 {
@@ -18,12 +19,12 @@ ScrollPane::~ScrollPane(void)
 {
 }
 
-void ScrollPane::setTarget(BaseWindow* target)
+void ScrollPane::setTarget(base_window* target)
 {
 	m_target = target;
 	if(target && m_scroll)
 	{
-		addChild(target);
+		add(target);
 		bringToBack(target);
 		layoutTarget();
 		subscribe<events::SizedEvent, ScrollPane> (&ScrollPane::onTargetSized, m_target);				
@@ -52,7 +53,7 @@ void ScrollPane::layoutTarget()
 
 bool ScrollPane::onLoad(void)
 {
-	WindowPtr scroll = findChild("scrollbar");
+	window_ptr scroll = child("scrollbar");
 	if(scroll)
 	{
 		m_scroll = dynamic_cast<ScrollBar*>(scroll.get());
@@ -66,12 +67,12 @@ bool ScrollPane::onLoad(void)
 		}
 	}
 
-	return BaseWindow::onLoad();
+	return base_window::onLoad();
 }
 
 bool ScrollPane::onSized(bool update)
 {
-	BaseWindow::onSized();
+	base_window::onSized();
 
 	if(m_scroll)
 	{
@@ -111,7 +112,7 @@ void ScrollPane::onTargetSized(const events::SizedEvent& e)
 
 void ScrollPane::init(xml::node& node)
 {
-	BaseWindow::init(node);
+	base_window::init(node);
 	
 	//TODO: ???
 }

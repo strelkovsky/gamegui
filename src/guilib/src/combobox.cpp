@@ -1,8 +1,9 @@
 #include "StdAfx.h"
-#include "ccombobox.h"
+
+#include "combobox.h"
 
 #include "system.h"
-#include "clist.h"
+#include "list.h"
 #include "eventtypes.h"
 
 namespace gui
@@ -30,14 +31,14 @@ namespace gui
 
 	bool Combobox::onLoad(void)
 	{
-		m_btn = findChild("_Btn");
+		m_btn = child("_Btn");
 		if(m_btn)
 		{
 			m_btn->setAlwaysOnTop(true);
 			moveToFront(m_btn.get());
 			subscribe<events::ClickEvent, Combobox> (&Combobox::onBtnClick, m_btn.get());
 		}
-		m_list = findChild("_List");
+		m_list = child("_List");
 		if(m_list)
 		{
 			m_list->setAlwaysOnTop(true);
@@ -77,7 +78,7 @@ namespace gui
 			ListBox* lb = static_cast<ListBox*>(m_list.get());
 			if(lb)
 			{
-				StaticText* st = lb->GetSelectedItem();
+				Label* st = lb->GetSelectedItem();
 				setText(st ? st->getText() : "");
 			}
 			else
@@ -95,7 +96,7 @@ namespace gui
 		return Editbox::onMouseButton(btn, state);
 	}
 
-	bool Combobox::onFocusLost(BaseWindow* newFocus)
+	bool Combobox::onFocusLost(base_window* newFocus)
 	{
 		if ((!newFocus) || ((newFocus != m_btn) && (newFocus != m_list)))
 			hideList();

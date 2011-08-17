@@ -4,7 +4,7 @@
 namespace gui
 {
 	Tooltip::Tooltip(System& sys, const std::string& name) :
-		BaseWindow(sys, name),	
+		base_window(sys, name),	
 		m_fadein(0.f),
 		m_fadeout(0.f)
 	{
@@ -18,9 +18,9 @@ namespace gui
 	{
 		struct seeker
 		{
-			const BaseWindow* m_ptr;
-			seeker(const BaseWindow* ptr) : m_ptr(ptr){}
-			bool operator()(WindowPtr obj) 
+			const base_window* m_ptr;
+			seeker(const base_window* ptr) : m_ptr(ptr){}
+			bool operator()(window_ptr obj) 
 			{
 				return obj ? (obj.get() == m_ptr) : false;
 			}
@@ -31,8 +31,8 @@ namespace gui
 	{
 		if(m_parent)
 		{
-			ChildrenList& children = m_parent->getChildren();
-			ChildrenIter it = std::find_if(children.begin(), children.end(), seeker(this));
+			children_list& children = m_parent->getChildren();
+			child_iter it = std::find_if(children.begin(), children.end(), seeker(this));
 			if(it != children.end())
 			{
 				children.splice(children.end(), children, it);

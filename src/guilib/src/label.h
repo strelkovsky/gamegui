@@ -7,14 +7,14 @@ namespace gui
 	class Font;
 	typedef boost::shared_ptr<Font> FontPtr;
 
-	class  StaticText :	public BaseWindow
+	class  Label :	public base_window
 	{
 	public:
-		typedef StaticText Self;
-		StaticText(System& sys, const std::string& name = std::string());
-		virtual ~StaticText();
+		typedef Label Self;
+		Label(System& sys, const std::string& name = std::string());
+		virtual ~Label();
 
-		static const char* GetType() { return "StaticText"; }
+		static const char* GetType() { return "Label"; }
 		virtual const char* getType() { return Self::GetType(); }
 
 		void setFont(const std::string& font);

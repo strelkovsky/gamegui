@@ -4,13 +4,19 @@
 #include "colorRect.h"
 #include "texture.h"
 #include "texmanager.h"
-#include "log.h"
-#include "renderCallback.h"
 #include "imageops.h"
 
 namespace gui
 {
-	struct RenderImageInfo;
+class base_window;
+typedef boost::function <void (base_window* wnd, const Rect& dest, const Rect& clip)> AfterRenderCallbackFunc;
+
+struct filesystem;
+typedef boost::shared_ptr<filesystem> filesystem_ptr;
+
+struct log;
+
+struct RenderImageInfo;
 
 class Font;
 typedef boost::shared_ptr<Font> FontPtr;
@@ -30,7 +36,7 @@ public:
 	struct RenderCallbackInfo
 	{
 		AfterRenderCallbackFunc afterRenderCallback;
-		BaseWindow* window;
+		base_window* window;
 		Rect dest;
 		Rect clip;
 	};
@@ -51,7 +57,7 @@ public:
 		unsigned long		bottomLeftCol;
 		unsigned long		bottomRightCol;
 
-		__inline bool operator<(const QuadInfo& other) const
+		inline bool operator<(const QuadInfo& other) const
 		{
 			// this is intentionally reversed.
 			return z > other.z;
@@ -68,11 +74,11 @@ public:
 		RenderCallbackInfo callbackInfo;
 	};
 
-	Renderer();
+	Renderer(filesystem_ptr fs);
 	virtual ~Renderer();
 
 	virtual void	addCallback( AfterRenderCallbackFunc callback,
-								 BaseWindow* window, const Rect& dest, const Rect& clip) = 0;
+								 base_window* window, const Rect& dest, const Rect& clip) = 0;
 
 	void	drawLine(const Image& img, const vec2* p, size_t size, float z, const Rect& clip_rect, const Color& color, float width);
 	
@@ -85,8 +91,8 @@ public:
 
 	virtual void	beginBatching();
 	virtual void	endBatching();
-	void			clearCache(BaseWindow* window = 0);
-	bool			isExistInCache(BaseWindow* window) const;
+	void			clearCache(base_window* window = 0);
+	bool			isExistInCache(base_window* window) const;
 	
 	virtual void	setQueueingEnabled(bool setting)  { m_isQueueing = setting; }
 	bool	isQueueingEnabled(void) const { return m_isQueueing; }
@@ -99,9 +105,9 @@ public:
 	// font managment TODO: remove it!
 	virtual FontPtr		createFont(const std::string& name, const std::string& fontname, unsigned int size) = 0;
 
-	virtual void startCaptureForCache(BaseWindow* window) ;
-	virtual void endCaptureForCache(BaseWindow* window) ;
-	virtual void drawFromCache(BaseWindow* window) {window;}
+	virtual void startCaptureForCache(base_window* window) ;
+	virtual void endCaptureForCache(base_window* window) ;
+	virtual void drawFromCache(base_window* window) {window;}
 
 	const Size&	getOriginalSize(void) const	{ return m_originalsize; }
 	const Size	getSize(void);
@@ -126,14 +132,9 @@ public:
 	Rect virtualToRealCoord( const Rect& virtualRect ) const;
 	Rect realToVirtualCoord( const Rect& realRect ) const;
 
-	void setLogCallback(LoggerCallback log_cb) {m_log_cb = log_cb;}
-
 	void cleanup(bool complete);
 
-	// file managment TODO: remove it!
-	virtual boost::shared_array<char> getData(const std::string& filename) = 0;
-	virtual void setResourcePath(const std::string& filename) = 0;
-	virtual std::string getResourcePath() const = 0;
+	filesystem_ptr get_filesystem() {return m_filesystem;}
 
 protected:
 	virtual	void addQuad(const Rect& dest_rect, const Rect& tex_rect, float z, const RenderImageInfo& img, const ColorRect& colours) = 0;
@@ -175,7 +176,7 @@ protected:
 	const float	GuiZLayerStep;
 	float	m_current_z;
 
-	LoggerCallback m_log_cb;
+	//log& m_log;
 
 	typedef std::vector <QuadInfo> CachedQuadList;
 	struct QuadCacheRecord
@@ -183,9 +184,11 @@ protected:
 		CachedQuadList m_vec;
 		std::size_t num;
 	};
-	typedef std::map <BaseWindow*, QuadCacheRecord> QuadCacheMap;
+	typedef std::map <base_window*, QuadCacheRecord> QuadCacheMap;
 	QuadCacheMap m_mapQuadList;
 	QuadCacheRecord* m_currentCapturing;
+
+	filesystem_ptr m_filesystem;
 };
 
 }

@@ -4,6 +4,8 @@
 #include <guilib/src/renderer.h>
 #include <guilib/src/imagesetmanager.h>
 
+#include <guilib/src/system.h>
+
 // Pixels to put between glyphs
 #define INTER_GLYPH_PAD_SPACE 2
 // A multiplication coefficient to convert FT_Pos values into normal floats
@@ -24,9 +26,9 @@ namespace gui
 FreeTypeFont::FreeTypeFont (const std::string& name, const std::string& filename, unsigned int size, Renderer& r) :
     Font (name, filename, size, r),
     m_antiAliased (true),
-    m_fontFace (0),
-	m_fontData(0),
-	m_fontSize(0)
+    m_fontFace (0)
+	//,m_fontData(0),
+	//m_fontSize(0)
 {
     if (!ft_usage_count++)
         FT_Init_FreeType (&ft_lib);
@@ -303,10 +305,7 @@ void FreeTypeFont::free ()
     FT_Done_Face (m_fontFace);
     m_fontFace = 0;
 	
-	if(m_fontData)
-		delete [] m_fontData;
-	m_fontData = 0;
-	
+	m_font_data.reset();	
 }
 
 
@@ -316,22 +315,13 @@ void FreeTypeFont::updateFont()
 
 	if(!m_fileName.empty())
 	{
-		//assert(0 && "TODO!");// replace to vfs!
-#pragma message ("TODO: FreeTypeFont::updateFont - use engine vfs!")
-
-		HANDLE hFile = CreateFileA(m_fileName.c_str(), GENERIC_READ, 0, 0, OPEN_ALWAYS, 0, 0);
-		if(hFile != INVALID_HANDLE_VALUE)
-		{
-			DWORD h;
-			m_fontSize = GetFileSize(hFile, &h);
-			m_fontData = new FT_Byte[m_fontSize];
-			ReadFile(hFile, m_fontData, m_fontSize, &h, 0);
-			CloseHandle(hFile);
-		}
+		m_font_data = m_render.get_filesystem()->load_binary(m_fileName);
 	}
 
+	if (!m_font_data) return;
+
     // create face using input font
-    if (FT_New_Memory_Face (ft_lib, m_fontData, m_fontSize, 0, &m_fontFace) != 0)
+    if (FT_New_Memory_Face (ft_lib, (const FT_Byte*)m_font_data->ptr, m_font_data->size, 0, &m_fontFace) != 0)
 		throw std::exception("FreeTypeFont::load - The source font file does not contain a valid FreeType font.");
 
     // check that default Unicode character map is available

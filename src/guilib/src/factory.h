@@ -8,39 +8,39 @@ namespace gui
 {
 
 class System;
-class BaseWindow;
-typedef boost::intrusive_ptr<BaseWindow> WindowPtr;
+class base_window;
+typedef boost::intrusive_ptr<base_window> window_ptr;
 
-struct ICreator
+struct base_creator
 {
-	ICreator(System& sys, const char* type)
+	base_creator(System& sys, const char* type)
 		: m_system(sys), m_typename(type)
 	{
 	}
-	virtual ~ICreator(){}
-	virtual WindowPtr Create(const std::string& name) = 0;
+	virtual ~base_creator(){}
+	virtual window_ptr Create(const std::string& name) = 0;
 
 	System& m_system;
 	const char* m_typename;
 };
 
 template<class T>
-struct Creator : public ICreator
+struct Creator : public base_creator
 {
-	Creator(System& sys) : ICreator(sys, T::GetType()) {}
-	virtual WindowPtr Create(const std::string& name)
+	Creator(System& sys) : base_creator(sys, T::GetType()) {}
+	virtual window_ptr Create(const std::string& name)
 	{
-		return WindowPtr(new T(m_system, name));
+		return window_ptr(new T(m_system, name));
 	}
 };
 
-struct RootCreator : public ICreator
+struct RootCreator : public base_creator
 {
-	RootCreator(System& sys, const char* type_name) : ICreator(sys, type_name) {}
-	virtual WindowPtr Create(const std::string& name);	
+	RootCreator(System& sys, const char* type_name) : base_creator(sys, type_name) {}
+	virtual window_ptr Create(const std::string& name);	
 };
 
-typedef boost::shared_ptr<ICreator> CreatorPtr;
+typedef boost::shared_ptr<base_creator> CreatorPtr;
 class WindowFactory
 {
 public:
@@ -59,7 +59,7 @@ public:
 		RegisterCreator(T::GetType(), CreatorPtr(new Creator<T>(m_system)));
 	}
 
-	WindowPtr Create(const std::string& type, const std::string& name);
+	window_ptr Create(const std::string& type, const std::string& name);
 	
 	TypesList GetTypesList();
 	

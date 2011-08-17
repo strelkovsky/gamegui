@@ -7,11 +7,11 @@ namespace gui
 	class ScrollBar;
 	class ScrollPane;
 
-	class  ScrollPane : public BaseWindow
+	class ScrollPane : public base_window
 	{
 	public:
 		typedef ScrollPane Self;
-		ScrollPane(System& sys, const std::string& name = "");
+		ScrollPane(System& sys, const std::string& name = std::string());
 		virtual ~ScrollPane();
 
 		static const char* GetType() { return "ScrollPane"; }
@@ -22,7 +22,7 @@ namespace gui
 		virtual bool onMouseWheel(int delta);
 		virtual void init(xml::node& node);
 
-		void setTarget(BaseWindow* target);
+		void setTarget(base_window* target);
 
 		void onTrack(const events::TrackEvent& e);
 		void onTargetSized(const events::SizedEvent& e);
@@ -32,6 +32,6 @@ namespace gui
 
 	protected:
 		ScrollBar*	m_scroll;
-		BaseWindow* m_target;
+		base_window* m_target;
 	};
 }

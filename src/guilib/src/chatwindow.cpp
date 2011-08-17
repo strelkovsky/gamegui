@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "cchatwindow.h"
+
+#include "chatwindow.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -9,7 +10,6 @@
 
 namespace gui
 {
-
 	ChatWindow::ChatWindow(System& sys, const std::string& name)
 		: Panel(sys, name)
 		, m_captionLeftImg(0)
@@ -46,7 +46,7 @@ namespace gui
 		if(m_parent)
 			m_parent->moveToFront(this);
 
-		BaseWindow::rise();
+		base_window::rise();
 	}
 
 	void ChatWindow::setFont(const std::string& font)
@@ -64,7 +64,6 @@ namespace gui
 
 		renderFrame(finalRect, finalClip);
 
-		// костыль, чтоб не глючило  
 		float dx = 1.0f;
 		float dy = 1.0f;
 
@@ -158,7 +157,7 @@ namespace gui
 
 		m_fShowingTime = 0.0f;
 			
-		BaseWindow::startTick();
+		base_window::startTick();
 	}
 
 	void ChatWindow::SetPosition( const point& point )
@@ -174,11 +173,11 @@ namespace gui
 
 	bool ChatWindow::onTick( float delta )
 	{
-		BaseWindow::onTick(delta);
+		base_window::onTick(delta);
 		m_fShowingTime += delta;
 		if (m_fShowingTime > m_fMaxShowingTime)
 		{
-			BaseWindow::stopTick();
+			base_window::stopTick();
 			if (m_endCallback)
 				m_endCallback();
 		}

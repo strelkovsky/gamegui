@@ -1,5 +1,5 @@
 #pragma once
-#include "cstatictext.h"
+#include "label.h"
 
 namespace gui
 {
@@ -7,11 +7,11 @@ namespace gui
 	class Imageset;
 	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-	class  Checkbox : public StaticText
+	class  Checkbox : public Label
 	{
 	public:
 		typedef Checkbox Self;
-		Checkbox(System& sys, const std::string& name = "");
+		Checkbox(System& sys, const std::string& name = std::string());
 		virtual ~Checkbox();
 		
 		static const char* GetType() { return "Checkbox"; }

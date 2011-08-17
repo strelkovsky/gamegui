@@ -129,13 +129,13 @@ namespace gui
 		const Image* operator[](const std::string& name) const { return GetImage(name); }
 		const Image* GetImagePtr(std::string name) const { return GetImage(name); }
 		/// @brief - Get image by index
-		/// @param idx - [0, GetImageCount())
+		/// @param idx - [0, ImagesCount())
 		/// @returns - ptr, 0 if out of range
 		const Image* GetImageByIdx(size_t idx) const;
 
 		const std::string& GetName() const;
 
-		size_t GetImageCount() const;
+		size_t ImagesCount() const;
 
 	private:
 		typedef std::vector<TexturePtr> Textures;
@@ -150,7 +150,7 @@ namespace gui
 		return m_textures.size();
 	}
 
-	inline size_t Imageset::GetImageCount() const
+	inline size_t Imageset::ImagesCount() const
 	{
 		return m_images.size();
 	}

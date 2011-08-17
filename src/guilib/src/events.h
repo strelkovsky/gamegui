@@ -4,62 +4,62 @@ namespace gui
 {
 namespace events
 {
-    class BaseSender;
-    class BaseListener;
-    class BaseEventsManager;
+    class sender_base;
+    class listener_base;
+    class manager_base;
 
     // базовый класс менеджера событий
-    class BaseEventsManager
+    class manager_base
     {
 	protected:
-		BaseEventsManager();
-		virtual ~BaseEventsManager();
+		manager_base();
+		virtual ~manager_base();
 
     public:
-        //отписать получателя от менеджера (потомка класса BaseEventsManager)
-		virtual void unsubscribe (BaseListener*) = 0;
-        virtual void unsubscribe (BaseListener*, BaseSender*) = 0;
+        //отписать получателя от менеджера (потомка класса manager_base)
+		virtual void unsubscribe (listener_base*) = 0;
+        virtual void unsubscribe (listener_base*, sender_base*) = 0;
     };
 
     // шаблонный класс менеджера событий
     template <typename Event>
-    class EventsManager: public BaseEventsManager
+    class manager: public manager_base
     {
         //подписка на получение событий
-        struct Subscription
+        struct subscription
         {
-            BaseListener                *m_pListener; //кто хочет получать события
-            BaseSender                  *m_pSender;   //от кого хочет получать события (0 - от всех)
+            listener_base                *m_pListener; //кто хочет получать события
+            sender_base                  *m_pSender;   //от кого хочет получать события (0 - от всех)
             boost::function<void(Event)>  m_func;      //какой метод вызывать
 
-            bool operator==(const Subscription &s)
+            bool operator==(const subscription &s)
             {
                 return m_pListener == s.m_pListener;
             }
         };
 
-		 typedef std::list<Subscription> SubscriptionsList;
+		 typedef std::list<subscription> SubscriptionsList;
 
     public:
         //синглтон
-        static EventsManager& Get()
+        static manager& get()
         {
-            static EventsManager instance;
+            static manager instance;
             return instance;
         }
 
-        //подписать pListener на получение событий в функтор func от отправителя pSender (если равен 0 - то от всех)
-        void subscribe (BaseListener *pListener, boost::function<void(Event)> func, BaseSender *pSender)
+        //подписать l на получение событий в функтор func от отправителя pSender (если равен 0 - то от всех)
+        void subscribe (listener_base *l, boost::function<void(Event)> func, sender_base *pSender)
         {
-            Subscription subs;
-            subs.m_pListener = pListener;
+            subscription subs;
+            subs.m_pListener = l;
             subs.m_func      = func;
             subs.m_pSender   = pSender;
             m_subscriptions.push_back(subs);
         }
 
-		//отписать pListener от получения всех событий типа Event
-		void unsubscribe (BaseListener *listener)
+		//отписать l от получения всех событий типа Event
+		void unsubscribe (listener_base *listener)
 		{
 			SubscriptionsList::iterator i = m_subscriptions.begin();
 			while (i != m_subscriptions.end())
@@ -71,8 +71,8 @@ namespace events
 			}
 		}
 
-        //отписать pListener от получения всех событий типа Event
-        void unsubscribe (BaseListener *listener, BaseSender *sender)
+        //отписать l от получения всех событий типа Event
+        void unsubscribe (listener_base *listener, sender_base *sender)
         {
             SubscriptionsList::iterator i = m_subscriptions.begin();
             while (i != m_subscriptions.end())
@@ -85,7 +85,7 @@ namespace events
         }
 
         //отправить событие event от отправителя pSender
-        void sendEvent (const Event& event, const BaseSender *pSender)
+        void sendEvent (const Event& event, const sender_base *pSender)
         {
             SubscriptionsList tmp(m_subscriptions.begin(), m_subscriptions.end());
 
@@ -102,106 +102,106 @@ namespace events
         }
 
     private:
-		EventsManager () {}
-		~EventsManager() {}
+		manager () {}
+		~manager() {}
 
-        EventsManager(const EventsManager&);
-        EventsManager& operator= (const EventsManager&);
+        manager(const manager&);
+        manager& operator= (const manager&);
 
         SubscriptionsList m_subscriptions;
     };
 
 
     // базовый класс получателя
-    class  BaseListener
+    class  listener_base
     {
     protected:
-        BaseListener();
-        virtual ~BaseListener();
+        listener_base();
+        virtual ~listener_base();
 
         //подписаться на получение событий
         template <typename Event>
-        void subscribe( boost::function<void(Event)> f, BaseSender *sender = 0)
+        void subscribe( boost::function<void(Event)> f, sender_base *sender = 0)
         {
-            EventsManager<Event>::Get().subscribe(this,f,sender);
+            manager<Event>::get().subscribe(this,f,sender);
         }
 
         //отписаться от получения событий
         template <typename Event>
-        void unsubscribe(BaseSender *sender)
+        void unsubscribe(sender_base *sender)
         {
-            EventsManager<Event>::Get().unsubscribe(this, sender);
+            manager<Event>::get().unsubscribe(this, sender);
         }
 
 		template <typename Event>
 		void unsubscribe()
 		{
-			EventsManager<Event>::Get().unsubscribe(this);
+			manager<Event>::get().unsubscribe(this);
 		}
 
 
     private:
-        BaseListener(const BaseListener&);
-        BaseListener& operator= (const BaseListener&);
+        listener_base(const listener_base&);
+        listener_base& operator= (const listener_base&);
     };
 
     // базовый класс отправителя
-    class  BaseSender
+    class  sender_base
     {
     protected:
-        BaseSender();
-		virtual ~BaseSender();
+        sender_base();
+		virtual ~sender_base();
 
         template<typename Event>
         void base_send_event(const Event& event)
         {
-			EventsManager<Event>::Get().sendEvent(event,this);
+			manager<Event>::get().sendEvent(event,this);
         }
 
     private:
-        BaseSender(const BaseSender&);
-        BaseSender& operator= (const BaseSender&);
+        sender_base(const sender_base&);
+        sender_base& operator= (const sender_base&);
     };
 
 	// получатель
-	class  Listener: private BaseListener
+	class  Listener: private listener_base
 	{
 	public:
 		//подписаться на получение событий
 		//  func    - объект с сигнатурой void(Event)
 		//  pSender - от кого хотим получать события (0 или ничего, если хотим получать от всех)
 		template <typename Event>
-		void subscribe( boost::function<void(Event)> func, BaseSender *pSender=0 )
+		void subscribe( boost::function<void(Event)> func, sender_base *pSender=0 )
 		{
-			BaseListener::subscribe<Event>(func,pSender);
+			listener_base::subscribe<Event>(func,pSender);
 		}
 
 		//подписаться на получение событий
 		//  ptr     - указатель на член-функцию с сигнатурой void(Event)
 		//  pSender - от кого хотим получать события (0 или ничего, если хотим получать от всех)
 		template<typename Event, typename Class, typename EventArg>
-		void subscribe (void (Class::*ptr)(EventArg), BaseSender *pSender=0)
+		void subscribe (void (Class::*ptr)(EventArg), sender_base *pSender=0)
 		{
-			BaseListener::subscribe<Event>( boost::bind(ptr, static_cast<Class*>(this), _1), pSender );
+			listener_base::subscribe<Event>( boost::bind(ptr, static_cast<Class*>(this), _1), pSender );
 		}
 
 		//отписаться от получения событий
 		template <typename Event>
-		void unsubscribe(BaseSender* sender)
+		void unsubscribe(sender_base* sender)
 		{
-			BaseListener::unsubscribe<Event>(sender);
+			listener_base::unsubscribe<Event>(sender);
 		}
 
 		template <typename Event>
 		void unsubscribe()
 		{
-			BaseListener::unsubscribe<Event>();
+			listener_base::unsubscribe<Event>();
 		}
 	};
 
 
 	// отправитель
-	class  Sender: public Listener, public BaseSender
+	class  Sender : public Listener, public sender_base
 	{
 	public:
 		template<typename Event>
