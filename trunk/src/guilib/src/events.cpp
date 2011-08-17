@@ -15,72 +15,70 @@ namespace events
 			~CListManagers() {}
 
 			//отписать данного получателя ото всех менеджеров
-			void unsubscribeAll (BaseListener *pListener);
-
+			void unsubscribeAll (listener_base *l);
 			//менеджер добавляет себя в общий список менеджеров
-			void addManager     (BaseEventsManager *pManager);
-
+			void addManager     (manager_base *m);
 			//менеджер удаляет себя из общего списка менеджеров
-			void delManager     (BaseEventsManager *pManager);
+			void delManager     (manager_base *m);
 
 		private:
-			std::list<BaseEventsManager*> m_managers;
+			std::list<manager_base*> m_managers;
 		} list_manager;
 	}
 
 
-	BaseEventsManager::BaseEventsManager()
+	manager_base::manager_base()
 	{
 		list_manager.addManager(this);
 	}
 
-	BaseEventsManager::~BaseEventsManager()
+	manager_base::~manager_base()
 	{
 		list_manager.delManager(this);
 	}
 
-	BaseListener::BaseListener() 
+	listener_base::listener_base() 
 	{
 	}
 
 	//отписать получателя от всех менеджеров
-	BaseListener::~BaseListener()
+	listener_base::~listener_base()
 	{		
 		list_manager.unsubscribeAll(this);
 	}
 
-	BaseSender::BaseSender() 
+	sender_base::sender_base() 
 	{
 	}
 
-	BaseSender::~BaseSender()
+	sender_base::~sender_base()
 	{
 	}
 
     //отписать данного получателя ото всех менеджеров
-    void CListManagers::unsubscribeAll(BaseListener *pListener)
+    void CListManagers::unsubscribeAll(listener_base *l)
     {
-        std::list<BaseEventsManager*>::iterator i = m_managers.begin();
+        std::list<manager_base*>::iterator i = m_managers.begin();
         while (i != m_managers.end())
         {
-            (*i)->unsubscribe(pListener);
+            (*i)->unsubscribe(l);
             ++i;
         }
     }
 
     //менеджер добавляет себя в общий список менеджеров
-    void CListManagers::addManager (BaseEventsManager *pManager)
+    void CListManagers::addManager (manager_base *m)
     {
-        m_managers.push_back(pManager);
+        m_managers.push_back(m);
     }
 
     //менеджер удаляет себя из общего списка менеджеров
-    void CListManagers::delManager (BaseEventsManager *pManager)
+    void CListManagers::delManager (manager_base *m)
     {
-        std::list<BaseEventsManager*>::iterator i = m_managers.begin();
+        std::list<manager_base*>::iterator i = m_managers.begin();
         while (i != m_managers.end())
         {
-            if ((*i) == pManager)
+            if ((*i) == m)
                 i = m_managers.erase(i);
             else
                 ++i;

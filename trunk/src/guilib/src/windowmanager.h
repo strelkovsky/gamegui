@@ -17,8 +17,8 @@ namespace gui
 	typedef boost::shared_ptr<Font> FontPtr;
 
 	class System;
-	class BaseWindow;
-	typedef boost::intrusive_ptr<BaseWindow> WindowPtr;
+	class base_window;
+	typedef boost::intrusive_ptr<base_window> window_ptr;
 
 	class WindowFactory;
 
@@ -28,8 +28,8 @@ namespace gui
 		WindowManager(System& sys, const std::string& scheme);
 		~WindowManager(void);
 
-		WindowPtr createWindow(const std::string& type, const std::string& name);
-		WindowPtr loadXml(const std::string& filename);
+		window_ptr createWindow(const std::string& type, const std::string& name);
+		window_ptr loadXml(const std::string& filename);
 
 		// public resource creators:
 		ImagesetPtr loadImageset(const std::string& name);
@@ -38,20 +38,20 @@ namespace gui
 		Imageset*	getImageset(std::string name);
 		Font*		getFont(std::string name);
 
-		void loadLeafWindow(WindowPtr wnd, const std::string& xml);
+		void loadLeafWindow(window_ptr wnd, const std::string& xml);
 
 		void reset(bool complete);
 
 	protected:
-		typedef std::vector<WindowPtr> WindowVector;
+		typedef std::vector<window_ptr> WindowVector;
 		void loadScheme(const std::string& scheme);
 
-		WindowPtr createFromFile(const std::string& file, WindowVector& newWindows);
-		WindowPtr createWindow(WindowPtr parent, xml::node& n, WindowVector& newWindows);
+		window_ptr createFromFile(const std::string& file, WindowVector& newWindows);
+		window_ptr createWindow(window_ptr parent, xml::node& n, WindowVector& newWindows);
 		
-		void loadWindowProperties(WindowPtr wnd, xml::node& n);
-		void loadWindowEvents(WindowPtr wnd, xml::node& n);
-		void onLoaded(WindowPtr wnd);
+		void loadWindowProperties(window_ptr wnd, xml::node& n);
+		void loadWindowEvents(window_ptr wnd, xml::node& n);
+		void onLoaded(window_ptr wnd);
 		
 		ImagesetPtr createImageset(const std::string& filename);
 		FontPtr createFont(const std::string& filename);

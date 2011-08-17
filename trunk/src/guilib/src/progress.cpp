@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "cprogress.h"
+
+#include "progress.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -10,7 +11,7 @@ namespace gui
 {
 
 Progress::Progress(System& sys, const std::string& name) :
-	StaticText(sys, name),
+	Label(sys, name),
 	m_progress(0)
 {
 }
@@ -22,12 +23,12 @@ Progress::~Progress(void)
 void Progress::render(const Rect& finalRect, const Rect& finalClip)
 {
 	if(!m_text.empty())
-		StaticText::render(finalRect, finalClip);
+		Label::render(finalRect, finalClip);
 }
 
 void Progress::init(xml::node& node)
 {
-	StaticText::init(node);
+	Label::init(node);
 
 	xml::node setting = node("Progress");
 	if(!setting.empty())

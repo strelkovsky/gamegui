@@ -5,6 +5,8 @@ struct lua_State;
 namespace gui
 {
 	class  ScriptObject;
+	struct filesystem;
+	typedef boost::shared_ptr<filesystem> filesystem_ptr;
 
 	class ScriptStack
 	{
@@ -21,8 +23,8 @@ namespace gui
 	{
 	public:
 		/// @brief - ctor
-		/// @param externalState - требует валидный стейт либо 0, если внутренний
-		explicit ScriptSystem(lua_State* externalState);
+		/// @param externalState - to provide external luaState, 0 - to use own one.
+		ScriptSystem(filesystem_ptr fs, lua_State* externalState);
 		~ScriptSystem();
 
 		lua_State* LuaState();
@@ -32,6 +34,8 @@ namespace gui
 		bool ExecuteFile(const std::string& filename);
 
 		const std::string& GetLastError() { return m_error; }
+
+		filesystem_ptr get_filesystem() {return m_filesystem;}
 
 	protected:
 		std::string LoadFile(const std::string& filename);
@@ -44,5 +48,7 @@ namespace gui
 
 		ScriptStack m_thisStack;
 		bool m_ext;
+
+		filesystem_ptr m_filesystem;
 	};
 }

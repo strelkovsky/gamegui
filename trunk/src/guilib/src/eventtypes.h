@@ -2,22 +2,22 @@
 
 namespace gui
 {
-	class BaseWindow;
+	class base_window;
 	namespace events
 	{
-		struct BaseEventType {};
+		struct ResizeEvent {};
+		struct ClickEvent {};
+		struct TrackEvent {};
+		struct SizedEvent {};
+		struct MovedEvent {};
 
-		struct ResizeEvent : public BaseEventType {};
-		struct ClickEvent : public BaseEventType {};
-		struct TrackEvent : public BaseEventType {};
-		struct SizedEvent : public BaseEventType {};
-		struct MovedEvent : public BaseEventType {};
-
-		struct NamedEvent : public BaseEventType 
+		struct NamedEvent
 		{
-			NamedEvent(const std::string name, BaseWindow* sender) : m_name(name), m_sender(sender) {}
+			NamedEvent(const std::string& name, base_window* sender) 
+				: m_name(name), m_sender(sender) {}
+
 			std::string m_name;
-			BaseWindow* m_sender;
+			base_window* m_sender;
 		};
 	}
 }

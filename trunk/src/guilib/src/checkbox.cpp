@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include "ccheckbox.h"
+#include "checkbox.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -9,7 +9,7 @@
 namespace gui
 {
 	Checkbox::Checkbox(System& sys, const std::string& name):
-		StaticText(sys, name),
+		Label(sys, name),
 		m_imgChecked(0),
 		m_imgUnchecked(0),
 		m_checked(false),
@@ -98,12 +98,12 @@ namespace gui
 		desttext.m_left += offset + 4.f;
 		Color result = m_hovered || m_focus ? Color(1.f, 0.7f, 0.7f) : m_backColor;
 
-		StaticText::render(desttext, finalClip);	
+		Label::render(desttext, finalClip);	
 	}
 
 	void Checkbox::init(xml::node& node)
 	{
-		StaticText::init(node);
+		Label::init(node);
 
 		xml::node setting = node("Checked");
 		if(!setting.empty())

@@ -21,7 +21,7 @@ namespace gui
 	{
 	public:
 		typedef Menu Self;
-		Menu(System& sys, const std::string& name = "");
+		Menu(System& sys, const std::string& name = std::string());
 		virtual ~Menu(void);
 
 		static const char* GetType() { return "Menu"; }

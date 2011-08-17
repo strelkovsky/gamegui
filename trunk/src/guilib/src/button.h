@@ -1,5 +1,6 @@
 #pragma once
-#include "cstatictext.h"
+
+#include "label.h"
 
 namespace gui
 {
@@ -7,7 +8,7 @@ namespace gui
 	class Imageset;
 	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-	class  Button : public StaticText
+	class Button : public Label
 	{
 	public:
 		enum States
@@ -26,7 +27,7 @@ namespace gui
 
 	public:
 		typedef Button Self;
-		Button(System& sys, const std::string& name = "");
+		Button(System& sys, const std::string& name = std::string());
 		virtual ~Button(void);
 
 		static const char* GetType() { return "Button"; }
@@ -59,7 +60,7 @@ namespace gui
 	{
 	public:
 		typedef ImageButton Self;
-		ImageButton(System& sys, const std::string& name = "");
+		ImageButton(System& sys, const std::string& name = std::string());
 		virtual ~ImageButton();
 
 		static const char* GetType() { return "ImageButton"; }
@@ -78,7 +79,7 @@ namespace gui
 	{
 	public:
 		typedef Thumb Self;
-		Thumb(System& sys, const std::string& name = "");
+		Thumb(System& sys, const std::string& name = std::string());
 		virtual ~Thumb(void);
 
 		static const char* GetType() { return "Thumb"; }
@@ -102,14 +103,13 @@ namespace gui
 		bool m_horiz;
 		point m_offset;
 		Rect m_trackarea;
-
 	};
 
 	class  ScrollThumb : public Thumb
 	{
 	public:
 		typedef ScrollThumb Self;
-		ScrollThumb(System& sys, const std::string& name = "");
+		ScrollThumb(System& sys, const std::string& name = std::string());
 		virtual ~ScrollThumb(void);
 
 		static const char* GetType() { return "ScrollThumb"; }

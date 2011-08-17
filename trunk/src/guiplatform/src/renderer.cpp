@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include <rgde/render/device.h>
+#include <guilib/guilib.h>
 #include <guilib/src/renderimageinfo.h>
 
 #include "renderer.h"
@@ -16,11 +17,9 @@ namespace gui
 {
 	namespace rgde_platform
 	{
-		Renderer* CreateRenderer(rgde::render::device& dev, 
-			rgde::core::vfs::system& vfs,
-			unsigned buff)
+		Renderer* CreateRenderer(rgde::render::device& dev, filesystem_ptr fs, unsigned buff)
 		{
-			return new renderer(dev, 1024, vfs);
+			return new renderer(dev, fs, 1024);
 		}
 				
 		struct QuadVertex
@@ -49,10 +48,8 @@ namespace gui
 		/*************************************************************************
 		Constructor
 		*************************************************************************/
-		renderer::renderer(device& device, unsigned int max_quads, 
-			rgde::core::vfs::system& vfs)
-			: m_filesystem(vfs)
-			, m_device(device)
+		renderer::renderer(device& device, filesystem_ptr fs, unsigned int max_quads)
+			: Renderer(fs), m_device(device)
 		{
 			m_needToAddCallback = false;
 			Size size(getViewportSize());
@@ -67,9 +64,7 @@ namespace gui
 		void renderer::constructor_impl(const Size& display_size)
 		{
 			m_bufferPos     = 0;
-
 			m_originalsize = display_size;
-
 			m_vertexDeclaration = vertex_declaration::create(m_device, vertex_desc, 3);
 
 			// Create a vertex buffer
@@ -109,7 +104,10 @@ namespace gui
 				m_ibuffer->unlock();
 			}
 
-			m_shader = shader_effect::create(m_device, m_filesystem.open_read("..\\data\\shaders\\gui.fx"));
+			if (data_ptr data = m_filesystem->load_binary("shaders\\gui.fx"))
+			{
+				m_shader = shader_effect::create(m_device, data->ptr, data->size);
+			}			
 
 			// get the maximum available texture size.
 			// set max texture size the the smaller of max width and max height.
@@ -128,7 +126,7 @@ namespace gui
 		}
 
 		void renderer::addCallback( AfterRenderCallbackFunc callback,
-											BaseWindow* window, const Rect& dest, const Rect& clip)
+											base_window* window, const Rect& dest, const Rect& clip)
 		{
 			// если сразу должны были рисовать, то сразу запускаем коллбак
 			if (!m_isQueueing)
@@ -558,18 +556,19 @@ namespace gui
 		TexturePtr	renderer::createTextureInstance(const std::string& filename) 
 		{
 			TexturePtr tex;
-			if(!filename.empty())
-			{
-				texture_ptr t = rgde::render::texture::create(
-					m_device, 
-					m_filesystem.open_read(filename)
-					);
+			if(filename.empty()) return TexturePtr();
 
-				if (t)
-				{
-					tex.reset(new texture(*this, t));
-				}
+			texture_ptr t;
+
+			if (data_ptr data = m_filesystem->load_binary(filename))
+			{
+				t = rgde::render::texture::create(m_device, data->ptr, data->size);
 			}
+
+			if (!t) return TexturePtr();;
+
+			tex.reset(new texture(*this, t));
+
 			return tex;
 		}
 
@@ -726,7 +725,7 @@ namespace gui
 			return FontPtr(new FreeTypeFont(name, filename, size, *this));
 		}
 
-		void renderer::drawFromCache( BaseWindow* window )
+		void renderer::drawFromCache( base_window* window )
 		{
 			assert(window);
 			QuadCacheMap::iterator i = m_mapQuadList.find(window);
@@ -792,28 +791,6 @@ namespace gui
 			}
 			m_needToAddCallback = false;
 			m_batches[m_num_batches - 1].callbackInfo = m_callbackInfo;
-		}
-
-		boost::shared_array<char> renderer::getData(const std::string& filename)
-		{
-			rgde::core::vfs::istream_ptr file = m_filesystem.open_read(filename);	
-			assert(file->is_valid());
-
-			size_t data_size = file->get_size();
-			boost::shared_array<char> data(new char[data_size]);
-			file->read((rgde::byte*)data.get(), (unsigned int)data_size);
-
-			return data;
-		}
-
-		void renderer::setResourcePath(const std::string& filename)
-		{
-			resource_path = filename;
-		}
-
-		std::string renderer::getResourcePath() const
-		{
-			return resource_path;
 		}
 	}
 }

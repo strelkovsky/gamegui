@@ -1,4 +1,5 @@
 #pragma once
+
 #include "window.h"
 #include "imagesetmanager.h"
 #include "imageops.h"
@@ -8,14 +9,14 @@ namespace gui
 	class Imageset;
 	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-	class  StaticImage : public BaseWindow
+	class ImageBox : public base_window
 	{
 	public:
-		typedef StaticImage Self;
-		StaticImage(System& sys, const std::string& name = "");
-		virtual ~StaticImage();
+		typedef ImageBox Self;
+		ImageBox(System& sys, const std::string& name = std::string());
+		virtual ~ImageBox();
 		
-		static const char* GetType() { return "StaticImage"; }
+		static const char* GetType() { return "ImageBox"; }
 		virtual const char* getType() { return Self::GetType(); }
 
 		void setImageset(const std::string& set);

@@ -12,7 +12,54 @@ extern "C"
 }
 
 
-void LogEvent(HANDLE hFile, gui::LogLevel level, const std::string& message);
+void LogEvent(HANDLE hFile, gui::log::level level, const std::string& message)
+{
+	if(hFile == INVALID_HANDLE_VALUE)
+		return;
+
+	std::string type;
+	switch(level)
+	{
+	case gui::log::system:
+		type = "sys";
+		break;
+	case gui::log::warning:
+		type = "wrn";
+		break;
+	case gui::log::error:
+		type = "ERROR";
+		break;
+	case gui::log::critical:
+		type = "CRITICAL";
+		break;
+	default:
+		type = "msg";
+		break;
+	};
+
+	SYSTEMTIME st;
+	GetLocalTime(&st);
+
+	char timestamp[32] = {0};
+	_snprintf(timestamp, 32, "[%04d.%02d.%02d %02d:%02d:%02d][%s] ", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, type.c_str());
+
+	char con_timestamp[32] = {0};
+	_snprintf(con_timestamp, 32, "[%02d:%02d:%02d][%s] ", st.wHour, st.wMinute, st.wSecond, type.c_str());
+
+	std::string m(timestamp);
+	m += message;
+	std::cout << (std::string(con_timestamp) + message).c_str() << std::endl;
+
+	if(hFile != INVALID_HANDLE_VALUE)
+	{
+		m += "\n";
+		DWORD len = (DWORD)m.length();
+		WriteFile(hFile, m.c_str(), len, &len, 0);
+	}
+}
+
+
+//void LogEvent(HANDLE hFile, gui::LogLevel level, const std::string& message);
 
 TestWindow::TestWindow(int x, int y, int w, int h, const std::wstring& title)
 	: m_render(NULL)
@@ -77,25 +124,20 @@ void TestWindow::run()
 
 void TestWindow::createGUISystem()
 {
-	m_render = gui::rgde_platform::CreateRenderer(m_render_device, 
-		m_filesystem, 
-		1024);
+	if (m_render) delete m_render;
+	if(m_system) delete m_system;
 
-	if(m_system)
-		delete m_system;
+	m_render = gui::rgde_platform::CreateRenderer(m_render_device, m_filesystem, 1024);
+	assert(m_render && "Can't create GUI renderer!");
+	m_system = new gui::System(*m_render, "data/", "default", m_state);
+	assert(m_system && "Can't create GUI System!");
 
-	m_system = new gui::System(*m_render, "data/", "default", 
-			boost::bind(&LogEvent, m_hFile, _1, _2), m_state);
+	//::ShowCursor(FALSE);
+	gui::Cursor& cursor = m_system->getCursor();
+	cursor.setType("CursorNormal");
 
-	if(m_system)
-	{
-		//::ShowCursor(FALSE);
-		gui::Cursor& cursor = m_system->getCursor();
-		cursor.setType("CursorNormal");
-
-		m_font = m_system->getWindowManager().loadFont("default");
-		load("guitest\\test.xml");
-	}
+	m_font = m_system->getWindowManager().loadFont("default");
+	load("guitest\\test.xml");
 }
 
 void TestWindow::resetGUISystem()
@@ -150,41 +192,70 @@ bool TestWindow::isFinished()
 
 rgde::core::windows::result TestWindow::wnd_proc(rgde::ushort message, rgde::uint wparam, long lparam )
 {
+	gui::event e = {0};
+
 	switch (message)
 	{
 	case WM_CHAR:
-		if(m_system)
-			return m_system->handleChar(wparam);
+		if(m_system) {
+			e.type = gui::event_char;
+			e.text.code = wparam;
+			return m_system->handle_event(e);
+		}
 		return 0;
 
 	case WM_LBUTTONDOWN:
-		if(m_system)
-			m_system->handleMouseButton(gui::EventArgs::Left, gui::EventArgs::Down);
+		if(m_system) {
+			e.type = gui::event_mouse | gui::mouse_button | gui::event_key_down;
+			e.mouse.button = gui::button_left;
+			m_system->handle_event(e);
+			//m_system->handleMouseButton(gui::EventArgs::Left, gui::EventArgs::Down);
+		}
 		return 0;
 
 	case WM_LBUTTONUP:
-		if(m_system)
-			m_system->handleMouseButton(gui::EventArgs::Left, gui::EventArgs::Up);
+		if(m_system){
+			e.type = gui::event_mouse | gui::mouse_button | gui::event_key_up;
+			e.mouse.button = gui::button_left;
+			m_system->handle_event(e);
+			//m_system->handleMouseButton(gui::EventArgs::Left, gui::EventArgs::Up);
+		}
 		return 0;
 
 	case WM_RBUTTONDOWN:
-		if(m_system)
-			m_system->handleMouseButton(gui::EventArgs::Right, gui::EventArgs::Down);
+		if(m_system){
+			e.type = gui::event_mouse | gui::mouse_button | gui::event_key_down;
+			e.mouse.button = gui::button_right;
+			m_system->handle_event(e);
+			//m_system->handleMouseButton(gui::EventArgs::Right, gui::EventArgs::Down);
+		}
 		return 0;
 
 	case WM_RBUTTONUP:
-		if(m_system)
-			m_system->handleMouseButton(gui::EventArgs::Right, gui::EventArgs::Up);
+		if(m_system){
+			e.type = gui::event_mouse | gui::mouse_button | gui::event_key_up;
+			e.mouse.button = gui::button_right;
+			m_system->handle_event(e);
+			//m_system->handleMouseButton(gui::EventArgs::Right, gui::EventArgs::Up);
+		}
 		return 0;
 
 	case WM_MBUTTONDOWN:
-		if(m_system)
-			m_system->handleMouseButton(gui::EventArgs::Middle, gui::EventArgs::Down);
+		if(m_system) {
+			e.type = gui::event_mouse | gui::mouse_button | gui::event_key_down;
+			e.mouse.button = gui::button_middle;
+			m_system->handle_event(e);
+			//m_system->handleMouseButton(gui::EventArgs::Middle, gui::EventArgs::Down);
+		}
 		return 0;
 
 	case WM_MBUTTONUP:
-		if(m_system)
-			m_system->handleMouseButton(gui::EventArgs::Middle, gui::EventArgs::Up);
+		if(m_system) {
+			e.type = gui::event_mouse | gui::mouse_button | gui::event_key_up;
+			e.mouse.button = gui::button_middle;
+			m_system->handle_event(e);
+			//m_system->handleMouseButton(gui::EventArgs::Middle, gui::EventArgs::Up);
+		}
 		return 0;
 
 	case WM_ACTIVATE:	// Watch For Window Activate Message
@@ -196,8 +267,12 @@ rgde::core::windows::result TestWindow::wnd_proc(rgde::ushort message, rgde::uin
 			if ('Q' == wparam || 'q' == wparam || VK_ESCAPE == wparam)
 				exit(0);
 
-			if(m_system)
-				m_system->handleKeyboard((gui::EventArgs::Keys)wparam, gui::EventArgs::Down);
+			if(m_system) {
+				e.type = gui::event_keyboard | gui::event_key_down;
+				e.keyboard.key = (gui::EventArgs::Keys)wparam;
+				m_system->handle_event(e);
+				//m_system->handleKeyboard((gui::EventArgs::Keys)wparam, gui::EventArgs::Down);
+			}
 
 			return 0;
 		}
@@ -209,8 +284,12 @@ rgde::core::windows::result TestWindow::wnd_proc(rgde::ushort message, rgde::uin
 				resetGUISystem();
 				return true;
 			}
-			if(m_system)
-				m_system->handleKeyboard((gui::EventArgs::Keys)wparam, gui::EventArgs::Up);
+			if(m_system) {
+				e.type = gui::event_keyboard | gui::event_key_up;
+				e.keyboard.key = (gui::EventArgs::Keys)wparam;
+				m_system->handle_event(e);
+				//m_system->handleKeyboard((gui::EventArgs::Keys)wparam, gui::EventArgs::Up);
+			}
 		}
 		return 0;
 
@@ -221,14 +300,22 @@ rgde::core::windows::result TestWindow::wnd_proc(rgde::ushort message, rgde::uin
 	case WM_MOUSEWHEEL:
 		{
 			int delta = GET_WHEEL_DELTA_WPARAM(wparam);
-			if(m_system)
-				m_system->handleMouseWheel(delta);
+			if(m_system) {
+				e.type = gui::event_mouse | gui::mouse_wheel;
+				e.mouse.delta = delta;//(gui::EventArgs::Keys)wparam;
+				m_system->handle_event(e);
+				//m_system->handleMouseWheel(delta);
+			}
 		}
 		return 0;
 
 	case WM_MOUSEMOVE:
-		if(m_system)
-			return m_system->handleMouseMove(LOWORD(lparam), HIWORD(lparam));
+		if(m_system) {
+			e.type = gui::event_mouse | gui::mouse_move;
+			e.mouse.x = LOWORD(lparam);
+			e.mouse.x = HIWORD(lparam);
+			return m_system->handle_event(e);
+		}
 		return 0;
 	}
 	return window::wnd_proc(message, wparam, lparam);
@@ -236,60 +323,22 @@ rgde::core::windows::result TestWindow::wnd_proc(rgde::ushort message, rgde::uin
 
 void TestWindow::handleViewportChange()
 {
-	if(m_system)
-		return m_system->handleViewportChange();
-}
-
-
-
-void LogEvent(HANDLE hFile, gui::LogLevel level, const std::string& message)
-{
-	std::string type;
-	switch(level)
-	{
-	case gui::LogSystem:
-		type = "System";
-		break;
-	case gui::LogWarning:
-		type = "Warning";
-		break;
-	case gui::LogError:
-		type = "Error";
-		break;
-	case gui::LogCritical:
-		type = "Critical";
-		break;
-	default:
-		type = "Message";
-		break;
-	};
-
-	SYSTEMTIME st;
-	GetLocalTime(&st);
-
-	char timestamp[32] = {0};
-	_snprintf(timestamp, 32, "[%04d.%02d.%02d %02d:%02d:%02d][%s] ", st.wYear, st.wMonth, st.wDay, st.wHour, st.wMinute, st.wSecond, type.c_str());
-
-	char con_timestamp[32] = {0};
-	_snprintf(con_timestamp, 32, "[%02d:%02d:%02d][%s] ", st.wHour, st.wMinute, st.wSecond, type.c_str());
-
-	std::string m(timestamp);
-	m += message;
-	std::cout << (std::string(con_timestamp) + message).c_str() << std::endl;
-
-	if(hFile != INVALID_HANDLE_VALUE)
-	{
-		m += "\n";
-		DWORD len = (DWORD)m.length();
-		WriteFile(hFile, m.c_str(), len, &len, 0);
+	if(m_system) {
+		gui::event e = {0};
+		e.type = gui::event_viewport_resize;
+		m_system->handle_event(e);
+		//return m_system->handleViewportChange();
 	}
 }
+
+
+
 
 void TestWindow::load(const std::string& xml)
 {
 	if(m_system)
 	{
-		if (gui::BaseWindow* wnd = m_system->loadXml(xml))
+		if (gui::base_window* wnd = m_system->loadXml(xml))
 		{
 
 		}

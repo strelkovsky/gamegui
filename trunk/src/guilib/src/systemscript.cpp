@@ -9,18 +9,18 @@
 #include "windowmanager.h"
 #include "system.h"
 
-#include "cstatictext.h"
-#include "cstaticimage.h"
-#include "ceditbox.h"
-#include "cbutton.h"
-#include "ccheckbox.h"
-#include "cframewindow.h"
-#include "cprogress.h"
-#include "cslider.h"
-#include "cscrollpane.h"
-#include "clist.h"
-#include "ccombobox.h"
-#include "cmarkuptext.h"
+#include "label.h"
+#include "imagebox.h"
+#include "editbox.h"
+#include "button.h"
+#include "checkbox.h"
+#include "framewindow.h"
+#include "progress.h"
+#include "slider.h"
+#include "scrollpane.h"
+#include "list.h"
+#include "combobox.h"
+#include "markuptext.h"
 
 #include "utils.h"
 
@@ -29,7 +29,7 @@ namespace gui
 
 void System::makeLuaBinding(void)
 {
-	logEvent(LogSystem, "Making LUA bindings...");
+	logEvent(log::system, "Making LUA bindings...");
 	using namespace luabind;
 	module (m_scriptSys.LuaState())
 		[
@@ -54,8 +54,8 @@ void System::makeLuaBinding(void)
 			.def("freezeDrag", &System::freezeDrag)
 			.def("unfreezeDrag", &System::unfreezeDrag)
 			.def("isSysKeyPressed", &System::isSysKeyPressed)
-			.def("loadXml", (BaseWindow*(System::*)(const std::string&))&System::loadXml)
-			.def("loadWindow", (BaseWindow*(System::*)(BaseWindow&, const std::string&))&System::loadXml)
+			.def("loadXml", (base_window*(System::*)(const std::string&))&System::loadXml)
+			.def("loadWindow", (base_window*(System::*)(base_window&, const std::string&))&System::loadXml)
 			.def("queryCaptureInput", &System::queryCaptureInput)
 			,
 			class_ <Cursor>("Cursor")
@@ -103,11 +103,11 @@ void System::makeLuaBinding(void)
 			.property("b", &Color::getBlue, &Color::setBlue)
 			.property("a", &Color::getAlpha, &Color::setAlpha)
 			,
-			class_ <LogHelper>("LogHelper")
-			.def("warn", &LogHelper::warning)
-			.def("err", &LogHelper::error)
-			.def("msg", &LogHelper::message)
-			.def("crit", &LogHelper::crit_error)
+			class_ <log>("LogHelper")
+			.def("warn", &log::wrn)
+			.def("err", &log::err)
+			.def("msg", &log::msg)
+			.def("crit", &log::crit)
 			,
 			class_ <RenderHelper>("RenderHelper")
 			.def("drawImage", &RenderHelper::drawImage)
@@ -129,58 +129,58 @@ void System::makeLuaBinding(void)
 			class_ <Imageset>("Imageset")
 			.def("getImage", &Imageset::GetImagePtr)
 			.def("getName", &Imageset::GetName)
-			.def("getImageCount", &Imageset::GetImageCount)
+			.def("getImageCount", &Imageset::ImagesCount)
 			.def("getImageByIdx", &Imageset::GetImageByIdx)
 			,
-			class_ <BaseWindow, bases<ScriptObject> >("BaseWindow")
-			.property("parent", (BaseWindow* (BaseWindow::*)() const)&BaseWindow::getParentConst)
-			.property("name", &BaseWindow::getName, &BaseWindow::setName)
-			.property("area", &BaseWindow::getArea, &BaseWindow::setArea)
-			.def("setArea", &BaseWindow::setArea)
-			.def("getArea", &BaseWindow::getArea)
-			.property("visible", &BaseWindow::getVisible, &BaseWindow::setVisible)
-			.def("setVisible", &BaseWindow::setVisible)
-			.def("getVisible", &BaseWindow::getVisible)
-			.property("enabled", &BaseWindow::getEnabled, &BaseWindow::setEnabled)
-			.def("setEnabled", &BaseWindow::setEnabled)
-			.def("getEnabled", &BaseWindow::getEnabled)
-			.property("backcolor", &BaseWindow::getBackColor, &BaseWindow::setBackColor)
-			.def("setBackColor", &BaseWindow::setBackColor)
-			.def("getBackColor", &BaseWindow::getBackColor)
-			.property("forecolor", &BaseWindow::getForeColor, &BaseWindow::setForeColor)
-			.def("setForeColor", &BaseWindow::setForeColor)
-			.def("getForeColor", &BaseWindow::getForeColor)
-			.property("tag", &BaseWindow::getUserData, &BaseWindow::setUserData)
-			.def("setUserData", &BaseWindow::setUserData)
-			.def("getUserData", &BaseWindow::getUserData)
-			.def("moveToFront", (void(BaseWindow::*)(void))&BaseWindow::moveToFront)
-			.def("bringToBack", (void(BaseWindow::*)(void))&BaseWindow::bringToBack)
-			.property("alwaysOnTop", &BaseWindow::getAlwaysOnTop, &BaseWindow::setAlwaysOnTop)
-			.def("setAlwaysOnTop", &BaseWindow::setAlwaysOnTop)
-			.def("getAlwaysOnTop", &BaseWindow::getAlwaysOnTop)
-			.def("enableTooltip", &BaseWindow::enableTooltip)
-			.def("hasTooltip", &BaseWindow::hasTooltip)
-			.def("find", &BaseWindow::findChildWindow)
-			.def("suspendLayout", &BaseWindow::suspendLayout)
-			.def("resumeLayout", &BaseWindow::resumeLayout)
-			.def("addChild", &BaseWindow::addChildWindow)
-			.def("setInputFocus", &BaseWindow::setInputFocus)
-			.def("resetInputFocus", &BaseWindow::resetInputFocus)
-			.def("hasInputFocus", &BaseWindow::hasInputFocus)
-			.def("setIgnoreInputEvents", &BaseWindow::setIgnoreInputEvents)
-			.def("subscribe", &BaseWindow::subscribeNamedEvent)
-			.def("unsubscribe", &BaseWindow::unsubscribeNamedEvent)
-			.def("send", &BaseWindow::sendNamedEvent)
-			.def("addScriptEventHandler", &BaseWindow::addScriptEventHandler)
-			.def("startTick", &BaseWindow::startTick)
-			.def("stopTick", &BaseWindow::stopTick)
-			.def("transformToWndCoord", &BaseWindow::transformToWndCoord)
-			.def("transformToRootCoord", &BaseWindow::transformToRootCoord)
-			.property("dragable", &BaseWindow::isDragable, &BaseWindow::setDragable)
-			.property("acceptDrop", &BaseWindow::isAcceptDrop, &BaseWindow::setAcceptDrop)
+			class_ <base_window, bases<ScriptObject> >("BaseWindow")
+			.property("parent", (base_window* (base_window::*)() const)&base_window::getParentConst)
+			.property("name", &base_window::getName, &base_window::setName)
+			.property("area", &base_window::getArea, &base_window::setArea)
+			.def("setArea", &base_window::setArea)
+			.def("getArea", &base_window::getArea)
+			.property("visible", &base_window::getVisible, &base_window::setVisible)
+			.def("setVisible", &base_window::setVisible)
+			.def("getVisible", &base_window::getVisible)
+			.property("enabled", &base_window::getEnabled, &base_window::setEnabled)
+			.def("setEnabled", &base_window::setEnabled)
+			.def("getEnabled", &base_window::getEnabled)
+			.property("backcolor", &base_window::getBackColor, &base_window::setBackColor)
+			.def("setBackColor", &base_window::setBackColor)
+			.def("getBackColor", &base_window::getBackColor)
+			.property("forecolor", &base_window::getForeColor, &base_window::setForeColor)
+			.def("setForeColor", &base_window::setForeColor)
+			.def("getForeColor", &base_window::getForeColor)
+			.property("tag", &base_window::getUserData, &base_window::setUserData)
+			.def("setUserData", &base_window::setUserData)
+			.def("getUserData", &base_window::getUserData)
+			.def("moveToFront", (void(base_window::*)(void))&base_window::moveToFront)
+			.def("bringToBack", (void(base_window::*)(void))&base_window::bringToBack)
+			.property("alwaysOnTop", &base_window::getAlwaysOnTop, &base_window::setAlwaysOnTop)
+			.def("setAlwaysOnTop", &base_window::setAlwaysOnTop)
+			.def("getAlwaysOnTop", &base_window::getAlwaysOnTop)
+			.def("enableTooltip", &base_window::enableTooltip)
+			.def("hasTooltip", &base_window::hasTooltip)
+			.def("find", &base_window::findChildWindow)
+			.def("suspendLayout", &base_window::suspendLayout)
+			.def("resumeLayout", &base_window::resumeLayout)
+			.def("addChild", &base_window::addChildWindow)
+			.def("setInputFocus", &base_window::setInputFocus)
+			.def("resetInputFocus", &base_window::resetInputFocus)
+			.def("hasInputFocus", &base_window::hasInputFocus)
+			.def("setIgnoreInputEvents", &base_window::setIgnoreInputEvents)
+			.def("subscribe", &base_window::subscribeNamedEvent)
+			.def("unsubscribe", &base_window::unsubscribeNamedEvent)
+			.def("send", &base_window::sendNamedEvent)
+			.def("addScriptEventHandler", &base_window::addScriptEventHandler)
+			.def("startTick", &base_window::startTick)
+			.def("stopTick", &base_window::stopTick)
+			.def("transformToWndCoord", &base_window::transformToWndCoord)
+			.def("transformToRootCoord", &base_window::transformToRootCoord)
+			.property("dragable", &base_window::isDragable, &base_window::setDragable)
+			.property("acceptDrop", &base_window::isAcceptDrop, &base_window::setAcceptDrop)
 			,
-			def("to_statictext", &window_caster<StaticText>::apply),
-			def("to_staticimage", &window_caster<StaticImage>::apply),
+			def("to_statictext", &window_caster<Label>::apply),
+			def("to_staticimage", &window_caster<ImageBox>::apply),
 			def("to_checkbox", &window_caster<Checkbox>::apply),
 			def("to_editbox", &window_caster<Editbox>::apply),
 			def("to_button", &window_caster<Button>::apply),
@@ -202,40 +202,40 @@ void System::makeLuaBinding(void)
 			def("color2hex", &ColorToHexString),
 			def("hex2color", &HexStringToColor)
 			,
-			class_ <Tooltip, bases<BaseWindow> >("Tooltip")
+			class_ <Tooltip, bases<base_window> >("Tooltip")
 			.property("fadein", &Tooltip::getFadeIn, &Tooltip::setFadeIn)
 			.property("fadeout", &Tooltip::getFadeOut, &Tooltip::setFadeOut)
 			,
-			class_ <DragContainer, bases<BaseWindow> >("DragContainer")
+			class_ <DragContainer, bases<base_window> >("DragContainer")
 			,
-			class_ <StaticText, bases<BaseWindow> >("StaticText")
-			.property("text", &StaticText::getText, &StaticText::setText)
-			.property("spacing", &StaticText::getSpacing, &StaticText::setSpacing)
-			.def("setFont", (void(StaticText::*)(const std::string& font))&StaticText::setFont)
-			.def("setText", &StaticText::setText)
-			.def("appendText", &StaticText::appendText)
-			.def("getText", &StaticText::getText)
-			.def("setSpacing", &StaticText::setSpacing)
-			.def("getSpacing", &StaticText::getSpacing)
-			.property("formatting", &StaticText::getTextFormatting, &StaticText::setTextFormatting)
-			.def("setTextFormatting", &StaticText::setTextFormatting)
-			.def("getTextFormatting", &StaticText::getTextFormatting)
+			class_ <Label, bases<base_window> >("StaticText")
+			.property("text", &Label::getText, &Label::setText)
+			.property("spacing", &Label::getSpacing, &Label::setSpacing)
+			.def("setFont", (void(Label::*)(const std::string& font))&Label::setFont)
+			.def("setText", &Label::setText)
+			.def("appendText", &Label::appendText)
+			.def("getText", &Label::getText)
+			.def("setSpacing", &Label::setSpacing)
+			.def("getSpacing", &Label::getSpacing)
+			.property("formatting", &Label::getTextFormatting, &Label::setTextFormatting)
+			.def("setTextFormatting", &Label::setTextFormatting)
+			.def("getTextFormatting", &Label::getTextFormatting)
 			,
-			class_ <StaticImage, bases<BaseWindow> >("StaticImage")
-			.property("imageset", &StaticImage::getImageset, &StaticImage::setImageset)
-			.def("setImageset", &StaticImage::setImageset)
-			.def("getImageset", &StaticImage::getImageset)
-			.property("image", &StaticImage::getImage, &StaticImage::setImage)
-			.def("setImage", &StaticImage::setImage)
-			.def("getImage", &StaticImage::getImage)
-			.property("vformat", &StaticImage::getVertFormat, &StaticImage::setVertFormat)
-			.def("setVertFormat", &StaticImage::setVertFormat)
-			.def("getVertFormat", &StaticImage::getVertFormat)
-			.property("hformat", &StaticImage::getHorzFormat, &StaticImage::setHorzFormat)
-			.def("setHorzFormat", &StaticImage::setHorzFormat)
-			.def("getHorzFormat", &StaticImage::getHorzFormat)
+			class_ <ImageBox, bases<base_window> >("StaticImage")
+			.property("imageset", &ImageBox::getImageset, &ImageBox::setImageset)
+			.def("setImageset", &ImageBox::setImageset)
+			.def("getImageset", &ImageBox::getImageset)
+			.property("image", &ImageBox::getImage, &ImageBox::setImage)
+			.def("setImage", &ImageBox::setImage)
+			.def("getImage", &ImageBox::getImage)
+			.property("vformat", &ImageBox::getVertFormat, &ImageBox::setVertFormat)
+			.def("setVertFormat", &ImageBox::setVertFormat)
+			.def("getVertFormat", &ImageBox::getVertFormat)
+			.property("hformat", &ImageBox::getHorzFormat, &ImageBox::setHorzFormat)
+			.def("setHorzFormat", &ImageBox::setHorzFormat)
+			.def("getHorzFormat", &ImageBox::getHorzFormat)
 			,
-			class_ <Panel, bases<BaseWindow> >("Panel")
+			class_ <Panel, bases<base_window> >("Panel")
 			,
 			class_ <FrameWindow, bases<Panel> >("FrameWindow")
 			//.def("setFont", &FrameWindow::setFont)
@@ -255,7 +255,7 @@ void System::makeLuaBinding(void)
 			.def("setCaptionColor", &FrameWindow::setCaptionColor)
 			.def("getCaptionColor", &FrameWindow::getCaptionColor)
 			,
-			class_ <Editbox, bases<StaticText> >("Editbox")
+			class_ <Editbox, bases<Label> >("Editbox")
 			.property("text", &Editbox::getText, &Editbox::setText)
 			.def("setText", &Editbox::setText)
 			.def("getText", &Editbox::getText)
@@ -271,22 +271,22 @@ void System::makeLuaBinding(void)
 			.def("getMaxLength", &Editbox::getMaxLength)
 			.def("setMaxLength", &Editbox::setMaxLength)
 			,
-			class_ <KeyBinder, bases<StaticText> >("KeyBinder")
+			class_ <KeyBinder, bases<Label> >("KeyBinder")
 			,
 			class_ <Combobox, bases<Editbox> >("Combobox")
 			.def("AddItem", &Combobox::AddItem)
 			,
-			class_ <Checkbox, bases<StaticText> >("Checkbox")
+			class_ <Checkbox, bases<Label> >("Checkbox")
 			.property("checked", &Checkbox::isChecked, &Checkbox::setChecked)
 			.def("isChecked", &Checkbox::isChecked)
 			.def("setChecked", &Checkbox::setChecked)
 			,
-			class_ <Progress, bases<StaticText> >("Progress")
+			class_ <Progress, bases<Label> >("Progress")
 			.property("progress", &Progress::getProgress, &Progress::setProgress)
 			.def("getProgress", &Progress::getProgress)
 			.def("setProgress", &Progress::setProgress)
 			,
-			class_ <Thumb, bases<StaticText> >("Thumb")
+			class_ <Thumb, bases<Label> >("Thumb")
 			.property("progress", &Thumb::getProgress, &Thumb::setProgress)
 			.def("getProgress", &Thumb::getProgress)
 			.def("setProgress", &Thumb::setProgress)
@@ -296,10 +296,10 @@ void System::makeLuaBinding(void)
 			,
 			class_ <ScrollThumb, bases<Thumb> >("ScrollThumb")			
 			,
-			class_ <Button, bases<StaticText> >("Button")
+			class_ <Button, bases<Label> >("Button")
 			.property("name", &Button::getName)
 			,
-			class_ <Slider, bases<BaseWindow> >("Slider")
+			class_ <Slider, bases<base_window> >("Slider")
 			.property("scroll", &Slider::getScrollPosition, &Slider::setScrollPosition)
 			.def("getScroll", &Slider::getScrollPosition)
 			.def("setScroll", &Slider::setScrollPosition)
@@ -313,10 +313,10 @@ void System::makeLuaBinding(void)
 			,
 			class_ <ScrollBar, bases<Slider> >("ScrollBar")			
 			,
-			class_ <ScrollPane, bases<BaseWindow> >("ScrollPane")
+			class_ <ScrollPane, bases<base_window> >("ScrollPane")
 			.def("setTarget", &ScrollPane::setTarget)
 			,
-			class_ <BaseList, bases<BaseWindow> >("BaseList")
+			class_ <BaseList, bases<base_window> >("BaseList")
 			.def("Clear", &BaseList::Clear)
 			.property("columns", &BaseList::getColumns, &BaseList::setColumns)
 			.def("getColumns", &BaseList::getColumns)
@@ -346,7 +346,7 @@ void System::makeLuaBinding(void)
 			.def("Expand", &CategorizedList::Category::Expand)
 			.def("IsCollapsed", &CategorizedList::Category::IsCollapsed)
 			,
-			class_ <MarkupBase, bases<StaticText> >("MarkupBase")
+			class_ <MarkupBase, bases<Label> >("MarkupBase")
 			,
 			class_ <MarkupText, bases<MarkupBase> >("MarkupText")
 			,
@@ -616,7 +616,7 @@ void System::makeLuaBinding(void)
 
 	globals(m_scriptSys.LuaState())["gui"] = this;
 	globals(m_scriptSys.LuaState())["render"] = m_renderHelper.get();
-	globals(m_scriptSys.LuaState())["log"] = m_logHelper.get();
+	globals(m_scriptSys.LuaState())["log"] = &m_logger;
 }
 
 }

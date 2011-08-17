@@ -3,11 +3,11 @@
 
 namespace gui
 {
-	class  DragContainer : public BaseWindow
+	class  DragContainer : public base_window
 	{
 	public:
 		typedef DragContainer Self;
-		DragContainer(System& sys, const std::string& name = "");
+		DragContainer(System& sys, const std::string& name = std::string());
 		virtual ~DragContainer(void);
 
 		static const char* GetType() { return "DragContainer"; }
@@ -15,18 +15,18 @@ namespace gui
 
 		virtual void rise();
 
-		void update(BaseWindow* target, const point& pt);
+		void update(base_window* target, const point& pt);
 		
-		bool startDrag(BaseWindow* subj, const point& off);
+		bool startDrag(base_window* subj, const point& off);
 		bool stopDrag(void);
 
 		void reset(void);
 
 
 	protected:
-		BaseWindow* m_dragSubject;
+		base_window* m_dragSubject;
 		
-		BaseWindow* m_dropTarget;
+		base_window* m_dropTarget;
 		point		m_childOffset;
 		
 	};

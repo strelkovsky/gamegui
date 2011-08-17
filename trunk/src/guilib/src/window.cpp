@@ -3,14 +3,14 @@
 
 #include "utils.h"
 #include "system.h"
-#include "renderer.h"
+
 #include "eventtypes.h"
 
 namespace gui
 {
 
-BaseWindow::BaseWindow(System& sys, const std::string& name) : 
-	NamedObject(name),
+base_window::base_window(System& sys, const std::string& name) : 
+	named_object(name),
 	m_system(sys),
 	m_visible(false),
 	m_enabled(true),
@@ -37,19 +37,19 @@ BaseWindow::BaseWindow(System& sys, const std::string& name) :
 	m_foreColor = Color(0.f, 0.f, 0.f);
 }
 
-BaseWindow::~BaseWindow()
+base_window::~base_window()
 {
 	m_system.getRenderer().clearCache(this);
 }
 
-void BaseWindow::setArea(const Rect& rc) 
+void base_window::setArea(const Rect& rc) 
 { 
 	m_area = rc;
 	onMoved();
 	onSized();
 }
 
-void BaseWindow::setPosition(const point& pt) 
+void base_window::setPosition(const point& pt) 
 {
 	if(pt != m_area.getPosition())
 	{
@@ -60,7 +60,7 @@ void BaseWindow::setPosition(const point& pt)
 	}
 }
 
-void BaseWindow::setSize(const Size& sz) 
+void base_window::setSize(const Size& sz) 
 {
 	if(sz != m_area.getSize())
 	{
@@ -71,13 +71,13 @@ void BaseWindow::setSize(const Size& sz)
 	}
 }
 
-void BaseWindow::invalidate()	
+void base_window::invalidate()	
 {
 	//m_system.getRenderer().clearCache(this);
 
 	m_invalidated = true;	
-	ChildrenIter i = m_children.begin();
-	ChildrenIter end = m_children.end();
+	child_iter i = m_children.begin();
+	child_iter end = m_children.end();
 	while(i != end)
 	{
 		(*i)->invalidate();
@@ -85,33 +85,20 @@ void BaseWindow::invalidate()
 	}
 }
 
-void BaseWindow::setVisible(bool visible) 
+void base_window::setVisible(bool visible) 
 {
 	EventArgs a;
-	
-	if(visible)
-	{
-		a.name = "On_Show";
-		callHandler(&a);
-	}
-	else
-	{
-		a.name = "On_Hide";
-		callHandler(&a);
-	}
-
-	m_visible = visible; 
+	a.name = visible ? "On_Show" : "On_Hide";
+	callHandler(&a);
+	m_visible = visible;
 }
 
-void BaseWindow::setInputFocus(bool query)
+void base_window::setInputFocus(bool query)
 {
-	if(query)
-		m_focus = m_system.queryInputFocus(this);
-	else
-		m_focus = true;
+	m_focus = query ? m_system.queryInputFocus(this) : true;
 }
 
-bool BaseWindow::hitTest(const point& pt)
+bool base_window::hitTest(const point& pt)
 {
 	if(!m_visible)
 		return false;
@@ -122,7 +109,7 @@ bool BaseWindow::hitTest(const point& pt)
 	return false;
 }
 
-void BaseWindow::rise()
+void base_window::rise()
 {
 	if(m_parent)
 	{
@@ -134,21 +121,21 @@ namespace
 {
 	struct seeker
 	{
-		const BaseWindow* m_ptr;
-		seeker(const BaseWindow* ptr) : m_ptr(ptr){}
-		bool operator()(WindowPtr obj) 
+		const base_window* m_ptr;
+		seeker(const base_window* ptr) : m_ptr(ptr){}
+		bool operator()(window_ptr obj) 
 		{
 			return obj ? (obj.get() == m_ptr) : false;
 		}
 	};
 }
 
-void BaseWindow::moveToFront(BaseWindow* child)
+void base_window::moveToFront(base_window* child)
 {
 	if(m_children.size() <= 1)
 		return;
 
-	ChildrenIter it = std::find_if(m_children.begin(), m_children.end(), seeker(child));
+	child_iter it = std::find_if(m_children.begin(), m_children.end(), seeker(child));
 	if(it != m_children.end())
 	{
 		if(child->getAlwaysOnTop())
@@ -157,25 +144,23 @@ void BaseWindow::moveToFront(BaseWindow* child)
 		}
 		else
 		{
-			ChildrenIter topmost = std::find_if(m_children.begin(), m_children.end(), topmost_());
+			child_iter topmost = std::find_if(m_children.begin(), m_children.end(), topmost_());
 			m_children.splice(topmost, m_children, it);
 		}
 	}
-	
-		
 }
 
-void BaseWindow::bringToBack(BaseWindow* child)
+void base_window::bringToBack(base_window* child)
 {
 	if(m_children.size() <= 1)
 		return;
 
-	ChildrenIter it = std::find_if(m_children.begin(), m_children.end(), seeker(child));
+	child_iter it = std::find_if(m_children.begin(), m_children.end(), seeker(child));
 	if(it != m_children.end())
 	{
 		if(child->getAlwaysOnTop())
 		{
-			ChildrenIter topmost = std::find_if(m_children.begin(), m_children.end(), ntopmost_());
+			child_iter topmost = std::find_if(m_children.begin(), m_children.end(), ntopmost_());
 			m_children.splice(topmost, m_children, it);
 		}
 		else
@@ -185,31 +170,30 @@ void BaseWindow::bringToBack(BaseWindow* child)
 	}
 }
 
-void BaseWindow::moveToFront()
+void base_window::moveToFront()
 {
 	if(m_parent)
 		m_parent->moveToFront(this);	
 }
 
-void BaseWindow::bringToBack()
+void base_window::bringToBack()
 {
 	if(m_parent)
 		m_parent->bringToBack(this);
 }
 
-
-BaseWindow* BaseWindow::findChildWindow(const std::string& name)
+base_window* base_window::findChildWindow(const std::string& name)
 {
-	WindowPtr p = findNode(name);
+	window_ptr p = find(name);
 	return p.get();
 }
 
-void BaseWindow::addChildWindow(BaseWindow* wnd)
+void base_window::addChildWindow(base_window* wnd)
 {
-	if(wnd) addChild(wnd);
+	if(wnd) add(wnd);
 }
 
-void BaseWindow::callHandler(EventArgs* arg)
+void base_window::callHandler(EventArgs* arg)
 {
 	if(!arg)
 		return;
@@ -227,31 +211,31 @@ void BaseWindow::callHandler(EventArgs* arg)
 	}
 }
 
-void BaseWindow::ExecuteScript(const std::string& env, const std::string& script)
+void base_window::ExecuteScript(const std::string& env, const std::string& script)
 {
 	if(!m_system.getScriptSystem().ExecuteString(script, this, env))
 	{
-		m_system.logEvent(LogError, std::string("Unable to execute Lua handler '")+ env + std::string("' in object ") + getName());
-		m_system.logEvent(LogError, m_system.getScriptSystem().GetLastError());
+		m_system.logEvent(log::error, std::string("Unable to execute Lua handler '")+ env + std::string("' in object ") + getName());
+		m_system.logEvent(log::error, m_system.getScriptSystem().GetLastError());
 	}
 }
 
 
-bool BaseWindow::onMouseEnter(void)
+bool base_window::onMouseEnter(void)
 {
 	MouseEventArgs m;
 	m.name = "On_MouseEnter";	
 	callHandler(&m);
 	return m.handled; 
 }
-bool BaseWindow::onMouseLeave(void)
+bool base_window::onMouseLeave(void)
 {
 	MouseEventArgs m;
 	m.name = "On_MouseLeave";
 	callHandler(&m);
 	return m.handled; 
 }
-bool BaseWindow::onMouseMove(void)
+bool base_window::onMouseMove(void)
 {
 	MouseEventArgs m;
 	m.name = "On_MouseMove";
@@ -261,7 +245,7 @@ bool BaseWindow::onMouseMove(void)
 	callHandler(&m);
 	return m.handled; 
 }
-bool BaseWindow::onMouseWheel(int delta)
+bool base_window::onMouseWheel(int delta)
 {
 	MouseEventArgs m;
 	m.name = "On_MouseWheel";
@@ -269,7 +253,7 @@ bool BaseWindow::onMouseWheel(int delta)
 	callHandler(&m);
 	return m.handled; 
 }
-bool BaseWindow::onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state)
+bool base_window::onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state)
 {
 	MouseEventArgs m;
 	m.name = "On_MouseButton";
@@ -278,7 +262,7 @@ bool BaseWindow::onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonSta
 	callHandler(&m);
 	return m.handled; 
 }
-bool BaseWindow::onMouseDouble(EventArgs::MouseButtons btn)
+bool base_window::onMouseDouble(EventArgs::MouseButtons btn)
 {
 	MouseEventArgs m;
 	m.name = "On_MouseDouble";
@@ -286,7 +270,7 @@ bool BaseWindow::onMouseDouble(EventArgs::MouseButtons btn)
 	callHandler(&m);
 	return m.handled;
 }
-bool BaseWindow::onChar(const wchar_t* text)
+bool base_window::onChar(const wchar_t* text)
 {
 	KeyEventArgs k;
 	k.name = "On_Char";
@@ -294,7 +278,7 @@ bool BaseWindow::onChar(const wchar_t* text)
 	callHandler(&k);
 	return k.handled; 
 }
-bool BaseWindow::onKeyboardButton(EventArgs::Keys key, EventArgs::ButtonState state)
+bool base_window::onKeyboardButton(EventArgs::Keys key, EventArgs::ButtonState state)
 {
 	KeyEventArgs k;
 	k.name = "On_KeyboardButton";
@@ -303,14 +287,14 @@ bool BaseWindow::onKeyboardButton(EventArgs::Keys key, EventArgs::ButtonState st
 	callHandler(&k);
 	return k.handled; 
 }
-bool BaseWindow::onCaptureGained(void)
+bool base_window::onCaptureGained(void)
 {
 	EventArgs a;
 	a.name = "On_CaptureGained";
 	callHandler(&a);
 	return a.handled; 
 }
-bool BaseWindow::onCaptureLost(void)
+bool base_window::onCaptureLost(void)
 {
 	EventArgs a;
 	a.name = "On_CaptureLost";
@@ -318,14 +302,14 @@ bool BaseWindow::onCaptureLost(void)
 	return a.handled; 
 }
 
-bool BaseWindow::onSuspendLayout(void)
+bool base_window::onSuspendLayout(void)
 {
 	EventArgs a;
 	a.name = "On_SuspendLayout";
 	callHandler(&a);
 	return a.handled; 
 }
-bool BaseWindow::onResumeLayout(void)
+bool base_window::onResumeLayout(void)
 {
 	EventArgs a;
 	a.name = "On_ResumeLayout";
@@ -333,14 +317,14 @@ bool BaseWindow::onResumeLayout(void)
 	return a.handled; 
 }
 
-bool BaseWindow::onFocusGained(void)
+bool base_window::onFocusGained(void)
 {
 	EventArgs a;
 	a.name = "On_FocusGained";
 	callHandler(&a);
 	return a.handled; 
 }
-bool BaseWindow::onFocusLost(BaseWindow* newFocus)
+bool base_window::onFocusLost(base_window* newFocus)
 {
 	EventArgs a;
 	a.name = "On_FocusLost";
@@ -348,7 +332,7 @@ bool BaseWindow::onFocusLost(BaseWindow* newFocus)
 	return a.handled; 
 }
 
-bool BaseWindow::onLoad(void)
+bool base_window::onLoad(void)
 {
 	onMoved();
 	if(m_alwaysOnTop)
@@ -370,7 +354,7 @@ bool BaseWindow::onLoad(void)
 	return a.handled; 
 }
 
-bool BaseWindow::onSized(bool update)
+bool base_window::onSized(bool update)
 {
 	if(update)
 	{
@@ -379,8 +363,8 @@ bool BaseWindow::onSized(bool update)
 			onMoved();
 	}
 
-	ChildrenIter i = m_children.begin();
-	ChildrenIter end = m_children.end();
+	child_iter i = m_children.begin();
+	child_iter end = m_children.end();
 	while(i != end)
 	{
 		(*i)->onSized();
@@ -393,7 +377,7 @@ bool BaseWindow::onSized(bool update)
 	return true;
 }
 
-void BaseWindow::Align()
+void base_window::Align()
 {
 	if(!m_parent)
 		return;
@@ -453,7 +437,7 @@ void BaseWindow::Align()
 	}
 }
 
-void BaseWindow::Stick()
+void base_window::Stick()
 {
 	if(!m_parent)
 		return;
@@ -496,7 +480,7 @@ void BaseWindow::Stick()
 	}
 }
 
-bool BaseWindow::onMoved(void)
+bool base_window::onMoved(void)
 {
 	if(m_parent)
 	{
@@ -518,7 +502,7 @@ bool BaseWindow::onMoved(void)
 	return true;
 }
 
-bool BaseWindow::onTick(float delta)
+bool base_window::onTick(float delta)
 {
 	TickEventArgs a;
 	a.name = "On_Tick";
@@ -527,7 +511,7 @@ bool BaseWindow::onTick(float delta)
 	return a.handled;
 }
 
-bool BaseWindow::onTooltipShow()
+bool base_window::onTooltipShow()
 {
 	EventArgs a;
 	a.name = "On_TooltipShow";
@@ -535,7 +519,7 @@ bool BaseWindow::onTooltipShow()
 	return a.handled;
 }
 
-bool BaseWindow::onTooltipHide()
+bool base_window::onTooltipHide()
 {
 	EventArgs a;
 	a.name = "On_TooltipHide";
@@ -543,19 +527,19 @@ bool BaseWindow::onTooltipHide()
 	return a.handled;
 }
 
-void BaseWindow::startTick(void)
+void base_window::startTick(void)
 {
 	m_unsubscribePending = false;
 	m_system.subscribeTick(this);
 }
 
-void BaseWindow::stopTick(void)
+void base_window::stopTick(void)
 {
 	m_unsubscribePending = true;
 	m_system.setTickClear();
 }
 
-void BaseWindow::init(xml::node& node)
+void base_window::init(xml::node& node)
 {	
 	xml::node setting = node("Visible");
 	if(!setting.empty())
@@ -635,7 +619,7 @@ void BaseWindow::init(xml::node& node)
 	onMoved();
 }
 
-void BaseWindow::parseEventHandlers(xml::node& node)
+void base_window::parseEventHandlers(xml::node& node)
 {
 	if(!node.empty())
 	{
@@ -649,7 +633,7 @@ void BaseWindow::parseEventHandlers(xml::node& node)
 	}
 }
 
-void BaseWindow::addScriptEventHandler(std::string name, std::string handler)
+void base_window::addScriptEventHandler(std::string name, std::string handler)
 {
 	if(!name.empty() && !handler.empty())
 	{
@@ -657,7 +641,7 @@ void BaseWindow::addScriptEventHandler(std::string name, std::string handler)
 	}
 }
 
-void BaseWindow::CallAfterRenderCallback(const Rect& dest, const Rect& clip)
+void base_window::CallAfterRenderCallback(const Rect& dest, const Rect& clip)
 {
 	if (m_afterRenderCallback)
 	{
@@ -666,7 +650,7 @@ void BaseWindow::CallAfterRenderCallback(const Rect& dest, const Rect& clip)
 	}
 }
 
-void BaseWindow::draw(const point& offset, const Rect& clip)
+void base_window::draw(const point& offset, const Rect& clip)
 {
 	if(m_visible)
 	{
@@ -717,8 +701,8 @@ void BaseWindow::draw(const point& offset, const Rect& clip)
 				m_system.getRenderer().drawFromCache(this);
 		}
 
-		ChildrenIter i = m_children.begin();
-		ChildrenIter end = m_children.end();
+		child_iter i = m_children.begin();
+		child_iter end = m_children.end();
 		while(i != end)
 		{
 			(*i)->draw(destrect.getPosition(), cliprect);
@@ -730,9 +714,9 @@ void BaseWindow::draw(const point& offset, const Rect& clip)
 	}	
 }
 
-point BaseWindow::transformToWndCoord(const point& global)
+point base_window::transformToWndCoord(const point& global)
 {
-	BaseWindow* parent = m_parent;
+	base_window* parent = m_parent;
 	point out(global);
 	if(parent)
 	{
@@ -742,9 +726,9 @@ point BaseWindow::transformToWndCoord(const point& global)
 	return out;
 }
 
-point BaseWindow::transformToRootCoord(const point& local)
+point base_window::transformToRootCoord(const point& local)
 {
-	BaseWindow* parent = m_parent;
+	base_window* parent = m_parent;
 	point out(local);
 	if(parent)
 	{
@@ -754,14 +738,14 @@ point BaseWindow::transformToRootCoord(const point& local)
 	return out;
 }
 
-BaseWindow* BaseWindow::nextSibling()
+base_window* base_window::nextSibling()
 {
 	if(m_parent)
 	{
-		ChildrenList& list = m_parent->getChildren();
+		children_list& list = m_parent->getChildren();
 		if(list.size() <= 1)
 			return this;
-		ChildrenIter it = std::find_if(list.begin(), list.end(), seeker(this));
+		child_iter it = std::find_if(list.begin(), list.end(), seeker(this));
 		if(it == list.end())
 		{
 			assert(false && "Link to parent is invalid!");
@@ -774,14 +758,14 @@ BaseWindow* BaseWindow::nextSibling()
 	}
 }
 
-BaseWindow* BaseWindow::prevSibling()
+base_window* base_window::prevSibling()
 {
 	if(m_parent)
 	{
-		ChildrenList& list = m_parent->getChildren();
+		children_list& list = m_parent->getChildren();
 		if(list.size() <= 1)
 			return this;
-		ChildrenIter it = std::find_if(list.begin(), list.end(), seeker(this));
+		child_iter it = std::find_if(list.begin(), list.end(), seeker(this));
 		if(it == list.end())
 		{
 			assert(false && "Link to parent is invalid!");
@@ -798,34 +782,34 @@ BaseWindow* BaseWindow::prevSibling()
 
 }
 
-void BaseWindow::thisset()
+void base_window::thisset()
 {
 	if(m_system.getScriptSystem().LuaState())
 		luabind::globals(m_system.getScriptSystem().LuaState())["this"] = this;
 }
 
-void BaseWindow::subscribeNamedEvent(std::string name, BaseWindow* sender, std::string script)
+void base_window::subscribeNamedEvent(std::string name, base_window* sender, std::string script)
 {
 	if(script.empty())
 		return; //nothing to do!
 	
 	if(!name.empty())
 	{
-		NamedEventEntry entry = std::make_pair<std::string, BaseWindow*>(name, sender);
+		NamedEventEntry entry = std::make_pair<std::string, base_window*>(name, sender);
 		
 		m_scriptevents.insert(std::make_pair(entry,script));
 
 		// support for a script events
-		subscribe<events::NamedEvent, BaseWindow> (&BaseWindow::onNamedEvent, sender);
+		subscribe<events::NamedEvent, base_window> (&base_window::onNamedEvent, sender);
 		
 	}
 }
 
-void BaseWindow::unsubscribeNamedEvent(std::string name, BaseWindow* sender)
+void base_window::unsubscribeNamedEvent(std::string name, base_window* sender)
 {
 	if(!name.empty())
 	{
-		NamedEventEntry entry = std::make_pair<std::string, BaseWindow*>(name, sender);
+		NamedEventEntry entry = std::make_pair<std::string, base_window*>(name, sender);
 		NamedEventsMap::iterator it = m_scriptevents.find(entry);
 		if(it != m_scriptevents.end())
 		{			
@@ -839,15 +823,15 @@ void BaseWindow::unsubscribeNamedEvent(std::string name, BaseWindow* sender)
 	}
 }
 
-void BaseWindow::sendNamedEvent(std::string name)
+void base_window::sendNamedEvent(std::string name)
 {
 	if(!name.empty())
 		send_event(events::NamedEvent(name, this));
 }
 
-void BaseWindow::onNamedEvent(events::NamedEvent& e)
+void base_window::onNamedEvent(events::NamedEvent& e)
 {
-	NamedEventEntry entry = std::make_pair<std::string, BaseWindow*>(e.m_name, e.m_sender);
+	NamedEventEntry entry = std::make_pair<std::string, base_window*>(e.m_name, e.m_sender);
 	NamedEventsMap::iterator it = m_scriptevents.find(entry);
 	if(it != m_scriptevents.end())
 	{
@@ -863,7 +847,7 @@ void BaseWindow::onNamedEvent(events::NamedEvent& e)
 	}
 }
 
-std::string BaseWindow::getEventScript(const std::string& ev)
+std::string base_window::getEventScript(const std::string& ev)
 {
 	HandlerMap::iterator it = m_handlers.find(ev);
 	if(it != m_handlers.end())
@@ -877,7 +861,7 @@ std::string BaseWindow::getEventScript(const std::string& ev)
 	return "";
 }
 
-bool BaseWindow::onGameEvent(const std::string& ev)
+bool base_window::onGameEvent(const std::string& ev)
 {
 	HandlerMap::iterator it = m_handlers.find(ev);
 	if(it != m_handlers.end())
@@ -896,9 +880,9 @@ bool BaseWindow::onGameEvent(const std::string& ev)
 	return false;
 }
 
-bool BaseWindow::isChildrenOf(const BaseWindow* wnd)
+bool base_window::isChildrenOf(const base_window* wnd)
 {
-	const BaseWindow* parent = m_parent;
+	const base_window* parent = m_parent;
 
 	while(parent)
 	{

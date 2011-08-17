@@ -1,5 +1,6 @@
 #pragma once
 
+#include <guilib/src/system.h>
 #include <guilib/src/font.h>
 
 namespace gui
@@ -36,7 +37,6 @@ namespace gui
 		bool m_antiAliased;
 
 		FT_Face m_fontFace;
-		FT_Byte* m_fontData;
-		FT_Long m_fontSize;
+		data_ptr m_font_data;
 	};
 }

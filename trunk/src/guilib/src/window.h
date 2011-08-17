@@ -7,8 +7,8 @@
 #include "input.h"
 #include "events.h"
 #include "scriptobject.h"
-#include "renderCallback.h"
 #include "align.h"
+#include "renderer.h"
 
 #if defined(_MSC_VER)
 #	pragma warning(push)
@@ -24,6 +24,7 @@ namespace gui
 {
 	class System;
 	class ScriptSystem;
+
 	namespace events
 	{
 		struct NamedEvent;
@@ -32,19 +33,19 @@ namespace gui
 		struct SizedEvent;
 	}
 
-	class  BaseWindow :
-		public NamedObject,
-		public TreeNode<BaseWindow>,
+	class  base_window :
+		public named_object,
+		public TreeNode<base_window>,
 		public RefCounted,
 		public ScriptObject,
 		public events::Sender
 	{
 	public:
-		typedef BaseWindow Self;
-		BaseWindow(System& sys, const std::string& name = std::string());
-		virtual ~BaseWindow();
+		typedef base_window Self;
+		base_window(System& sys, const std::string& name = std::string());
+		virtual ~base_window();
 
-		static const char* GetType() { return "BaseWindow"; }
+		static const char* GetType() { return "base_window"; }
 		virtual const char* getType() { return Self::GetType(); }
 
 		void suspendLayout() { m_suspended = true; onSuspendLayout(); }
@@ -80,8 +81,8 @@ namespace gui
 		void setUserData(size_t ptr) { m_userData = ptr; }
 		size_t getUserData() const { return m_userData; }
 
-		void moveToFront(BaseWindow* child);
-		void bringToBack(BaseWindow* child);
+		void moveToFront(base_window* child);
+		void bringToBack(base_window* child);
 		void moveToFront();
 		void bringToBack();
 		virtual void rise();
@@ -90,9 +91,9 @@ namespace gui
 		bool getAlwaysOnTop() const { return m_alwaysOnTop; }
 
 		virtual bool isCanHaveChildren(void) const { return true; }
-		BaseWindow* findChildWindow(const std::string& name);
-		BaseWindow const* getParent() const { return m_parent; }
-		void addChildWindow(BaseWindow* wnd);
+		base_window* findChildWindow(const std::string& name);
+		base_window const* getParent() const { return m_parent; }
+		void addChildWindow(base_window* wnd);
 
 		void setInputFocus(bool query);
 		void resetInputFocus() { m_focus = false; }
@@ -134,20 +135,20 @@ namespace gui
 		virtual bool onSuspendLayout();
 		virtual bool onResumeLayout();
 		virtual bool onFocusGained();
-		virtual bool onFocusLost(BaseWindow* newFocus);
+		virtual bool onFocusLost(base_window* newFocus);
 
 		// loading from XML
 		virtual void init(xml::node& node);
 		virtual void parseEventHandlers(xml::node& node);
 
-		BaseWindow* nextSibling();
-		BaseWindow* prevSibling();
+		base_window* nextSibling();
+		base_window* prevSibling();
 
 		point transformToWndCoord(const point& global); // translate to parent coords!
 		point transformToRootCoord(const point& local);
 
-		void subscribeNamedEvent(std::string name, BaseWindow* sender, std::string script);
-		void unsubscribeNamedEvent(std::string name, BaseWindow* sender);
+		void subscribeNamedEvent(std::string name, base_window* sender, std::string script);
+		void unsubscribeNamedEvent(std::string name, base_window* sender);
 		void sendNamedEvent(std::string name);
 		void onNamedEvent(events::NamedEvent& e);
 
@@ -164,7 +165,7 @@ namespace gui
 		std::string getEventScript(const std::string& ev);
 		virtual bool onGameEvent(const std::string& ev);
 
-		bool isChildrenOf(const BaseWindow* wnd);
+		bool isChildrenOf(const base_window* wnd);
 
 		
 		void setAfterRenderCallback(AfterRenderCallbackFunc func)
@@ -176,7 +177,7 @@ namespace gui
 
 		void ExecuteScript(const std::string& env, const std::string& script);
 		void thisset();
-		BaseWindow& operator=(const BaseWindow&) { return *this; }
+		base_window& operator=(const base_window&) { return *this; }
 
 		void Align();
 		void Stick();
@@ -220,7 +221,7 @@ namespace gui
 		System&			m_system;
 		AfterRenderCallbackFunc m_afterRenderCallback;
 
-		typedef std::pair<std::string, BaseWindow*> NamedEventEntry;
+		typedef std::pair<std::string, base_window*> NamedEventEntry;
 		typedef boost::unordered_map<NamedEventEntry, std::string> NamedEventsMap;
 		NamedEventsMap m_scriptevents;
 		
@@ -228,24 +229,24 @@ namespace gui
 		HandlerMap		m_handlers;
 
 		struct topmost_{
-			bool operator()(PNode obj) 
+			bool operator()(node_ptr obj) 
 			{
 				return obj->getAlwaysOnTop();
 			}
 		};
 		struct ntopmost_{
-			bool operator()(PNode obj) 
+			bool operator()(node_ptr obj) 
 			{
 				return !obj->getAlwaysOnTop();
 			}
 		};
 	};
 
-	typedef boost::intrusive_ptr<BaseWindow> WindowPtr;
+	typedef boost::intrusive_ptr<base_window> window_ptr;
 
 	template <typename T> struct window_caster
 	{
-		static T* apply (BaseWindow* w)
+		static T* apply (base_window* w)
 		{
 			return dynamic_cast <T*> (w);
 		}

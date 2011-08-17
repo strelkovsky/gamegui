@@ -3,11 +3,11 @@
 
 namespace gui
 {
-	class  Tooltip : public BaseWindow
+	class  Tooltip : public base_window
 	{
 	public:
 		typedef Tooltip Self;
-		Tooltip(System& sys, const std::string& name = "");
+		Tooltip(System& sys, const std::string& name = std::string());
 		virtual ~Tooltip(void);
 
 		static const char* GetType() { return "Tooltip"; }
@@ -25,8 +25,7 @@ namespace gui
 		void setFadeIn(float f) { m_fadein = f; }
 		void setFadeOut(float f) { m_fadeout = f; }
 
-	protected:
-		
+	protected:		
 		float	m_fadein;
 		float	m_fadeout;
 	};

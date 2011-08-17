@@ -1,14 +1,14 @@
 #pragma once
-#include "cbutton.h"
+
+#include "button.h"
 
 namespace gui
 {
-
-	class  Slider : public BaseWindow
+	class Slider : public base_window
 	{
 	public:
 		typedef Slider Self;
-		Slider(System& sys, const std::string& name = "");
+		Slider(System& sys, const std::string& name = std::string());
 		virtual ~Slider();
 
 		static const char* GetType() { return "Slider"; }
@@ -48,7 +48,7 @@ namespace gui
 	{
 	public:
 		typedef ScrollBar Self;
-		ScrollBar(System& sys, const std::string& name = "");
+		ScrollBar(System& sys, const std::string& name = std::string());
 		virtual ~ScrollBar();
 
 		static const char* GetType() { return "ScrollBar"; }

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "cslider.h"
+
+#include "slider.h"
 
 #include "system.h"
 #include "eventtypes.h"
@@ -11,7 +12,7 @@ namespace gui
 {
 
 	Slider::Slider(System& sys, const std::string& name) : 
-		BaseWindow(sys, name),
+		base_window(sys, name),
 		m_thumb(0),
 		m_pos(0.f),
 		m_step(0.f),
@@ -52,7 +53,7 @@ namespace gui
 
 	bool Slider::onLoad(void)
 	{
-		WindowPtr thumb = findChild("thumb");
+		window_ptr thumb = child("thumb");
 		if(thumb)
 		{
 			m_thumb = dynamic_cast<Thumb*>(thumb.get());
@@ -63,14 +64,14 @@ namespace gui
 			}
 		}
 
-		return BaseWindow::onLoad();
+		return base_window::onLoad();
 	}
 
 	bool Slider::onSized(bool update)
 	{
 		updateThumb();
 
-		return BaseWindow::onSized();
+		return base_window::onSized();
 	}
 
 	void Slider::updateThumb()
@@ -98,7 +99,7 @@ namespace gui
 
 	void Slider::init(xml::node& node)
 	{
-		BaseWindow::init(node);
+		base_window::init(node);
 	}
 
 	ScrollBar::ScrollBar(System& sys, const std::string& name) : 
@@ -117,18 +118,18 @@ namespace gui
 
 	bool ScrollBar::onLoad(void)
 	{
-		WindowPtr child = findChild("dec");
-		if(child)
+		window_ptr c = child("dec");
+		if(c)
 		{
-			m_decBtn = dynamic_cast<Button*>(child.get());
+			m_decBtn = dynamic_cast<Button*>(c.get());
 			if(m_decBtn)
 				subscribe<events::ClickEvent, ScrollBar> (&ScrollBar::onDecClick, m_decBtn);
 		}
 		
-		child = findChild("inc");
-		if(child)
+		c = child("inc");
+		if(c)
 		{
-			m_incBtn = dynamic_cast<Button*>(child.get());
+			m_incBtn = dynamic_cast<Button*>(c.get());
 			if(m_incBtn)
 				subscribe<events::ClickEvent, ScrollBar> (&ScrollBar::onIncClick, m_incBtn);
 		}

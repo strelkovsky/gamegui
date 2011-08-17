@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="windows-1251"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9,00"
+	Version="9.00"
 	Name="guilib"
 	ProjectGUID="{05E7E63D-01BF-4586-9215-D56FA02B2223}"
 	RootNamespace="guilib"
@@ -366,10 +366,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\src\renderCallback.h"
-				>
-			</File>
-			<File
 				RelativePath=".\src\renderer.cpp"
 				>
 			</File>
@@ -453,110 +449,110 @@
 					>
 				</File>
 				<Filter
-					Name="regular"
+					Name="common"
 					>
 					<File
-						RelativePath=".\src\cbutton.cpp"
+						RelativePath=".\src\button.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cbutton.h"
+						RelativePath=".\src\button.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cchatwindow.cpp"
+						RelativePath=".\src\chatwindow.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cchatwindow.h"
+						RelativePath=".\src\chatwindow.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\ccheckbox.cpp"
+						RelativePath=".\src\checkbox.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\ccheckbox.h"
+						RelativePath=".\src\checkbox.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\ccombobox.cpp"
+						RelativePath=".\src\combobox.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\ccombobox.h"
+						RelativePath=".\src\combobox.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\ceditbox.cpp"
+						RelativePath=".\src\editbox.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\ceditbox.h"
+						RelativePath=".\src\editbox.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cframewindow.cpp"
+						RelativePath=".\src\framewindow.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cframewindow.h"
+						RelativePath=".\src\framewindow.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\clist.cpp"
+						RelativePath=".\src\imagebox.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\clist.h"
+						RelativePath=".\src\imagebox.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cmarkuptext.cpp"
+						RelativePath=".\src\label.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cmarkuptext.h"
+						RelativePath=".\src\label.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cprogress.cpp"
+						RelativePath=".\src\list.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cprogress.h"
+						RelativePath=".\src\list.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cscrollpane.cpp"
+						RelativePath=".\src\markuptext.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cscrollpane.h"
+						RelativePath=".\src\markuptext.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cslider.cpp"
+						RelativePath=".\src\progress.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cslider.h"
+						RelativePath=".\src\progress.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cstaticimage.cpp"
+						RelativePath=".\src\scrollpane.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cstaticimage.h"
+						RelativePath=".\src\scrollpane.h"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cstatictext.cpp"
+						RelativePath=".\src\slider.cpp"
 						>
 					</File>
 					<File
-						RelativePath=".\src\cstatictext.h"
+						RelativePath=".\src\slider.h"
 						>
 					</File>
 				</Filter>
@@ -622,10 +618,6 @@
 				</File>
 				<File
 					RelativePath=".\src\base.h"
-					>
-				</File>
-				<File
-					RelativePath=".\src\log.h"
 					>
 				</File>
 			</Filter>

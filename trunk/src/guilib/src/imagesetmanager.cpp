@@ -69,7 +69,7 @@ namespace gui
 			xml::node texsnode = imgset->child("Textures");
 			if(!texsnode)
 			{
-				sys.logEvent(LogWarning, std::string("The imageset ")
+				sys.logEvent(log::warning, std::string("The imageset ")
 					+ name + " doesn't have any texture information. Imageset is unaffected");
 				return false;
 			}
@@ -77,7 +77,7 @@ namespace gui
 			xml::node imgsnode = imgset->child("Images");
 			if(!imgsnode)
 			{
-				sys.logEvent(LogWarning, std::string("The imageset ")
+				sys.logEvent(log::warning, std::string("The imageset ")
 					+ name + " doesn't have any image information. Imageset is unaffected");
 				return false;
 			}
@@ -106,7 +106,7 @@ namespace gui
 						}
 						else
 						{
-							sys.logEvent(LogWarning, std::string("The imageset ")
+							sys.logEvent(log::warning, std::string("The imageset ")
 								+ name + " unable to load texture '" + texname + "', file '"
 								+ filename + "'.");
 						}
@@ -162,7 +162,7 @@ namespace gui
 							}
 							else
 							{
-								sys.logEvent(LogWarning, std::string("The imageset ")
+								sys.logEvent(log::warning, std::string("The imageset ")
 									+ name + " can't find texture '" + texname + "' for the image '"
 									+ imgname + "'.");
 							}
@@ -176,7 +176,7 @@ namespace gui
 					}
 					else
 					{
-						sys.logEvent(LogWarning, std::string("The imageset ")
+						sys.logEvent(log::warning, std::string("The imageset ")
 							+ name + " can't find any rectangles for the image '"
 							+ imgname + "'. Skipping this image...");
 					}
@@ -199,7 +199,7 @@ namespace gui
 
 	const Image* Imageset::GetImageByIdx(size_t idx) const
 	{
-		if(idx < GetImageCount())
+		if(idx < ImagesCount())
 		{
 			Images::const_iterator it = m_images.begin();
 			std::advance(it, idx);

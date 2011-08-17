@@ -9,7 +9,7 @@
 namespace gui
 {
 	Panel::Panel(System& sys, const std::string& name) :
-		BaseWindow(sys, name),
+		base_window(sys, name),
 		m_backImg(0),
 		m_topImg(0),
 		m_toplImg(0),
@@ -198,7 +198,7 @@ namespace gui
 
 	void Panel::init(xml::node& node)
 	{
-		BaseWindow::init(node);
+		base_window::init(node);
 
 		xml::node frame = node("FrameImagery");
 		if(!frame.empty())

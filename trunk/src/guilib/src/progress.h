@@ -1,5 +1,6 @@
 #pragma once
-#include "cstatictext.h"
+
+#include "label.h"
 
 namespace gui
 {
@@ -7,11 +8,11 @@ namespace gui
 	class Imageset;
 	typedef boost::shared_ptr<Imageset> ImagesetPtr;
 
-	class  Progress : public StaticText
+	class Progress : public Label
 	{
 	public:
 		typedef Progress Self;
-		Progress(System& sys, const std::string& name = "");
+		Progress(System& sys, const std::string& name = std::string());
 		virtual ~Progress();
 
 		static const char* GetType() { return "Progress"; }
@@ -36,7 +37,7 @@ namespace gui
 	{
 	public:
 		typedef ProgressBar Self;
-		ProgressBar(System& sys, const std::string& name = "");
+		ProgressBar(System& sys, const std::string& name = std::string());
 		virtual ~ProgressBar();
 
 		static const char* GetType() { return "ProgressBar"; }
@@ -62,7 +63,7 @@ namespace gui
 	{
 	public:
 		typedef ImageBar Self;
-		ImageBar(System& sys, const std::string& name = "");
+		ImageBar(System& sys, const std::string& name = std::string());
 		virtual ~ImageBar(void);
 
 		static const char* GetType() { return "ImageBar"; }

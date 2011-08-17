@@ -1,5 +1,6 @@
 #include "StdAfx.h"
-#include "cbutton.h"
+
+#include "button.h"
 
 #include "system.h"
 #include "windowmanager.h"
@@ -11,7 +12,7 @@ namespace gui
 {
 
 Button::Button(System& sys, const std::string& name) :
-	StaticText(sys, name),
+	Label(sys, name),
 	m_pushed(false),
 	m_hovered(false)
 {
@@ -25,14 +26,14 @@ bool Button::onMouseEnter(void)
 {
 	invalidate();
 	m_hovered = true;
-	return StaticText::onMouseEnter();
+	return Label::onMouseEnter();
 }
 
 bool Button::onMouseLeave(void)
 {
 	invalidate();
 	m_hovered = false;
-	return StaticText::onMouseLeave();
+	return Label::onMouseLeave();
 }
 
 bool Button::onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState state)
@@ -62,13 +63,13 @@ bool Button::onMouseButton(EventArgs::MouseButtons btn, EventArgs::ButtonState s
 			invalidate();
 		}
 	}
-	StaticText::onMouseButton(btn, state);
+	Label::onMouseButton(btn, state);
 	return true;
 }
 
 bool Button::onKeyboardButton(EventArgs::Keys key, EventArgs::ButtonState state)
 {
-	StaticText::onKeyboardButton(key, state);
+	Label::onKeyboardButton(key, state);
 
 	switch(key)
 	{
@@ -160,12 +161,12 @@ void Button::render(const Rect& finalRect, const Rect& finalClip)
         r.draw(*state.backImg, componentRect, 1.f, finalClip,  m_backColor, Tile, Stretch);
     }
 
-	StaticText::render(finalRect, finalClip);	
+	Label::render(finalRect, finalClip);	
 }
 
 void Button::init(xml::node& node)
 {
-	StaticText::init(node);
+	Label::init(node);
 
 	xml::node frame = node("FrameImagery");
 	if(!frame.empty())
@@ -225,7 +226,7 @@ void ImageButton::render(const Rect& finalRect, const Rect& finalClip)
 
 void ImageButton::init(xml::node& node)
 {
-	StaticText::init(node);
+	Label::init(node);
 
 	xml::node frame = node("StateImagery");
 	if(!frame.empty())
