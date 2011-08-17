@@ -55,24 +55,22 @@ namespace gui
 
 	void Label::render(const Rect& finalRect, const Rect& finalClip)
 	{
-		if(m_font)
+		if(!m_font) return;
+
+		Rect rc(finalRect);
+		if(m_centred)
 		{
-			Rect rc(finalRect);
-			if(m_centred)
-			{
-				size_t count = m_font->getFormattedLineCount(m_text, finalRect, m_format);
-				float height = m_font->getLineSpacing() * (float)count;
-				float offset = (finalRect.getHeight() - height) / 2;
-				rc.offset(point(0.f, offset));
-			}
-			m_font->drawText(m_text, rc, 1.0f, finalClip, m_format, m_foreColor, 1.f, 1.f);
+			size_t count = m_font->getFormattedLineCount(m_text, rc, m_format);
+			float height = m_font->getLineSpacing() * count;
+			float offset = (rc.getHeight() - height) / 2;
+			rc.offset(point(0.f, offset));
 		}
+		m_font->drawText(m_text, rc, 1.f, finalClip, m_format, m_foreColor, 1.f, 1.f);
 	}
 
 	void Label::setFont(const std::string& font)
 	{
-		if(font.empty())
-			return;
+		if(font.empty()) return;
 
 		m_font = m_system.getWindowManager().loadFont(font);
 		if(m_font)
