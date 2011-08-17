@@ -61,36 +61,19 @@ namespace gui
 		void SetPosition(const point& point);
 		void SetVisible(bool visible) {base_window::setVisible(visible);}
 
+		void SetMaxWidth(float value)  { m_maxWidth = value; }
+		void SetMinWidth(float value)  { m_minWidth = value; }
 
-		void SetMaxWidth(float value) 
-		{
-			m_maxWidth = value;
-		}
-
-		void SetMinWidth(float value) 
-		{
-			m_minWidth = value;
-		}
-
-		void SetMaxHeight(float value) 
-		{
-			m_maxHeight = value;
-		}
-
-		void SetMinHeight(float value) 
-		{
-			m_minHeight = value;
-		}
+		void SetMaxHeight(float value)  { m_maxHeight = value; }
+		void SetMinHeight(float value)  { m_minHeight = value; }
 
 		void SetTextOffset(float x, float y)
 		{
 			m_textOffsetX = x;
 			m_textOffsetY = y;
 		}
-		void SetShowingTime(float time)
-		{
-			m_fMaxShowingTime = time;
-		}
+		void SetShowingTime(float time) { m_fMaxShowingTime = time; }
+
 	protected:
 		ImagesetPtr m_imgset;
 		FontPtr m_font;
@@ -110,7 +93,6 @@ namespace gui
 
 		bool m_movable;
 		bool m_clampToScreen;
-
 		
 		EndCallback m_endCallback;
 

@@ -309,7 +309,6 @@ void System::makeLuaBinding(void)
 			.property("step", &Slider::getStepSize, &Slider::setStepSize)
 			.def("getStepSize", &Slider::getStepSize)
 			.def("setStepSize", &Slider::setStepSize)
-			.property("uservalue", &Slider::getUserValue, &Slider::setUserValue)
 			,
 			class_ <ScrollBar, bases<Slider> >("ScrollBar")			
 			,

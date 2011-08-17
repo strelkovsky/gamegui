@@ -289,8 +289,8 @@ namespace gui
 		float diff = cursor - width;
 		if(diff > 0.f)
 		{
-			// если вылазим за пределы едитбокса,
-			// двигаем таким образом, чтобы курсор был виден
+			// if we out of widget rect
+			// move text cursor to be visible
 			if(m_editOffset > -diff)
 			{
 				m_editOffset = -diff;
@@ -360,78 +360,77 @@ namespace gui
 			r.draw(*m_backImg, componentRect, 1.f, finalClip,  m_backColor, Tile, Stretch);
 		}
 
+		if(!m_font) return;
+
 		//TODO: draw separately selected and unselected text
-		if(m_font)
+		Rect dest(finalRect);
+		dest.m_top += 1.f;
+		dest.m_bottom -= 1.f;
+
+		std::wstring outtext(m_wtext);
+		if(m_password)
+			outtext.assign(outtext.length(), m_maskChar);
+		
+		Rect clip(finalClip);
+		
+		dest.setWidth(m_font->getFormattedTextExtent(outtext, Rect(), m_format));
+		dest.offset(point(m_editOffset, 0.f));
+		dest.offset(point(4.f, 0.f));
+
+		clip.setWidth(finalClip.getWidth() - 6.f);
+		clip.offset(point(4.f, 0.f));
+		clip.m_top += 1.f;
+		clip.m_bottom -= 1.f;
+
+		// selection
+		if(m_selectionEnd != m_selectionStart)
 		{
-			Rect dest(finalRect);
-			dest.m_top += 1.f;
-			dest.m_bottom -= 1.f;
-
-			std::wstring outtext(m_wtext);
-			if(m_password)
-				outtext.assign(outtext.length(), m_maskChar);
-			
-			Rect clip(finalClip);
-			
-			dest.setWidth(m_font->getFormattedTextExtent(outtext, Rect(), m_format));
-			dest.offset(point(m_editOffset, 0.f));
-			dest.offset(point(4.f, 0.f));
-
-			clip.setWidth(finalClip.getWidth() - 6.f);
-			clip.offset(point(4.f, 0.f));
-			clip.m_top += 1.f;
-			clip.m_bottom -= 1.f;
-
-			// selection
-			if(m_selectionEnd != m_selectionStart)
+			float starts = 0.f;
+			float stops = 0.f;
+			if(m_selectionStart > 0)
 			{
-				float starts = 0.f;
-				float stops = 0.f;
-				if(m_selectionStart > 0)
-				{
-					std::wstring tmp = outtext.substr(0, m_selectionStart);
-					starts = m_font->getFormattedTextExtent(tmp, Rect(), m_format);
-				}
-				std::wstring tmp1 = outtext.substr(0, m_selectionEnd);
-				stops = m_font->getFormattedTextExtent(tmp1, Rect(), m_format);
+				std::wstring tmp = outtext.substr(0, m_selectionStart);
+				starts = m_font->getFormattedTextExtent(tmp, Rect(), m_format);
+			}
+			std::wstring tmp1 = outtext.substr(0, m_selectionEnd);
+			stops = m_font->getFormattedTextExtent(tmp1, Rect(), m_format);
+			
+			if(m_selectImg)
+			{
+				imgSize = m_selectImg->GetSize();
 				
-				if(m_selectImg)
-				{
-					imgSize = m_selectImg->GetSize();
-					
-					Rect selrect(dest);
-					selrect.m_left += starts;
-					selrect.m_right = dest.m_left + stops;
-					selrect.setHeight(imgSize.height);
-					
-					r.draw(*m_selectImg, selrect, 1.f, finalClip,  m_backColor, Tile, Stretch);
-				}
+				Rect selrect(dest);
+				selrect.m_left += starts;
+				selrect.m_right = dest.m_left + stops;
+				selrect.setHeight(imgSize.height);
+				
+				r.draw(*m_selectImg, selrect, 1.f, finalClip,  m_backColor, Tile, Stretch);
 			}
+		}
 
+		{
+			Rect rc(dest);
+			float height = m_font->getLineSpacing();
+			float offset = (rc.getHeight() - height) / 2;
+			rc.offset(point(0.f, offset));
+
+			m_font->drawText(outtext, rc, 1.0f, clip, m_format, m_foreColor, 1.f, 1.f);
+		}	
+
+		if(m_caretImg && m_focus && !m_readOnly)
+		{
+			float x = 0.f;
+			if(m_caretPos)
 			{
-				Rect rc(dest);
-				float height = m_font->getLineSpacing();
-				float offset = (finalRect.getHeight() - height) / 2;
-				rc.offset(point(0.f, offset));
-
-				m_font->drawText(outtext, rc, 1.0f, clip, m_format, m_foreColor, 1.f, 1.f);
-			}	
-
-			if(m_caretImg && m_focus && !m_readOnly)
-			{
-				float x = 0.f;
-				if(m_caretPos)
-				{
-					std::wstring tmp = outtext.substr(0, m_caretPos);
-					x = m_font->getFormattedTextExtent(tmp, Rect(), m_format);
-				}
-				imgSize = m_caretImg->GetSize();
-				Rect caretrect(dest);
-				caretrect.m_left += x;
-				caretrect.setSize(imgSize);
-				caretrect.offset(point(0.f, 2.f));
-				r.draw(*m_caretImg, caretrect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
+				std::wstring tmp = outtext.substr(0, m_caretPos);
+				x = m_font->getFormattedTextExtent(tmp, Rect(), m_format);
 			}
+			imgSize = m_caretImg->GetSize();
+			Rect caretrect(dest);
+			caretrect.m_left += x;
+			caretrect.setSize(imgSize);
+			caretrect.offset(point(0.f, 2.f));
+			r.draw(*m_caretImg, caretrect, 1.f, finalClip,  m_backColor, Stretch, Stretch);
 		}
 	}
 

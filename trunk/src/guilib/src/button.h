@@ -20,6 +20,7 @@ namespace gui
 
 		struct StateImagery
 		{
+			//TODO: add color
 			const Image* backImg;
 			const Image* leftImg;
 			const Image* rightImg;

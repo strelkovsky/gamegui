@@ -23,9 +23,6 @@ namespace gui
 		float getDocumentSize() const;
 		void setDocumentSize(float p);
 
-		float getUserValue() const { return m_user; }
-		void setUserValue(float p) { m_user = p; }
-
 		virtual bool onLoad();
 		virtual bool onSized(bool update = true);
 		virtual void init(xml::node& node);
@@ -40,8 +37,6 @@ namespace gui
 		float m_pos;
 		float m_doc;
 		float m_step;
-		float m_user;
-
 	};
 
 	class  ScrollBar : public Slider
