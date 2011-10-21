@@ -70,8 +70,7 @@ WindowManager::~WindowManager(void)
 
 void WindowManager::reset(bool complete)
 {
-	if(complete)
-	{
+	if(complete){
 		m_defaultImageset.reset();
 		m_defaultFont.reset();
 		m_imagesetRegistry.clear();
@@ -170,7 +169,7 @@ FontPtr WindowManager::loadFont(const std::string& name)
 	FontPtr font = createFont(name + ".font");
 	if(font)
 	{
-		m_system.logEvent(log::system, std::string("The font ") + name + " succefuly loaded.");
+		m_system.logEvent(log::system, std::string("The font ") + name + " successfully loaded.");
 		m_fontRegistry[name] = font;
 		return font;
 	}

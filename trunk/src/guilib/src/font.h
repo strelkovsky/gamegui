@@ -89,9 +89,7 @@ namespace gui
 		bool isCodepointAvailable (utf32 cp) const
 		{ 
 			CodepointMapIndex::const_iterator it = m_cp_map_index.find(cp);
-			if(it != m_cp_map_index.end())
-				return (it->second != m_cp_map.end()); 
-			return false;
+			return (it != m_cp_map_index.end()) ? it->second != m_cp_map.end() : false;
 		}
 
 		size_t drawText (const std::string& text, const Rect& draw_area, float z, const Rect& clip_rect, TextFormatting fmt, const ColorRect& colours, float x_scale = 1.0f, float y_scale = 1.0f);

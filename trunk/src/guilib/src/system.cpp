@@ -80,9 +80,8 @@ void System::reset(bool complete)
 	m_dragfired = false;
 	m_dragfreeze = false;
 
-	base_window* rootWindow = new (std::nothrow) base_window(*this, "systemroot");
-	m_rootWindow = rootWindow;
-	if(!rootWindow)
+	m_rootWindow = new (std::nothrow) base_window(*this, "systemroot");	
+	if(!m_rootWindow)
 		throw std::exception("Couldn't create root window!");
 
 	DragContainer* drag = new (std::nothrow) DragContainer(*this, "systemdrag");
@@ -107,12 +106,12 @@ void System::reset(bool complete)
 	
 	menu->reset();
 
-	rootWindow->setArea(Rect(point(0.f, 0.f), m_render.getSize())); // full window area
-	rootWindow->setVisible(true);
-	rootWindow->add(m_dragContainer);
-	rootWindow->add(m_tooltipWindow);
-	rootWindow->add(m_menuWindow);
-	rootWindow->setAcceptDrop(true);
+	m_rootWindow->setArea(Rect(point(.0f, .0f), m_render.getSize())); // full window area
+	m_rootWindow->setVisible(true);
+	m_rootWindow->add(m_dragContainer);
+	m_rootWindow->add(m_tooltipWindow);
+	m_rootWindow->add(m_menuWindow);
+	m_rootWindow->setAcceptDrop(true);
 	
 	logEvent(log::system, "Gui subsystem is ready");
 }
@@ -137,39 +136,33 @@ Menu* System::getMenu() const
 	return static_cast<Menu*>(m_menuWindow.get()); 
 }
 
-base_window*	System::createWindow(base_window* parent, const std::string& name, const std::string& type)
+base_window* System::createWindow(base_window* parent, const std::string& name, const std::string& type)
 {
-	window_ptr p;
-	if(parent)
-	{
-		p = m_windowMgr->createWindow(type, name);
-		if(p)
-			parent->add(p);
-	}
+	if(!parent) return NULL;
+
+	window_ptr p = m_windowMgr->createWindow(type, name);
+	if(!p) return NULL;
+
+	parent->add(p);
 	return p.get();
 }
 
-base_window*	System::loadXml(base_window& parent, const std::string& filename)
+base_window* System::loadXml(base_window& parent, const std::string& filename)
 {
 	window_ptr p = loadXml_(filename);
-	if(p)
-	{
-		assert(!p->getParent() && "This window must be parentless!");
-		parent.add(p);
-		return p.get();
-	}
-	return 0;
-	
+	if(!p) return NULL;
+
+	assert(!p->getParent() && "This window must be parentless!");
+	parent.add(p);
+	return p.get();	
 }
 base_window*	System::loadXml(const std::string& filename)
 {
 	window_ptr p = loadXml_(filename);
-	if(p)
-	{
-		assert(p.get() == &getRootWindow()  && "This window must have the root window as a parent!");
-		return p.get();
-	}
-	return 0;	
+	if(!p) return NULL;
+
+	assert(p.get() == &getRootWindow()  && "This window must have the root window as a parent!");
+	return p.get();
 }
 
 window_ptr System::loadXml_(const std::string& filename)
@@ -249,9 +242,9 @@ bool System::handleMouseMove(int x, int y)
 	{
 		if(m_dragging && m_dragWindow != 0)
 		{
-			if(m_captureWindow)
-				m_captureWindow = 0; // молча снимаем capture поскольку в данной ситуации оно лишнее
-			
+			// молча снимаем capture поскольку в данной ситуации оно лишнее
+			if(m_captureWindow) m_captureWindow = 0; 
+
 			if(!m_dragfired)
 			{
 				point t = m_cursor.getPosition() - m_dragOffset;
@@ -453,10 +446,8 @@ bool System::handleMouseDouble(EventArgs::MouseButtons btn)
 				return true;
 			target = const_cast<base_window*>(target->getParent());
 		}
-	}
-	
+	}	
 	return false;
-
 }
 
 base_window* getTabstopWindow(base_window::children_list& list)
@@ -469,8 +460,7 @@ base_window* getTabstopWindow(base_window::children_list& list)
 		if(!(*i)->isTabStop())
 		{
 			ret = getTabstopWindow((*i)->getChildren());
-			if(ret)
-				break;
+			if(ret) break;
 		}
 		else
 		{
@@ -507,14 +497,13 @@ bool System::handleChar(unsigned int code)
 	if(m_exclusiveInputWindow)
 		return m_exclusiveInputWindow->onChar((const wchar_t*)&code);
 
-	if(m_focusWindow)
-	{
-		if(code > 31) // skip ctrl codes
-			return m_focusWindow->onChar((const wchar_t*)&code);
-		else
-			return true;
-	}
-	return false;
+	if(!m_focusWindow)
+		return false;
+
+	if(code <= 31) // skip ctrl codes
+		return true;
+
+	return m_focusWindow->onChar((const wchar_t*)&code);	
 }
 
 void System::handleViewportChange()
