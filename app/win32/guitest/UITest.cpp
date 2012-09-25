@@ -65,64 +65,7 @@ public:
 
 gui_log g_log;
 
-class gui_filesystem : public gui::filesystem
-{
-public:
-	gui_filesystem(core::vfs::system& fs, const std::string& basedir) 
-		: m_fs(fs), m_basedir(basedir) {		
-	}
-
-	~gui_filesystem() {
-	}
-
-	virtual std::string load_text(const std::string& filename) 	{
-		std::string out;
-
-		core::vfs::istream_ptr f = m_fs.open_read(m_basedir + filename);
-
-		if (!f) return out;
-
-		size_t size = f->get_size();
-
-		if (size == 0) return out;
-
-		out.resize(size);
-
-		f->read((rgde::byte*)&out[0], size);
-
-		return out;
-	}
-
-	virtual data_ptr load_binary(const std::string& filename) {
-		static data zero_data = {0};
-
-		data_ptr out(new data);
-		*out = zero_data;
-
-		char dir[256];
-		GetCurrentDirectoryA(256, dir);
-
-		core::vfs::istream_ptr f = m_fs.open_read(m_basedir + filename);
-
-		if (!f) return out;
-
-		size_t size = f->get_size();
-
-		if (size == 0) return out;
-
-		out->ptr = new char[size];
-		out->size = size;
-
-		f->read((rgde::byte*)out->ptr, out->size);
-
-		return out;
-	}
-
-protected:
-	core::vfs::system& m_fs;
-	std::string m_basedir;
-};
-
+#include "../common/gui_filesystem.h"
 
 ui_test_application::ui_test_application(int x, int y, int w, int h, const std::wstring& title)
 	: m_render(NULL)
@@ -234,24 +177,23 @@ void ui_test_application::render()
 	{		
 		//m_font->drawText("THE", gui::Rect(20,20,200,200), 1.f);
 
+		//gui::Renderer& r = m_system->getRenderer();
+		//struct vec2 {float x, y;};
+		//vec2 points[] = 
+		//{
+		//	{0,50}, 
+		//	{70,50}, 
+		//	{80,90},
+		//	{110,0},
+		//	{130,60},
+		//	{150,50},
+		//	{260,50},
+		//};
 
-		gui::Renderer& r = m_system->getRenderer();
-		struct vec2 {float x, y;};
-		vec2 points[] = 
-		{
-			{0,50}, 
-			{70,50}, 
-			{80,90},
-			{110,0},
-			{130,60},
-			{150,50},
-			{260,50},
-		};
+		//gui::Imageset* imageset = m_system->getWindowManager().getImageset("skin");
+		//const gui::Image* img = imageset->GetImage("Background");
 
-		gui::Imageset* imageset = m_system->getWindowManager().getImageset("skin");
-		const gui::Image* img = imageset->GetImage("Background");
-
-		r.drawLine(*img, (gui::vec2*)points, 7, 1, gui::Rect(0,0,400,400), 0xFFFF0F0F, 7);
+		//r.drawLine(*img, (gui::vec2*)points, 7, 1, gui::Rect(0,0,400,400), 0xFFFF0F0F, 7);
 
 		m_system->render();
 	}

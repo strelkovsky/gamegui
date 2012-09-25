@@ -122,14 +122,18 @@ void TestWindow::run()
 	}
 }
 
+#include "../common/gui_filesystem.h"
+
 void TestWindow::createGUISystem()
 {
 	if (m_render) delete m_render;
 	if(m_system) delete m_system;
 
-	m_render = gui::rgde_platform::CreateRenderer(m_render_device, m_filesystem, 1024);
+	filesystem_ptr fs(new gui_filesystem(m_filesystem, "/"));
+
+	m_render = gui::rgde_platform::CreateRenderer(m_render_device, fs, 1024);
 	assert(m_render && "Can't create GUI renderer!");
-	m_system = new gui::System(*m_render, "data/", "default", m_state);
+	m_system = new gui::System(*m_render, "default", m_state);
 	assert(m_system && "Can't create GUI System!");
 
 	//::ShowCursor(FALSE);
