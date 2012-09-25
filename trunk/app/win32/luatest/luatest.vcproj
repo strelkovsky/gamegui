@@ -181,6 +181,14 @@
 	<References>
 	</References>
 	<Files>
+		<Filter
+			Name="common"
+			>
+			<File
+				RelativePath="..\common\gui_filesystem.h"
+				>
+			</File>
+		</Filter>
 		<File
 			RelativePath=".\luatest.cpp"
 			>
